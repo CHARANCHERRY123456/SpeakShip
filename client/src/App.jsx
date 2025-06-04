@@ -1,35 +1,31 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import './App.css';
+import Navbar from './components/Navbar';
+import OrdersPage from './features/orders/pages';
+import TrackPage from './features/track/pages';
+import FeedbackPage from './features/feedback/pages';
+import VoicePage from './features/voice/pages';
+import LoginPage from './features/auth/pages';
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div className="min-h-screen bg-gray-50">
+      <Router>
+        <Navbar />
+        <main className="max-w-5xl mx-auto w-full px-4 py-8">
+          <Routes>
+            <Route path="/orders" element={<OrdersPage />} />
+            <Route path="/track" element={<TrackPage />} />
+            <Route path="/feedback" element={<FeedbackPage />} />
+            <Route path="/voice" element={<VoicePage />} />
+            <Route path="/login" element={<LoginPage />} />
+            {/* Add more routes as needed */}
+          </Routes>
+        </main>
+      </Router>
+    </div>
+  );
 }
 
-export default App
+export default App;
