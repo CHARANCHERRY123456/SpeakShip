@@ -1,8 +1,7 @@
 import React from 'react';
-import { Mail, Lock, Eye, EyeOff, User, MapPin } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, User, MapPin, Tag, Phone } from 'lucide-react'; // Added Tag and Phone icons
 
 // UI components specific to authentication (e.g., LoginForm, RegisterForm).
-// Add and export authentication-related components here.
 
 export function RoleSelect({ value, onChange }) {
   return (
@@ -27,6 +26,34 @@ export function RoleSelect({ value, onChange }) {
   );
 }
 
+// NEW COMPONENT: Username Input
+export function UsernameInput({ value, onChange, error }) {
+  return (
+    <div>
+      <label htmlFor="username" className="sr-only">Username</label>
+      <div className="relative">
+        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+          <User className="h-5 w-5 text-gray-400" aria-hidden="true" />
+        </div>
+        <input
+          type="text"
+          name="username"
+          id="username"
+          autoComplete="username"
+          required
+          className={`block w-full rounded-lg border border-gray-300 py-3 pl-10 pr-3 text-gray-900 placeholder-gray-400 focus:border-sky-500 focus:outline-none focus:ring-sky-500 sm:text-sm font-inter ${
+            error ? 'border-red-500 focus:ring-red-500' : ''
+          }`}
+          placeholder="Username"
+          value={value}
+          onChange={onChange}
+        />
+      </div>
+      {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
+    </div>
+  );
+}
+
 export function EmailInput({ value, onChange, error }) {
   return (
     <div>
@@ -43,7 +70,9 @@ export function EmailInput({ value, onChange, error }) {
           required
           value={value}
           onChange={onChange}
-          className="block w-full rounded-lg border border-gray-300 py-3 pl-10 pr-3 text-gray-900 placeholder-gray-400 focus:border-sky-500 focus:outline-none focus:ring-sky-500 sm:text-sm font-inter"
+          className={`block w-full rounded-lg border border-gray-300 py-3 pl-10 pr-3 text-gray-900 placeholder-gray-400 focus:border-sky-500 focus:outline-none focus:ring-sky-500 sm:text-sm font-inter ${
+            error ? 'border-red-500 focus:ring-red-500' : ''
+          }`}
           placeholder="Email address"
         />
       </div>
@@ -68,7 +97,9 @@ export function PasswordInput({ value, onChange, error, show, onToggle }) {
           required
           value={value}
           onChange={onChange}
-          className="block w-full rounded-lg border border-gray-300 py-3 pl-10 pr-3 text-gray-900 placeholder-gray-400 focus:border-sky-500 focus:outline-none focus:ring-sky-500 sm:text-sm font-inter"
+          className={`block w-full rounded-lg border border-gray-300 py-3 pl-10 pr-3 text-gray-900 placeholder-gray-400 focus:border-sky-500 focus:outline-none focus:ring-sky-500 sm:text-sm font-inter ${
+            error ? 'border-red-500 focus:ring-red-500' : ''
+          }`}
           placeholder="Password"
         />
         <button
@@ -84,6 +115,63 @@ export function PasswordInput({ value, onChange, error, show, onToggle }) {
   );
 }
 
+// NEW COMPONENT: Name Input
+export function NameInput({ value, onChange, error }) {
+  return (
+    <div>
+      <label htmlFor="name" className="sr-only">Full Name</label>
+      <div className="relative">
+        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+          <Tag className="h-5 w-5 text-gray-400" aria-hidden="true" />
+        </div>
+        <input
+          type="text"
+          name="name"
+          id="name"
+          autoComplete="name"
+          required
+          className={`block w-full rounded-lg border border-gray-300 py-3 pl-10 pr-3 text-gray-900 placeholder-gray-400 focus:border-sky-500 focus:outline-none focus:ring-sky-500 sm:text-sm font-inter ${
+            error ? 'border-red-500 focus:ring-red-500' : ''
+          }`}
+          placeholder="Full Name"
+          value={value}
+          onChange={onChange}
+        />
+      </div>
+      {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
+    </div>
+  );
+}
+
+// NEW COMPONENT: Phone Input
+export function PhoneInput({ value, onChange, error }) {
+  return (
+    <div>
+      <label htmlFor="phone" className="sr-only">Phone Number</label>
+      <div className="relative">
+        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+          <Phone className="h-5 w-5 text-gray-400" aria-hidden="true" />
+        </div>
+        <input
+          type="tel" // Use type="tel" for phone numbers
+          name="phone"
+          id="phone"
+          autoComplete="tel"
+          required
+          className={`block w-full rounded-lg border border-gray-300 py-3 pl-10 pr-3 text-gray-900 placeholder-gray-400 focus:border-sky-500 focus:outline-none focus:ring-sky-500 sm:text-sm font-inter ${
+            error ? 'border-red-500 focus:ring-red-500' : ''
+          }`}
+          placeholder="Phone Number (e.g., 1234567890)"
+          value={value}
+          onChange={onChange}
+        />
+      </div>
+      {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
+    </div>
+  );
+}
+
+// Keep AddressInput if you plan to use it later, but it's not for initial signup
 export function AddressInput({ value, onChange, error }) {
   return (
     <div>
@@ -100,7 +188,9 @@ export function AddressInput({ value, onChange, error }) {
           required
           value={value}
           onChange={onChange}
-          className="block w-full rounded-lg border border-gray-300 py-3 pl-10 pr-3 text-gray-900 placeholder-gray-400 focus:border-sky-500 focus:outline-none focus:ring-sky-500 sm:text-sm font-inter"
+          className={`block w-full rounded-lg border border-gray-300 py-3 pl-10 pr-3 text-gray-900 placeholder-gray-400 focus:border-sky-500 focus:outline-none focus:ring-sky-500 sm:text-sm font-inter ${
+            error ? 'border-red-500 focus:ring-red-500' : ''
+          }`}
           placeholder="Your address"
         />
       </div>

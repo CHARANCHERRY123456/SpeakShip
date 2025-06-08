@@ -3,42 +3,64 @@ import {
   RoleSelect,
   EmailInput,
   PasswordInput,
-  AddressInput,
+  // AddressInput, // No longer needed for initial signup, consider if needed elsewhere
   ErrorAlert,
   GoogleButton,
   AuthenticatedView,
-} from '../components';
-import { useAuthForm } from '../hooks';
-import { LogIn, UserPlus, ArrowRight } from 'lucide-react';
+  // IMPORT NEW COMPONENTS:
+  UsernameInput,
+  NameInput,
+  PhoneInput,
+} from '../components'; // Make sure this path is correct
+import { useAuthForm } from '../hooks'; // Make sure this path is correct
+import { LogIn, UserPlus, ArrowRight } from 'lucide-react'; // Make sure these icons are imported
 
 function AuthPage() {
   const {
     isLogin,
     setIsLogin,
-    email,
+    // Use username instead of email for login input
+    username, // Now managing username state
+    email,    // Email is only for registration state
     password,
-    address,
+    address, // Still passed from hook, but conditionally rendered in the form if needed
     role,
     showPassword,
     error,
     isAuthenticated,
-    userEmail,
-    userRole,
+    userEmail, // From AuthContext, derived from user object
+    userRole,   // From AuthContext, derived from user object
+    // New fields and their errors
+    name,       // For registration
+    phone,      // For registration
+    usernameError, // For username input validation
     emailError,
     passwordError,
     addressError,
+    nameError,    // For name input validation
+    phoneError,   // For phone input validation
+    // Handlers
     handleEmailChange,
     handlePasswordChange,
     handleAddressChange,
     handleRoleChange,
     handleTogglePassword,
+    // New Handlers
+    handleNameChange,
+    handleUsernameChange,
+    handlePhoneChange,
     handleSubmit,
     handleGoogleSignIn,
     handleSignOut,
     isFormValid,
   } = useAuthForm();
 
+  // If the user is already authenticated, redirect them or show a logged-in view
   if (isAuthenticated) {
+    // You might want to use useNavigate here to redirect to, e.g., the dashboard
+    // import { useNavigate } from 'react-router-dom';
+    // const navigate = useNavigate();
+    // useEffect(() => { navigate('/'); }, [navigate]); // Redirect to home on auth success
     return (
       <AuthenticatedView userEmail={userEmail} userRole={userRole} onSignOut={handleSignOut} />
     );
@@ -56,7 +78,44 @@ function AuthPage() {
         <form onSubmit={handleSubmit} className="mt-8 space-y-6">
           <div className="space-y-4 rounded-md">
             <RoleSelect value={role} onChange={handleRoleChange} />
-            <EmailInput value={email} onChange={handleEmailChange} error={emailError} />
+
+            {/* Username Input - for both login and registration */}
+            <UsernameInput
+              value={username}
+              onChange={handleUsernameChange}
+              error={usernameError}
+            />
+
+            {/* Fields only for Registration */}
+            {!isLogin && (
+              <>
+                <NameInput
+                  value={name}
+                  onChange={handleNameChange}
+                  error={nameError}
+                />
+                <EmailInput // Email is now only for registration, as login uses username
+                  value={email}
+                  onChange={handleEmailChange}
+                  error={emailError}
+                />
+                <PhoneInput
+                  value={phone}
+                  onChange={handlePhoneChange}
+                  error={phoneError}
+                />
+                {/* Remove AddressInput if it's not part of your initial signup */}
+                {/* If you need address later for profile updates, keep the component but remove it here */}
+                {/*
+                <AddressInput
+                    value={address}
+                    onChange={handleAddressChange}
+                    error={addressError}
+                />
+                */}
+              </>
+            )}
+
             <PasswordInput
               value={password}
               onChange={handlePasswordChange}
@@ -64,9 +123,6 @@ function AuthPage() {
               show={showPassword}
               onToggle={handleTogglePassword}
             />
-            {!isLogin && (
-              <AddressInput value={address} onChange={handleAddressChange} error={addressError} />
-            )}
           </div>
           {isLogin && (
             <div className="flex items-center justify-end">
@@ -81,9 +137,9 @@ function AuthPage() {
           )}
           <button
             type="submit"
-            disabled={!isFormValid && (email !== '' || password !== '' || (!isLogin && address !== ''))}
+            disabled={!isFormValid} // Simplified disabled logic
             className={`group relative flex w-full justify-center rounded-lg px-4 py-3 text-sm font-semibold text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${
-              isFormValid || (email === '' && password === '' && (isLogin || address === ''))
+              isFormValid
                 ? 'bg-sky-600 hover:bg-sky-500 focus-visible:ring-sky-500'
                 : 'bg-gray-400 cursor-not-allowed'
             }`}
@@ -102,7 +158,11 @@ function AuthPage() {
         <p className="mt-2 text-sm text-gray-600 text-center font-inter">
           {isLogin ? "Don't have an account? " : "Already have an account? "}
           <button
-            onClick={() => setIsLogin(!isLogin)}
+            onClick={() => {
+              setIsLogin(!isLogin);
+              // You might want to clear form fields/errors here when switching
+              // For example: setEmail(''); setPassword(''); setError(null); etc.
+            }}
             className="font-medium text-sky-600 hover:text-sky-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 font-inter"
           >
             {isLogin ? 'Sign up' : 'Sign in'}
