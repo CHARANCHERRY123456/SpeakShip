@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom"; // Make sure Link is imported
 import { navLinks } from "../../constants/navLinks";
 import VoiceButton from "../VoiceButton";
 import MenuButton from "../MenuButton";
@@ -8,7 +8,7 @@ import { useAuth } from "../../contexts/AuthContext";
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
-  const { isAuthenticated, login, logout } = useAuth();
+  const { isAuthenticated, logout } = useAuth(); // We no longer need 'login' directly here
 
   return (
     <nav className="sticky top-0 z-50 w-full bg-white/90 shadow-md backdrop-blur">
@@ -35,7 +35,8 @@ const Navbar = () => {
             {isAuthenticated ? (
               <button onClick={logout} className="px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-sky-50 hover:text-sky-600">Logout</button>
             ) : (
-              <button onClick={login} className="px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-sky-50 hover:text-sky-600">Login</button>
+              // FIX: Use Link to navigate to the login page
+              <Link to="/login" className="px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-sky-50 hover:text-sky-600">Login</Link>
             )}
           </li>
         </ul>
@@ -65,7 +66,8 @@ const Navbar = () => {
             {isAuthenticated ? (
               <button onClick={() => { logout(); setMenuOpen(false); }} className="px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-sky-50 hover:text-sky-600">Logout</button>
             ) : (
-              <button onClick={() => { login(); setMenuOpen(false); }} className="px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-sky-50 hover:text-sky-600">Login</button>
+              // FIX: Use Link to navigate to the login page for mobile menu as well
+              <Link to="/login" onClick={() => setMenuOpen(false)} className="px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-sky-50 hover:text-sky-600">Login</Link>
             )}
           </li>
         </ul>
