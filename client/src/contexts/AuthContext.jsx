@@ -43,8 +43,8 @@ export const AuthProvider = ({ children }) => {
         throw new Error("Invalid role specified for login.");
       }
 
-      if (responseData.token && (responseData.customer || responseData.driver)) { // Accept both customer and driver
-        const userObj = responseData.customer || responseData.driver;
+      if (responseData.token && (responseData.customer || responseData.driver || responseData.admin)) { // Accept all roles
+        const userObj = responseData.customer || responseData.driver || responseData.admin;
         localStorage.setItem('authToken', responseData.token);
         localStorage.setItem('customer', JSON.stringify(userObj)); // Store the whole user object
         setIsAuthenticated(true);
