@@ -1,14 +1,41 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom"; // Make sure Link is imported
 import { navLinks } from "../../constants/navLinks";
 import VoiceButton from "../VoiceButton";
 import MenuButton from "../MenuButton";
-import { useAuth } from "../../contexts/AuthContext";
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
-  const { isAuthenticated, logout } = useAuth(); // We no longer need 'login' directly here
+  const [user, setUser] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // Load user from localStorage on mount
+  useEffect(() => {
+    const token = localStorage.getItem('authToken');
+    const storedUser = localStorage.getItem('user');
+    if (token && storedUser) {
+      try {
+        setUser(JSON.parse(storedUser));
+        setIsAuthenticated(true);
+      } catch {
+        setUser(null);
+        setIsAuthenticated(false);
+      }
+    } else {
+      setUser(null);
+      setIsAuthenticated(false);
+    }
+  }, []);
+
+  // Logout function
+  const logout = () => {
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('user');
+    setUser(null);
+    setIsAuthenticated(false);
+    window.location.href = '/login';
+  };
 
   return (
     <nav className="sticky top-0 z-50 w-full bg-white/90 shadow-md backdrop-blur">
@@ -35,7 +62,6 @@ const Navbar = () => {
             {isAuthenticated ? (
               <button onClick={logout} className="px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-sky-50 hover:text-sky-600">Logout</button>
             ) : (
-              // FIX: Use Link to navigate to the login page
               <Link to="/login" className="px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-sky-50 hover:text-sky-600">Login</Link>
             )}
           </li>
@@ -66,12 +92,28 @@ const Navbar = () => {
             {isAuthenticated ? (
               <button onClick={() => { logout(); setMenuOpen(false); }} className="px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-sky-50 hover:text-sky-600">Logout</button>
             ) : (
-              // FIX: Use Link to navigate to the login page for mobile menu as well
               <Link to="/login" onClick={() => setMenuOpen(false)} className="px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-sky-50 hover:text-sky-600">Login</Link>
             )}
           </li>
         </ul>
       </div>
+      {/* Profile dropdown if logged in */}
+      {isAuthenticated && user && (
+        <div className="absolute right-4 top-20 bg-white rounded-lg shadow-lg p-4 z-50 min-w-[220px] border border-gray-200">
+          <div className="mb-2 text-base font-semibold text-gray-800">Profile</div>
+          <div className="text-sm text-gray-700 mb-1"><b>Role:</b> <span className="capitalize">{user.role}</span></div>
+          <div className="text-sm text-gray-700 mb-1"><b>Name:</b> {user.name || '-'}</div>
+          <div className="text-sm text-gray-700 mb-1"><b>Email:</b> {user.email}</div>
+          <div className="text-sm text-gray-700 mb-1"><b>Username:</b> {user.username}</div>
+          <div className="text-sm text-gray-700 mb-3"><b>Phone:</b> {user.phone || '-'}</div>
+          <button
+            onClick={logout}
+            className="w-full mt-2 rounded bg-red-600 text-white py-2 font-semibold hover:bg-red-500 transition"
+          >
+            Logout
+          </button>
+        </div>
+      )}
     </nav>
   );
 };

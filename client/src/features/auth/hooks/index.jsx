@@ -30,6 +30,10 @@ export function useAuthForm() {
 
   const { isAuthenticated, user, login, register, logout } = useAuth();
 
+  // --- Google OAuth Handler Integration ---
+  // Expose the correct Google handler for the form
+  const handleGoogleSignIn = () => handleGoogleLogin(role, null, (err) => setError(err));
+
   const handleEmailChange = (e) => {
     setEmail(e.target.value);
     setEmailError(validateEmail(e.target.value));
@@ -101,8 +105,42 @@ export function useAuthForm() {
     }
   };
 
-  const handleGoogleSignIn = () => {
-    console.log("Google Sign-In clicked! (Backend integration pending)");
+  // --- Google OAuth Popup Handler ---
+  const handleGoogleLogin = (role = 'customer', onSuccess, onError) => {
+    const width = 500, height = 600;
+    const left = window.screenX + (window.outerWidth - width) / 2;
+    const top = window.screenY + (window.outerHeight - height) / 2;
+    const popup = window.open(
+      `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'}/api/auth/google?role=${role}`,
+      'GoogleLogin',
+      `width=${width},height=${height},left=${left},top=${top}`
+    );
+
+    function receiveMessage(event) {
+      // Optionally check event.origin for security
+      if (event.data && event.data.token) {
+        localStorage.setItem('authToken', event.data.token);
+        // Fetch user profile from backend
+        fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'}/api/auth/me`, {
+          headers: { Authorization: `Bearer ${event.data.token}` }
+        })
+          .then(res => res.json())
+          .then(user => {
+            localStorage.setItem('user', JSON.stringify(user));
+            if (onSuccess) onSuccess(user);
+          })
+          .catch(() => {
+            if (onError) onError('Failed to fetch user profile.');
+          });
+        window.removeEventListener('message', receiveMessage);
+        if (popup) popup.close();
+      } else if (event.data && event.data.error) {
+        if (onError) onError(event.data.error);
+        window.removeEventListener('message', receiveMessage);
+        if (popup) popup.close();
+      }
+    }
+    window.addEventListener('message', receiveMessage);
   };
 
   const handleSignOut = () => {

@@ -8,8 +8,9 @@ passport.use(new GoogleStrategy({
   clientID: config.GOOGLE_CLIENT_ID,
   clientSecret: config.GOOGLE_CLIENT_SECRET,
   callbackURL: config.CALLBACK_URL,
+  passReqToCallback: true, // Allow access to req in verify callback
 },
-async (accessToken, refreshToken, profile, done) => {
+async (req, accessToken, refreshToken, profile, done) => {
   try {
     // Defensive: Check if profile.emails exists and has at least one email
     const email = profile.emails && profile.emails.length > 0 ? profile.emails[0].value : null;
@@ -18,9 +19,15 @@ async (accessToken, refreshToken, profile, done) => {
     }
     // Get image, phone, address if available
     const image = profile.photos && profile.photos.length > 0 ? profile.photos[0].value : '';
-    // Google profile rarely provides phone/address, but check if present
     const phone = profile.phoneNumbers && profile.phoneNumbers.length > 0 ? profile.phoneNumbers[0].value : '';
     const address = profile.addresses && profile.addresses.length > 0 ? profile.addresses[0].formatted : '';
+    // Get role from req.body or req.query (frontend must send it)
+    let role = 'customer';
+    if (req && req.body && req.body.role) {
+      role = req.body.role;
+    } else if (req && req.query && req.query.role) {
+      role = req.query.role;
+    }
     // Find or create user
     let user = await User.findOne({ email });
     if (!user) {
@@ -28,11 +35,15 @@ async (accessToken, refreshToken, profile, done) => {
         username: profile.id,
         name: profile.displayName,
         email,
-        image, // Store Google image or empty string
-        phone, // Store phone if available
-        address, // Store address if available
-        role: 'customer',
+        image,
+        phone,
+        address,
+        role,
       });
+    } else if (user.role !== role) {
+      // Optionally update role if user wants to switch (optional, can remove this block if not desired)
+      user.role = role;
+      await user.save();
     }
     return done(null, user);
   } catch (err) {

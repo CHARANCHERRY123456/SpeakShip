@@ -20,7 +20,7 @@ const UserSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: true,
+    required: false, // Allow Google OAuth users to register without a password
   },
   phone: {
     type: String,
