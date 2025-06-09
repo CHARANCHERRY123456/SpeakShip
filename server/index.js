@@ -1,6 +1,7 @@
 import express from "express";
 import connectDB from  "./src/config/db.js "; 
 import authRoutes from './src/features/auth/routes/index.js';
+import deliveryRoutes from './src/features/delivery/routes/index.js';
 import logger from './src/middleware/logger.js';
 import cors from 'cors'; // <--- ADD THIS LINE
 import passport from './src/features/auth/services/GoogleStrategy.js';
@@ -32,6 +33,7 @@ app.get("/", (req, res) => {
 });
 
 app.use('/api/auth', authRoutes);
+app.use('/api/delivery', deliveryRoutes);
 
 // Google OAuth2 routes
 app.get('/api/auth/google', (req, res, next) => {
