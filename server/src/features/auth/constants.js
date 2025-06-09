@@ -7,7 +7,7 @@ export const USER_ROLES = {
 
 export const AUTH_MESSAGES = {
   INVALID_CREDENTIALS: 'Invalid username or password.',
-  USER_EXISTS: 'User already exists.',
+  CUSTOMER_EXISTS: 'Customer already exists.',
   DRIVER_EXISTS: 'Driver already exists.',
   REGISTER_SUCCESS: 'Registration successful.',
   LOGIN_SUCCESS: 'Login successful.',

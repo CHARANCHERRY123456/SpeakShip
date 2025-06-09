@@ -2,10 +2,10 @@ import axios from '../../../api/axios';
 
 // API calls related to authentication (login, register, logout, etc.)
 
-// Function for User Login
-export async function loginUser(usernameOrEmail, password) { // Accepts username or email
-    const response = await axios.post('/api/auth/login/user', { username: usernameOrEmail, password });
-    return response.data; // Should return { message, user, token }
+// Function for Customer Login
+export async function loginCustomer(usernameOrEmail, password) { // Accepts username or email
+    const response = await axios.post('/api/auth/login/customer', { username: usernameOrEmail, password });
+    return response.data; // Should return { message, customer, token }
 }
 
 // Function for Driver Login
@@ -20,11 +20,11 @@ export async function loginAdmin(usernameOrEmail, password) { // Accepts usernam
     return response.data; // Should return { message, admin, token }
 }
 
-// Function for User Registration
-export async function registerUser(username, name, email, password, phone) {
-    // Ensure all required fields by UserSchema are sent
-    const response = await axios.post('/api/auth/signup/user', { username, name, email, password, phone });
-    return response.data; // Should return { message, user }
+// Function for Customer Registration
+export async function registerCustomer(username, name, email, password, phone) {
+    // Ensure all required fields by CustomerSchema are sent
+    const response = await axios.post('/api/auth/signup/customer', { username, name, email, password, phone });
+    return response.data; // Should return { message, customer }
 }
 
 // Function for Driver Registration

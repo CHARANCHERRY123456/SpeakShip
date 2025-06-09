@@ -27,6 +27,12 @@ const CustomerSchema = new mongoose.Schema({
     required: false,
     match: /^\d{10}$/
   },
+  role : {
+    type: String,
+    enum: ['customer', 'admin'],
+    default: 'customer',
+    required: true
+  },
   image: {
     type: String,
     required: false,

@@ -9,9 +9,9 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
 const JWT_EXPIRES_IN = '7d';
 
 class AuthService {
-  async registerUser(data) {
+  async registerCustomer(data) {
     const existing = await CustomerRepository.findByUsername(data.username) || await CustomerRepository.findByEmail(data.email);
-    if (existing) throw new Error(AUTH_MESSAGES.USER_EXISTS);
+    if (existing) throw new Error(AUTH_MESSAGES.CUSTOMER_EXISTS);
     data.password = await bcrypt.hash(data.password, 10);
     return CustomerRepository.create(data);
   }
@@ -30,14 +30,14 @@ class AuthService {
     return AdminRepository.create(data);
   }
 
-  async loginUser({ username, password }) {
+  async loginCustomer({ username, password }) {
     // Accept username or email
-    const user = await CustomerRepository.findByUsername(username) || await CustomerRepository.findByEmail(username);
-    if (!user) throw new Error(AUTH_MESSAGES.INVALID_CREDENTIALS);
-    const valid = await bcrypt.compare(password, user.password);
+    const customer = await CustomerRepository.findByUsername(username) || await CustomerRepository.findByEmail(username);
+    if (!customer) throw new Error(AUTH_MESSAGES.INVALID_CREDENTIALS);
+    const valid = await bcrypt.compare(password, customer.password);
     if (!valid) throw new Error(AUTH_MESSAGES.INVALID_CREDENTIALS);
-    const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
-    return { user, token };
+    const token = jwt.sign({ id: customer._id, role: customer.role }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+    return { customer, token };
   }
 
   async loginDriver({ username, password }) {

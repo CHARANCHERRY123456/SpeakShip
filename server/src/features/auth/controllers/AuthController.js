@@ -2,10 +2,10 @@ import AuthService from '../services/AuthService.js';
 import { AUTH_MESSAGES } from '../constants.js';
 
 class AuthController {
-  async registerUser(req, res) {
+  async registerCustomer(req, res) {
     try {
-      const user = await AuthService.registerUser(req.body);
-      res.status(201).json({ message: AUTH_MESSAGES.REGISTER_SUCCESS, user });
+      const customer = await AuthService.registerCustomer(req.body);
+      res.status(201).json({ message: AUTH_MESSAGES.REGISTER_SUCCESS, customer });
     } catch (err) {
       res.status(400).json({ error: err.message });
     }
@@ -20,10 +20,10 @@ class AuthController {
     }
   }
 
-  async loginUser(req, res) {
+  async loginCustomer(req, res) {
     try {
-      const { user, token } = await AuthService.loginUser(req.body);
-      res.status(200).json({ message: AUTH_MESSAGES.LOGIN_SUCCESS, user, token });
+      const { customer, token } = await AuthService.loginCustomer(req.body);
+      res.status(200).json({ message: AUTH_MESSAGES.LOGIN_SUCCESS, customer, token });
     } catch (err) {
       res.status(401).json({ error: err.message });
     }
