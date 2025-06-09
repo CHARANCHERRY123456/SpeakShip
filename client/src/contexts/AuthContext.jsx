@@ -43,14 +43,15 @@ export const AuthProvider = ({ children }) => {
         throw new Error("Invalid role specified for login.");
       }
 
-      if (responseData.token && responseData.customer) { // Backend returns 'customer' for customer and 'driver' for driver
+      if (responseData.token && (responseData.customer || responseData.driver)) { // Accept both customer and driver
+        const userObj = responseData.customer || responseData.driver;
         localStorage.setItem('authToken', responseData.token);
-        localStorage.setItem('customer', JSON.stringify(responseData.customer)); // Store the whole customer object
+        localStorage.setItem('customer', JSON.stringify(userObj)); // Store the whole user object
         setIsAuthenticated(true);
-        setCustomer(responseData.customer);
+        setCustomer(userObj);
         return { success: true, message: responseData.message || "Login successful." };
       } else {
-        throw new Error('Authentication successful, but no token or customer data received.');
+        throw new Error('Authentication successful, but no token or user data received.');
       }
     } catch (error) {
       console.error("Login failed:", error.response?.data || error.message);
