@@ -9,6 +9,7 @@ import jwt from 'jsonwebtoken';
 import Customer from './src/features/auth/schema/Customer.js';
 import Driver from './src/features/auth/schema/Driver.js';
 import Admin from './src/features/auth/schema/Admin.js';
+import path from 'path';
 
 connectDB();
 
@@ -34,6 +35,9 @@ app.get("/", (req, res) => {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/delivery', deliveryRoutes);
+
+// Serve uploaded files statically
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 // Google OAuth2 routes
 app.get('/api/auth/google', (req, res, next) => {

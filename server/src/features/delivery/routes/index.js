@@ -1,24 +1,23 @@
 import express from 'express';
 import DeliveryController from '../controllers/DeliveryController.js';
-// import multer from 'multer'; // Uncomment and configure if you want file uploads
-// const upload = multer({ dest: 'uploads/' });
+import { authenticate } from '../../../middleware/authenticate.js';
+import upload from '../../../middleware/upload.js';
 
 const router = express.Router();
 
 // Create delivery request (customer)
-// router.post('/create', upload.single('photo'), DeliveryController.createRequest); // For file upload
-router.post('/create', DeliveryController.createRequest);
+router.post('/create', authenticate(['customer']), upload.single('photo'), DeliveryController.createRequest);
 
 // List all pending requests (driver)
-router.get('/pending', DeliveryController.listPending);
+router.get('/pending', authenticate(['driver']), DeliveryController.listPending);
 
 // Accept a request (driver)
-router.post('/accept/:id', DeliveryController.acceptRequest);
+router.post('/accept/:id', authenticate(['driver']), DeliveryController.acceptRequest);
 
 // List deliveries for driver
-router.get('/my', DeliveryController.listForDriver);
+router.get('/my', authenticate(['driver']), DeliveryController.listForDriver);
 
 // List deliveries for customer
-router.get('/customer', DeliveryController.listForCustomer);
+router.get('/customer', authenticate(['customer']), DeliveryController.listForCustomer);
 
 export default router;
