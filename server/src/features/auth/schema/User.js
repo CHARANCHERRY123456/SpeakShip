@@ -27,10 +27,20 @@ const UserSchema = new mongoose.Schema({
     required: false,
     match: /^\d{10}$/
   },
+  image: {
+    type: String,
+    required: false,
+    default: ''
+  },
+  address: {
+    type: String,
+    required: false,
+    default: ''
+  },
   role: {
     type: String,
-    enum: ['user', 'admin', 'driver'],
-    default: 'user'
+    enum: ['customer', 'admin', 'driver'],
+    default: 'customer'
   },
   orders: [{
     type: mongoose.Schema.Types.ObjectId,

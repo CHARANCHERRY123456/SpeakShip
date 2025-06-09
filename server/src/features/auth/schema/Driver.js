@@ -20,6 +20,11 @@ const DriverSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  role : {
+    type: String,
+    enum: ['driver', 'admin'],
+    default: 'driver'
+  },
   phone: {
     type: String,
     match: /^\d{10}$/

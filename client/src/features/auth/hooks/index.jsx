@@ -51,7 +51,12 @@ export function useAuthForm() {
   };
   const handleUsernameChange = (e) => {
     setUsername(e.target.value);
-    setUsernameError(validateUsername(e.target.value)); // Add validation here
+    // For login, allow username or email (just check not empty). For register, validate as username.
+    if (isLogin) {
+      setUsernameError(e.target.value ? '' : 'Username or Email is required.');
+    } else {
+      setUsernameError(validateUsername(e.target.value));
+    }
   };
   const handlePhoneChange = (e) => {
     setPhone(e.target.value);
@@ -106,7 +111,7 @@ export function useAuthForm() {
 
   // REFINED isFormValid LOGIC
   const isFormValid = isLogin
-    ? ( // Login form: requires username and password, both valid
+    ? ( // Login form: requires username or email and password, both valid
         !usernameError && username &&
         !passwordError && password
       )

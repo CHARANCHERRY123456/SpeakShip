@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   RoleSelect,
   EmailInput,
@@ -23,7 +22,6 @@ function AuthPage() {
     username, // Now managing username state
     email,    // Email is only for registration state
     password,
-    address, // Still passed from hook, but conditionally rendered in the form if needed
     role,
     showPassword,
     error,
@@ -36,13 +34,11 @@ function AuthPage() {
     usernameError, // For username input validation
     emailError,
     passwordError,
-    addressError,
     nameError,    // For name input validation
     phoneError,   // For phone input validation
     // Handlers
     handleEmailChange,
     handlePasswordChange,
-    handleAddressChange,
     handleRoleChange,
     handleTogglePassword,
     // New Handlers
@@ -77,13 +73,15 @@ function AuthPage() {
         <ErrorAlert error={error} />
         <form onSubmit={handleSubmit} className="mt-8 space-y-6">
           <div className="space-y-4 rounded-md">
-            <RoleSelect value={role} onChange={handleRoleChange} />
+            <RoleSelect value={role} onChange={handleRoleChange} isLogin={isLogin} />
 
-            {/* Username Input - for both login and registration */}
+            {/* Username or Email Input - for login and registration */}
             <UsernameInput
               value={username}
               onChange={handleUsernameChange}
               error={usernameError}
+              label={isLogin ? 'Username or Email' : 'Username'}
+              placeholder={isLogin ? 'Username or Email' : 'Username'}
             />
 
             {/* Fields only for Registration */}

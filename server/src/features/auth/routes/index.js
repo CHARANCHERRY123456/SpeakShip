@@ -11,6 +11,9 @@ router.post('/login/user', AuthController.loginUser);
 router.post('/signup/driver', AuthController.registerDriver);
 router.post('/login/driver', AuthController.loginDriver);
 
+// Admin routes
+router.post('/login/admin', AuthController.loginAdmin);
+
 // Logout (stateless for JWT)
 router.post('/logout', AuthController.logout);
 

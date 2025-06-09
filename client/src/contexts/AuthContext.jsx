@@ -1,11 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import {
-  loginUser,
-  loginDriver,
-  registerUser,
-  registerDriver,
-  // If you add a logoutApi function to your frontend API, import it here
-} from '../features/auth/api'; // Import your API functions
+import { loginUser, loginDriver, registerUser, registerDriver, loginAdmin } from '../features/auth/api'; // Import your API functions
 
 const AuthContext = createContext();
 
@@ -40,10 +34,12 @@ export const AuthProvider = ({ children }) => {
     const { username, password, role } = credentials;
     let responseData;
     try {
-      if (role === 'customer') { // Assuming 'customer' role for users
+      if (role === 'customer') {
         responseData = await loginUser(username, password);
       } else if (role === 'driver') {
         responseData = await loginDriver(username, password);
+      } else if (role === 'admin') {
+        responseData = await loginAdmin(username, password);
       } else {
         throw new Error("Invalid role specified for login.");
       }
@@ -74,7 +70,7 @@ export const AuthProvider = ({ children }) => {
     const { username, name, email, password, phone, role } = userData;
     let responseData;
     try {
-      if (role === 'customer') { // Assuming 'customer' role for users
+      if (role === 'customer') {
         responseData = await registerUser(username, name, email, password, phone);
       } else if (role === 'driver') {
         responseData = await registerDriver(username, name, email, password, phone);

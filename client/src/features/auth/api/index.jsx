@@ -3,15 +3,21 @@ import axios from '../../../api/axios';
 // API calls related to authentication (login, register, logout, etc.)
 
 // Function for User Login
-export async function loginUser(username, password) { // Expects username, not email
-    const response = await axios.post('/api/auth/login/user', { username, password });
+export async function loginUser(usernameOrEmail, password) { // Accepts username or email
+    const response = await axios.post('/api/auth/login/user', { username: usernameOrEmail, password });
     return response.data; // Should return { message, user, token }
 }
 
 // Function for Driver Login
-export async function loginDriver(username, password) { // Expects username, not email
-    const response = await axios.post('/api/auth/login/driver', { username, password });
+export async function loginDriver(usernameOrEmail, password) { // Accepts username or email
+    const response = await axios.post('/api/auth/login/driver', { username: usernameOrEmail, password });
     return response.data; // Should return { message, driver, token }
+}
+
+// Function for Admin Login
+export async function loginAdmin(usernameOrEmail, password) { // Accepts username or email
+    const response = await axios.post('/api/auth/login/admin', { username: usernameOrEmail, password });
+    return response.data; // Should return { message, admin, token }
 }
 
 // Function for User Registration

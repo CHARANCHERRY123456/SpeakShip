@@ -1,6 +1,6 @@
 // Auth-related constants
 export const USER_ROLES = {
-  USER: 'user',
+  CUSTOMER: 'customer',
   ADMIN: 'admin',
   DRIVER: 'driver',
 };
