@@ -9,16 +9,23 @@ import {
 } from '../utils';
 import { useAuth } from '../../../contexts/AuthContext'; // Ensure this path is correct: ../../../contexts/AuthContext
 
-export function useAuthForm() {
+export function useAuthForm({
+  defaultUsername = 'cherrycharan2380',
+  defaultName = 'C V CHARAN',
+  defaultEmail = 'cherryiiit1234@gmail.com',
+  defaultPhone = '8520811855',
+  defaultPassword = 'Cherry@123',
+  defaultRole = 'customer',
+} = {}) {
   const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState(defaultEmail);
+  const [password, setPassword] = useState(defaultPassword);
   const [address, setAddress] = useState(''); // Keep for state, but not for initial signup validation
-  const [role, setRole] = useState(''); // No default role
+  const [role, setRole] = useState(defaultRole); // No default role
   const [showPassword, setShowPassword] = useState(false);
-  const [name, setName] = useState('');
-  const [username, setUsername] = useState('');
-  const [phone, setPhone] = useState('');
+  const [name, setName] = useState(defaultName);
+  const [username, setUsername] = useState(defaultUsername);
+  const [phone, setPhone] = useState(defaultPhone);
 
   const [error, setError] = useState(null);
   const [emailError, setEmailError] = useState('');

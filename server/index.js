@@ -14,18 +14,17 @@ connectDB();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(express.json());
-app.use(logger);
-
 // CORS Configuration (ADD THIS BLOCK)
 const corsOptions = {
-  origin: '*', 
-  credentials: true, // Allow cookies to be sent with requests (important for session/auth, though less so for JWTs stored client-side)
+  origin: 'http://localhost:5173', // Set to your frontend URL
+  credentials: true, // Allow cookies/credentials
   methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed HTTP methods for cross-origin requests
   allowedHeaders: ['Content-Type', 'Authorization'], // Allowed request headers
 };
 app.use(cors(corsOptions)); 
 
+app.use(express.json());
+app.use(logger);
 app.use(passport.initialize());
 
 app.get("/", (req, res) => {

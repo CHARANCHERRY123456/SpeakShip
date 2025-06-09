@@ -19,29 +19,26 @@ function AuthPage() {
     isLogin,
     setIsLogin,
     // Use username instead of email for login input
-    username, // Now managing username state
-    email,    // Email is only for registration state
+    username,
+    email,
     password,
     role,
     showPassword,
     error,
     isAuthenticated,
-    userEmail, // From AuthContext, derived from user object
-    userRole,   // From AuthContext, derived from user object
-    // New fields and their errors
-    name,       // For registration
-    phone,      // For registration
-    usernameError, // For username input validation
+    userEmail,
+    userRole,
+    name,
+    phone,
+    usernameError,
     emailError,
     passwordError,
-    nameError,    // For name input validation
-    phoneError,   // For phone input validation
-    // Handlers
+    nameError,
+    phoneError,
     handleEmailChange,
     handlePasswordChange,
     handleRoleChange,
     handleTogglePassword,
-    // New Handlers
     handleNameChange,
     handleUsernameChange,
     handlePhoneChange,
@@ -49,7 +46,14 @@ function AuthPage() {
     handleGoogleSignIn,
     handleSignOut,
     isFormValid,
-  } = useAuthForm();
+  } = useAuthForm({
+    defaultUsername: 'cherrycharan2380',
+    defaultName: 'C V CHARAN',
+    defaultEmail: 'cherryiiit1234@gmail.com',
+    defaultPhone: '8520811855',
+    defaultPassword: 'Cherry@123',
+    defaultRole: 'customer',
+  });
 
   // If the user is already authenticated, redirect them or show a logged-in view
   if (isAuthenticated) {
@@ -91,26 +95,20 @@ function AuthPage() {
                   value={name}
                   onChange={handleNameChange}
                   error={nameError}
+                  placeholder="Full Name"
                 />
-                <EmailInput // Email is now only for registration, as login uses username
+                <EmailInput
                   value={email}
                   onChange={handleEmailChange}
                   error={emailError}
+                  placeholder="Email"
                 />
                 <PhoneInput
                   value={phone}
                   onChange={handlePhoneChange}
                   error={phoneError}
+                  placeholder="Phone Number"
                 />
-                {/* Remove AddressInput if it's not part of your initial signup */}
-                {/* If you need address later for profile updates, keep the component but remove it here */}
-                {/*
-                <AddressInput
-                    value={address}
-                    onChange={handleAddressChange}
-                    error={addressError}
-                />
-                */}
               </>
             )}
 
@@ -120,6 +118,7 @@ function AuthPage() {
               error={passwordError}
               show={showPassword}
               onToggle={handleTogglePassword}
+              placeholder="Password"
             />
           </div>
           {isLogin && (
