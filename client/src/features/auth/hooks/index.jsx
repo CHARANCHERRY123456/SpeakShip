@@ -14,7 +14,7 @@ export function useAuthForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [address, setAddress] = useState(''); // Keep for state, but not for initial signup validation
-  const [role, setRole] = useState('customer');
+  const [role, setRole] = useState(''); // No default role
   const [showPassword, setShowPassword] = useState(false);
   const [name, setName] = useState('');
   const [username, setUsername] = useState('');
@@ -32,7 +32,13 @@ export function useAuthForm() {
 
   // --- Google OAuth Handler Integration ---
   // Expose the correct Google handler for the form
-  const handleGoogleSignIn = () => handleGoogleLogin(role, null, (err) => setError(err));
+  const handleGoogleSignIn = () => {
+    if (!role || !['customer', 'driver', 'admin'].includes(role)) {
+      setError('Please select a valid role before logging in.');
+      return;
+    }
+    handleGoogleLogin(role, null, (err) => setError(err));
+  };
 
   const handleEmailChange = (e) => {
     setEmail(e.target.value);
@@ -92,6 +98,12 @@ export function useAuthForm() {
       return;
     }
 
+    // In handleSubmit, add role validation
+    if (!role || !['customer', 'driver', 'admin'].includes(role)) {
+      setError('Please select a valid role.');
+      return;
+    }
+
     try {
         if (isLogin) {
             await login({ username, password, role });
@@ -106,7 +118,13 @@ export function useAuthForm() {
   };
 
   // --- Google OAuth Popup Handler ---
-  const handleGoogleLogin = (role = 'customer', onSuccess, onError) => {
+  const handleGoogleLogin = (role, onSuccess, onError) => {
+    if (!role || !['customer', 'driver', 'admin'].includes(role)) {
+      showResultModal(false, 'Please select a valid role before logging in.');
+      if (onError) onError('Please select a valid role before logging in.');
+      return;
+    }
+
     const width = 500, height = 600;
     const left = window.screenX + (window.outerWidth - width) / 2;
     const top = window.screenY + (window.outerHeight - height) / 2;
@@ -115,6 +133,41 @@ export function useAuthForm() {
       'GoogleLogin',
       `width=${width},height=${height},left=${left},top=${top}`
     );
+
+    function showResultModal(success, userOrMsg) {
+      // Remove any existing modal
+      const oldModal = document.getElementById('login-result-modal');
+      if (oldModal) oldModal.remove();
+      // Create modal
+      const modal = document.createElement('div');
+      modal.id = 'login-result-modal';
+      modal.style.position = 'fixed';
+      modal.style.top = '0';
+      modal.style.left = '0';
+      modal.style.width = '100vw';
+      modal.style.height = '100vh';
+      modal.style.background = 'rgba(0,0,0,0.3)';
+      modal.style.display = 'flex';
+      modal.style.alignItems = 'center';
+      modal.style.justifyContent = 'center';
+      modal.style.zIndex = '9999';
+      modal.innerHTML = success
+        ? `<div style='background:#fff;padding:2rem 2.5rem;border-radius:12px;box-shadow:0 4px 24px #0002;text-align:center;min-width:300px;'>
+            <h2 style='color:#16a34a;font-size:1.5rem;margin-bottom:0.5rem;'>Login Successful!</h2>
+            <div style='margin-bottom:1rem;'>Welcome, <b>${userOrMsg.name || userOrMsg.email || userOrMsg.username}</b><br/>Role: <b>${userOrMsg.role}</b></div>
+            <button id='close-login-modal' style='background:#16a34a;color:#fff;padding:0.5rem 1.5rem;border:none;border-radius:6px;font-size:1rem;cursor:pointer;'>OK</button>
+          </div>`
+        : `<div style='background:#fff;padding:2rem 2.5rem;border-radius:12px;box-shadow:0 4px 24px #0002;text-align:center;min-width:300px;'>
+            <h2 style='color:#dc2626;font-size:1.5rem;margin-bottom:0.5rem;'>Login Failed</h2>
+            <div style='margin-bottom:1rem;'>${userOrMsg}</div>
+            <button id='close-login-modal' style='background:#dc2626;color:#fff;padding:0.5rem 1.5rem;border:none;border-radius:6px;font-size:1rem;cursor:pointer;'>Close</button>
+          </div>`;
+      document.body.appendChild(modal);
+      document.getElementById('close-login-modal').onclick = () => {
+        modal.remove();
+        if (success) window.location.reload();
+      };
+    }
 
     function receiveMessage(event) {
       // Optionally check event.origin for security
@@ -126,15 +179,23 @@ export function useAuthForm() {
         })
           .then(res => res.json())
           .then(user => {
+            if (!user || !user.role) {
+              showResultModal(false, 'You are not logged in or not authorized.');
+              if (onError) onError('You are not logged in or not authorized.');
+              return;
+            }
             localStorage.setItem('user', JSON.stringify(user));
+            showResultModal(true, user);
             if (onSuccess) onSuccess(user);
           })
           .catch(() => {
+            showResultModal(false, 'Failed to fetch user profile.');
             if (onError) onError('Failed to fetch user profile.');
           });
         window.removeEventListener('message', receiveMessage);
         if (popup) popup.close();
       } else if (event.data && event.data.error) {
+        showResultModal(false, event.data.error);
         if (onError) onError(event.data.error);
         window.removeEventListener('message', receiveMessage);
         if (popup) popup.close();

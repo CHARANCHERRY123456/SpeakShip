@@ -1,9 +1,9 @@
 import CrudRepository from './CrudRepository.js';
-import User from '../schema/User.js';
+import Customer from '../schema/Customer.js';
 
-class UserRepository extends CrudRepository {
+class CustomerRepository extends CrudRepository {
   constructor() {
-    super(User);
+    super(Customer);
   }
   async findByUsername(username) {
     return this.model.findOne({ username });
@@ -13,4 +13,4 @@ class UserRepository extends CrudRepository {
   }
 }
 
-export default new UserRepository();
+export default new CustomerRepository();

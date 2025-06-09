@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import UserRepository from '../repository/UserRepository.js';
+import CustomerRepository from '../repository/CustomerRepository.js';
 import DriverRepository from '../repository/DriverRepository.js';
 import AdminRepository from '../repository/AdminRepository.js';
 import { USER_ROLES, AUTH_MESSAGES } from '../constants.js';
@@ -10,10 +10,10 @@ const JWT_EXPIRES_IN = '7d';
 
 class AuthService {
   async registerUser(data) {
-    const existing = await UserRepository.findByUsername(data.username) || await UserRepository.findByEmail(data.email);
+    const existing = await CustomerRepository.findByUsername(data.username) || await CustomerRepository.findByEmail(data.email);
     if (existing) throw new Error(AUTH_MESSAGES.USER_EXISTS);
     data.password = await bcrypt.hash(data.password, 10);
-    return UserRepository.create(data);
+    return CustomerRepository.create(data);
   }
 
   async registerDriver(data) {
@@ -32,7 +32,7 @@ class AuthService {
 
   async loginUser({ username, password }) {
     // Accept username or email
-    const user = await UserRepository.findByUsername(username) || await UserRepository.findByEmail(username);
+    const user = await CustomerRepository.findByUsername(username) || await CustomerRepository.findByEmail(username);
     if (!user) throw new Error(AUTH_MESSAGES.INVALID_CREDENTIALS);
     const valid = await bcrypt.compare(password, user.password);
     if (!valid) throw new Error(AUTH_MESSAGES.INVALID_CREDENTIALS);

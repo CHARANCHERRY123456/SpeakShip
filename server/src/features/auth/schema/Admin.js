@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 
+// Ensure Admin schema is present and correct for admin registrations
 const AdminSchema = new mongoose.Schema({
   username: {
     type: String,

@@ -44,6 +44,8 @@ const DriverSchema = new mongoose.Schema({
   }],
 });
 
+// Ensure Driver schema is present and correct for driver registrations
+
 const Driver = mongoose.model('Driver', DriverSchema);
 export default Driver;
 
