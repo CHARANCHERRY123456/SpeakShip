@@ -11,17 +11,16 @@ export const AuthProvider = ({ children }) => {
   // Check for existing token/customer in localStorage on app load
   useEffect(() => {
     const token = localStorage.getItem('authToken');
-    const storedCustomer = localStorage.getItem('customer'); // We'll store the customer object now
+    const storedUser = localStorage.getItem('user');
 
-    if (token && storedCustomer) {
+    if (token && storedUser) {
       try {
-        const parsedCustomer = JSON.parse(storedCustomer);
+        const parsedUser = JSON.parse(storedUser);
         setIsAuthenticated(true);
-        setCustomer(parsedCustomer);
+        setCustomer(parsedUser);
       } catch (e) {
-        console.error("Failed to parse stored customer data:", e);
-        // If parsing fails, clear local storage to prevent bad state
-        localStorage.removeItem('customer');
+        console.error("Failed to parse stored user data:", e);
+        localStorage.removeItem('user');
       }
     }
     setLoading(false); // Authentication check complete
@@ -43,10 +42,10 @@ export const AuthProvider = ({ children }) => {
         throw new Error("Invalid role specified for login.");
       }
 
-      if (responseData.token && (responseData.customer || responseData.driver || responseData.admin)) { // Accept all roles
+      if (responseData.token && (responseData.customer || responseData.driver || responseData.admin)) {
         const userObj = responseData.customer || responseData.driver || responseData.admin;
         localStorage.setItem('authToken', responseData.token);
-        localStorage.setItem('customer', JSON.stringify(userObj)); // Store the whole user object
+        localStorage.setItem('user', JSON.stringify(userObj));
         setIsAuthenticated(true);
         setCustomer(userObj);
         return { success: true, message: responseData.message || "Login successful." };
@@ -57,7 +56,7 @@ export const AuthProvider = ({ children }) => {
       console.error("Login failed:", error.response?.data || error.message);
       // It's good practice to clear any partial tokens on failed login attempt
       localStorage.removeItem('authToken');
-      localStorage.removeItem('customer');
+      localStorage.removeItem('user');
       setIsAuthenticated(false);
       setCustomer(null);
       throw new Error(error.response?.data?.error || "Login failed. Please check your credentials.");
@@ -89,10 +88,8 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
-    // If you implemented a backend logout API call for cleanup, call it here
-    // For JWTs, primarily it's about clearing the client-side token
     localStorage.removeItem('authToken');
-    localStorage.removeItem('customer');
+    localStorage.removeItem('user');
     setIsAuthenticated(false);
     setCustomer(null);
     console.log("Logged out successfully.");

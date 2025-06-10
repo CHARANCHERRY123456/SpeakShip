@@ -1,5 +1,5 @@
 // API functions for delivery feature
-import axios from '../../api/axios';
+import axios from '../../../api/axios';
 
 export const createDeliveryRequest = async (formData, token) => {
   const res = await axios.post('/delivery/create', formData, {

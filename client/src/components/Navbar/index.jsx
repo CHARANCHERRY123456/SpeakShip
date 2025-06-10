@@ -13,7 +13,7 @@ const Navbar = () => {
   // Load user from localStorage on mount
   useEffect(() => {
     const token = localStorage.getItem('authToken');
-    const storedUser = localStorage.getItem('user');
+    const storedUser = localStoragehttp://localhost:5173/.getItem('user');
     if (token && storedUser) {
       try {
         setUser(JSON.parse(storedUser));
