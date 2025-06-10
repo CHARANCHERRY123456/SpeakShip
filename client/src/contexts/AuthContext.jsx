@@ -4,7 +4,8 @@ import { loginCustomer, loginDriver, registerCustomer, registerDriver, loginAdmi
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const isAuth = localStorage.getItem('isAuthenticated');
+  const [isAuthenticated, setIsAuthenticated] = useState(isAuth);
   const [customer, setCustomer] = useState(null); // To store authenticated customer/driver data
   const [loading, setLoading] = useState(true); // To manage initial loading state for auth check
 
@@ -18,10 +19,17 @@ export const AuthProvider = ({ children }) => {
         const parsedUser = JSON.parse(storedUser);
         setIsAuthenticated(true);
         setCustomer(parsedUser);
+        // Always sync isAuthenticated in localStorage
+        localStorage.setItem('isAuthenticated', 'true');
       } catch (e) {
         console.error("Failed to parse stored user data:", e);
         localStorage.removeItem('user');
+        localStorage.setItem('isAuthenticated', 'false');
       }
+    } else {
+      setIsAuthenticated(false);
+      setCustomer(null);
+      localStorage.setItem('isAuthenticated', 'false');
     }
     setLoading(false); // Authentication check complete
   }, []);
@@ -46,6 +54,7 @@ export const AuthProvider = ({ children }) => {
         const userObj = responseData.customer || responseData.driver || responseData.admin;
         localStorage.setItem('authToken', responseData.token);
         localStorage.setItem('user', JSON.stringify(userObj));
+        localStorage.setItem('isAuthenticated', 'true');
         setIsAuthenticated(true);
         setCustomer(userObj);
         return { success: true, message: responseData.message || "Login successful." };
@@ -90,6 +99,7 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     localStorage.removeItem('authToken');
     localStorage.removeItem('user');
+    localStorage.setItem('isAuthenticated', 'false');
     setIsAuthenticated(false);
     setCustomer(null);
     console.log("Logged out successfully.");
@@ -100,8 +110,10 @@ export const AuthProvider = ({ children }) => {
     return <div>Loading authentication...</div>; // Or a more elaborate loading spinner
   }
 
+  const token = localStorage.getItem('authToken');
+
   return (
-    <AuthContext.Provider value={{ isAuthenticated, customer, login, register, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, customer, token, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );
