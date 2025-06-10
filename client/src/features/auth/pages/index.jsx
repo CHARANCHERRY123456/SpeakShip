@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   RoleSelect,
   EmailInput,
@@ -20,32 +19,26 @@ function AuthPage() {
     isLogin,
     setIsLogin,
     // Use username instead of email for login input
-    username, // Now managing username state
-    email,    // Email is only for registration state
+    username,
+    email,
     password,
-    address, // Still passed from hook, but conditionally rendered in the form if needed
     role,
     showPassword,
     error,
     isAuthenticated,
-    userEmail, // From AuthContext, derived from user object
-    userRole,   // From AuthContext, derived from user object
-    // New fields and their errors
-    name,       // For registration
-    phone,      // For registration
-    usernameError, // For username input validation
+    userEmail,
+    userRole,
+    name,
+    phone,
+    usernameError,
     emailError,
     passwordError,
-    addressError,
-    nameError,    // For name input validation
-    phoneError,   // For phone input validation
-    // Handlers
+    nameError,
+    phoneError,
     handleEmailChange,
     handlePasswordChange,
-    handleAddressChange,
     handleRoleChange,
     handleTogglePassword,
-    // New Handlers
     handleNameChange,
     handleUsernameChange,
     handlePhoneChange,
@@ -53,7 +46,14 @@ function AuthPage() {
     handleGoogleSignIn,
     handleSignOut,
     isFormValid,
-  } = useAuthForm();
+  } = useAuthForm({
+    defaultUsername: 'cherrycharan2380',
+    defaultName: 'C V CHARAN',
+    defaultEmail: 'cherryiiit1234@gmail.com',
+    defaultPhone: '8520811855',
+    defaultPassword: 'Cherry@123',
+    defaultRole: 'customer',
+  });
 
   // If the user is already authenticated, redirect them or show a logged-in view
   if (isAuthenticated) {
@@ -77,13 +77,15 @@ function AuthPage() {
         <ErrorAlert error={error} />
         <form onSubmit={handleSubmit} className="mt-8 space-y-6">
           <div className="space-y-4 rounded-md">
-            <RoleSelect value={role} onChange={handleRoleChange} />
+            <RoleSelect value={role} onChange={handleRoleChange} isLogin={isLogin} />
 
-            {/* Username Input - for both login and registration */}
+            {/* Username or Email Input - for login and registration */}
             <UsernameInput
               value={username}
               onChange={handleUsernameChange}
               error={usernameError}
+              label={isLogin ? 'Username or Email' : 'Username'}
+              placeholder={isLogin ? 'Username or Email' : 'Username'}
             />
 
             {/* Fields only for Registration */}
@@ -93,26 +95,20 @@ function AuthPage() {
                   value={name}
                   onChange={handleNameChange}
                   error={nameError}
+                  placeholder="Full Name"
                 />
-                <EmailInput // Email is now only for registration, as login uses username
+                <EmailInput
                   value={email}
                   onChange={handleEmailChange}
                   error={emailError}
+                  placeholder="Email"
                 />
                 <PhoneInput
                   value={phone}
                   onChange={handlePhoneChange}
                   error={phoneError}
+                  placeholder="Phone Number"
                 />
-                {/* Remove AddressInput if it's not part of your initial signup */}
-                {/* If you need address later for profile updates, keep the component but remove it here */}
-                {/*
-                <AddressInput
-                    value={address}
-                    onChange={handleAddressChange}
-                    error={addressError}
-                />
-                */}
               </>
             )}
 
@@ -122,6 +118,7 @@ function AuthPage() {
               error={passwordError}
               show={showPassword}
               onToggle={handleTogglePassword}
+              placeholder="Password"
             />
           </div>
           {isLogin && (

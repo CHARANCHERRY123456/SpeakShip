@@ -3,9 +3,9 @@ import { Mail, Lock, Eye, EyeOff, User, MapPin, Tag, Phone } from 'lucide-react'
 
 // UI components specific to authentication (e.g., LoginForm, RegisterForm).
 
-export function RoleSelect({ value, onChange }) {
+export function RoleSelect({ value, onChange, isLogin }) {
   return (
-    <div>
+    <div className="mb-2">
       <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1 font-inter">Role</label>
       <div className="relative">
         <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
@@ -16,21 +16,27 @@ export function RoleSelect({ value, onChange }) {
           name="role"
           value={value}
           onChange={onChange}
-          className="block w-full rounded-lg border border-gray-300 py-3 pl-10 pr-3 text-gray-900 focus:border-sky-500 focus:outline-none focus:ring-sky-500 sm:text-sm font-inter"
+          className="block w-full rounded-lg border border-gray-300 py-3 pl-10 pr-3 text-gray-900 placeholder-gray-400 focus:border-sky-500 focus:outline-none focus:ring-sky-500 sm:text-sm font-inter appearance-none"
+          style={{ marginBottom: 0 }}
         >
           <option value="customer">Customer</option>
           <option value="driver">Driver</option>
+          {isLogin && <option value="admin">Admin</option>}
         </select>
+        {/* Custom dropdown arrow for better alignment */}
+        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+          <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+        </div>
       </div>
     </div>
   );
 }
 
 // NEW COMPONENT: Username Input
-export function UsernameInput({ value, onChange, error }) {
+export function UsernameInput({ value, onChange, error, label = 'Username', placeholder = 'Username' }) {
   return (
     <div>
-      <label htmlFor="username" className="sr-only">Username</label>
+      <label htmlFor="username" className="sr-only">{label}</label>
       <div className="relative">
         <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
           <User className="h-5 w-5 text-gray-400" aria-hidden="true" />
@@ -44,7 +50,7 @@ export function UsernameInput({ value, onChange, error }) {
           className={`block w-full rounded-lg border border-gray-300 py-3 pl-10 pr-3 text-gray-900 placeholder-gray-400 focus:border-sky-500 focus:outline-none focus:ring-sky-500 sm:text-sm font-inter ${
             error ? 'border-red-500 focus:ring-red-500' : ''
           }`}
-          placeholder="Username"
+          placeholder={placeholder}
           value={value}
           onChange={onChange}
         />

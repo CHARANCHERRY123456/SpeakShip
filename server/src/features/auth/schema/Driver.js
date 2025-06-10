@@ -20,6 +20,11 @@ const DriverSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  role : {
+    type: String,
+    enum: ['driver', 'admin'],
+    default: 'driver'
+  },
   phone: {
     type: String,
     match: /^\d{10}$/
@@ -38,6 +43,8 @@ const DriverSchema = new mongoose.Schema({
     ref: 'Order'
   }],
 });
+
+// Ensure Driver schema is present and correct for driver registrations
 
 const Driver = mongoose.model('Driver', DriverSchema);
 export default Driver;

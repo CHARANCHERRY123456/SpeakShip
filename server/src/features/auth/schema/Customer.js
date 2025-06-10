@@ -1,13 +1,13 @@
-// src/features/auth/schema/User.js
-// This file defines the User schema for MongoDB using Mongoose.
+// src/features/auth/schema/Customer.js
+// This file defines the Customer schema for MongoDB using Mongoose.
 import mongoose from 'mongoose';
 
-const UserSchema = new mongoose.Schema({
+const CustomerSchema = new mongoose.Schema({
   username: {
     type: String,
     required: true,
     unique: true
-    },
+  },
   name: {
     type: String,
     required: false
@@ -20,17 +20,28 @@ const UserSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: true,
+    required: false, // Allow Google OAuth users to register without a password
   },
   phone: {
     type: String,
     required: false,
     match: /^\d{10}$/
   },
-  role: {
+  role : {
     type: String,
-    enum: ['user', 'admin', 'driver'],
-    default: 'user'
+    enum: ['customer', 'admin'],
+    default: 'customer',
+    required: true
+  },
+  image: {
+    type: String,
+    required: false,
+    default: ''
+  },
+  address: {
+    type: String,
+    required: false,
+    default: ''
   },
   orders: [{
     type: mongoose.Schema.Types.ObjectId,
@@ -59,5 +70,5 @@ const UserSchema = new mongoose.Schema({
   }]
 });
 
-const User =  mongoose.model('User', UserSchema);
-export default User;
+const Customer = mongoose.model('Customer', CustomerSchema);
+export default Customer;
