@@ -143,3 +143,4 @@ photo: (file upload, optional)
 - All responses are in JSON.
 - All endpoints require a valid JWT Bearer token in the `Authorization` header.
 - Error messages are returned with appropriate HTTP status codes.
+- Ensure correct routing
