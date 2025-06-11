@@ -4,6 +4,44 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { createDeliveryRequest } from '../api';
 import { Mail, Phone, MapPin, Notebook, Camera, Tag } from 'lucide-react'; // Import relevant icons
 
+// Moved InputField component OUTSIDE of CreateDeliveryForm
+// This prevents it from being redefined on every render of CreateDeliveryForm,
+// which fixes the input focus and typing issues.
+const InputField = ({ icon: Icon, label, name, type = "text", value, onChange, placeholder, required = false, isTextArea = false }) => (
+    <div>
+        <label htmlFor={name} className="sr-only">{label}</label>
+        <div className="relative">
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                <Icon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+            </div>
+            {isTextArea ? (
+                <textarea
+                    id={name}
+                    name={name}
+                    value={value}
+                    onChange={onChange}
+                    placeholder={placeholder}
+                    required={required}
+                    rows="3"
+                    className="block w-full rounded-lg border border-gray-300 py-3 pl-10 pr-3 text-gray-900 placeholder-gray-400 focus:border-sky-500 focus:outline-none focus:ring-sky-500 sm:text-sm font-inter"
+                />
+            ) : (
+                <input
+                    id={name}
+                    name={name}
+                    type={type}
+                    value={value}
+                    onChange={onChange}
+                    placeholder={placeholder}
+                    required={required}
+                    className="block w-full rounded-lg border border-gray-300 py-3 pl-10 pr-3 text-gray-900 placeholder-gray-400 focus:border-sky-500 focus:outline-none focus:ring-sky-500 sm:text-sm font-inter"
+                />
+            )}
+        </div>
+    </div>
+);
+
+
 const CreateDeliveryForm = ({ onDeliveryCreated }) => {
     const { currentUser } = useAuth(); // Assuming 'currentUser' holds the logged-in user's data
     const [formData, setFormData] = useState({
@@ -79,41 +117,6 @@ const CreateDeliveryForm = ({ onDeliveryCreated }) => {
             setLoading(false);
         }
     };
-
-    const InputField = ({ icon: Icon, label, name, type = "text", value, onChange, placeholder, required = false, isTextArea = false }) => (
-        <div>
-            <label htmlFor={name} className="sr-only">{label}</label>
-            <div className="relative">
-                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                    <Icon className="h-5 w-5 text-gray-400" aria-hidden="true" />
-                </div>
-                {isTextArea ? (
-                    <textarea
-                        id={name}
-                        name={name}
-                        value={value}
-                        onChange={onChange}
-                        placeholder={placeholder}
-                        required={required}
-                        rows="3"
-                        className="block w-full rounded-lg border border-gray-300 py-3 pl-10 pr-3 text-gray-900 placeholder-gray-400 focus:border-sky-500 focus:outline-none focus:ring-sky-500 sm:text-sm font-inter"
-                    />
-                ) : (
-                    <input
-                        id={name}
-                        name={name}
-                        type={type}
-                        value={value}
-                        onChange={onChange}
-                        placeholder={placeholder}
-                        required={required}
-                        className="block w-full rounded-lg border border-gray-300 py-3 pl-10 pr-3 text-gray-900 placeholder-gray-400 focus:border-sky-500 focus:outline-none focus:ring-sky-500 sm:text-sm font-inter"
-                    />
-                )}
-            </div>
-        </div>
-    );
-
 
     return (
         <div className="max-w-xl mx-auto p-6 bg-white rounded-lg shadow-xl mb-8">
