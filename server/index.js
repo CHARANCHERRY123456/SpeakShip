@@ -18,10 +18,10 @@ const PORT = process.env.PORT || 3000;
 
 // CORS Configuration (ADD THIS BLOCK)
 const corsOptions = {
-  origin: 'http://localhost:5173', // Set to your frontend URL
-  credentials: true, // Allow cookies/credentials
-  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed HTTP methods for cross-origin requests
-  allowedHeaders: ['Content-Type', 'Authorization'], // Allowed request headers
+  origin: (origin, callback) => callback(null, true),
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 };
 app.use(cors(corsOptions)); 
 
