@@ -16,14 +16,10 @@ connectDB();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// CORS Configuration (ADD THIS BLOCK)
-const corsOptions = {
-  origin: (origin, callback) => callback(null, true),
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-};
-app.use(cors(corsOptions)); 
+app.use(cors({
+  origin: process.env.CLIENT_URL || 'http://localhost:5173',
+  credentials: true, 
+}))
 
 app.use(express.json());
 app.use(logger);
