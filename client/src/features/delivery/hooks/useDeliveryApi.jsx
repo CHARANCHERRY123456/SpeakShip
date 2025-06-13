@@ -3,8 +3,9 @@ import { useState, useEffect, useCallback } from 'react';
 import {
     fetchCustomerDeliveries,
     fetchPendingDeliveries,
-    fetchDriverDeliveries, // Ensure this is imported
-    acceptDeliveryRequest
+    fetchDriverDeliveries,
+    acceptDeliveryRequest,
+    updateDeliveryStatus // Make sure this is imported
 } from '../api';
 import { useAuth } from '../../../contexts/AuthContext'; // To get current user role
 
@@ -14,11 +15,13 @@ const useDeliveryApi = (role) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isAccepting, setIsAccepting] = useState(false); // For accepting deliveries
+    const [isUpdatingStatus, setIsUpdatingStatus] = useState(false); // New state for status updates
 
     // Function to fetch deliveries based on role
     const getDeliveries = useCallback(async () => {
         if (!isAuthenticated || !currentUser) {
             setLoading(false);
+            setDeliveries([]); // Clear deliveries if not authenticated
             return;
         }
 
@@ -29,11 +32,8 @@ const useDeliveryApi = (role) => {
             if (role === 'customer' && currentUser.role === 'customer') {
                 data = await fetchCustomerDeliveries();
             } else if (role === 'driver' && currentUser.role === 'driver') {
-                // CORRECTED: When useDeliveryApi is instantiated for a driver,
-                // it should fetch the deliveries assigned to that driver.
-                data = await fetchDriverDeliveries();
+                data = await fetchDriverDeliveries(); // Fetch driver's assigned deliveries
             } else {
-                // If role doesn't match authenticated user's role or invalid role
                 setError("You are not authorized to view this content.");
             }
             setDeliveries(data);
@@ -43,27 +43,49 @@ const useDeliveryApi = (role) => {
         } finally {
             setLoading(false);
         }
-    }, [isAuthenticated, currentUser, role]); // Re-fetch when getDeliveries callback changes (which depends on auth/role)
+    }, [isAuthenticated, currentUser, role]);
 
     // Function to accept a delivery request (only for drivers)
     const handleAcceptDelivery = useCallback(async (deliveryId) => {
         if (role !== 'driver' || currentUser?.role !== 'driver') {
             setError("Only drivers can accept deliveries.");
-            return null; // Return null on error
+            return null;
         }
         setIsAccepting(true);
         setError(null);
         try {
             const acceptedDelivery = await acceptDeliveryRequest(deliveryId);
-            // We no longer filter from pending list here, as DriverDeliveryPage handles pending separately.
-            // DriverDeliveryPage will call getPendingDeliveries and getMyDeliveries again.
-            return acceptedDelivery; // Return accepted delivery for potential re-rendering elsewhere
+            return acceptedDelivery;
         } catch (err) {
             console.error('Failed to accept delivery:', err);
             setError(err.response?.data?.error || 'Failed to accept delivery.');
             return null;
         } finally {
             setIsAccepting(false);
+        }
+    }, [role, currentUser]);
+
+    // NEW FUNCTION: Handle updating delivery status
+    const handleUpdateDeliveryStatus = useCallback(async (deliveryId, newStatus) => {
+        if (role !== 'driver' || currentUser?.role !== 'driver') {
+            setError("Only drivers can update delivery status.");
+            return null;
+        }
+        setIsUpdatingStatus(true);
+        setError(null);
+        try {
+            const updatedDelivery = await updateDeliveryStatus(deliveryId, newStatus);
+            // Update the local state to reflect the status change immediately
+            setDeliveries(prev =>
+                prev.map(d => (d._id === updatedDelivery._id ? updatedDelivery : d))
+            );
+            return updatedDelivery;
+        } catch (err) {
+            console.error('Failed to update delivery status:', err);
+            setError(err.response?.data?.error || 'Failed to update delivery status.');
+            return null;
+        } finally {
+            setIsUpdatingStatus(false);
         }
     }, [role, currentUser]);
 
@@ -86,7 +108,9 @@ const useDeliveryApi = (role) => {
         error,
         getDeliveries, // Expose refetch function
         handleAcceptDelivery,
-        isAccepting
+        isAccepting,
+        handleUpdateDeliveryStatus, // <--- THIS LINE WAS MISSING IN YOUR LOCAL FILE
+        isUpdatingStatus            // <--- AND THIS LINE WAS MISSING
     };
 };
 

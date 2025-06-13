@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { navLinks as baseNavLinks } from "../../constants/navLinks"; // Rename to avoid conflict
+import { Link, useLocation, useNavigate } from "react-router-dom"; // Import useNavigate
+import { navLinks as baseNavLinks } from "../../constants/navLinks";
 import VoiceButton from "../VoiceButton";
 import MenuButton from "../MenuButton";
-import { useAuth } from "../../contexts/AuthContext"; // Import useAuth hook
+import { useAuth } from "../../contexts/AuthContext";
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false); // New state for profile dropdown
   const location = useLocation();
-  const { isAuthenticated, currentUser, logout } = useAuth(); // Use useAuth hook for state and logout
+  const navigate = useNavigate(); // Initialize useNavigate
+  const { isAuthenticated, currentUser, logout } = useAuth();
 
   // Dynamically filter navLinks based on user role
   const filteredNavLinks = baseNavLinks.filter(link => {
@@ -25,8 +27,33 @@ const Navbar = () => {
         return true;
       }
     }
+    // Hide /profile link from the main navbar if we want to access it via compact profile display
+    if (link.to === "/profile") {
+        return false;
+    }
     return false;
   });
+
+  // Handle click on the compact profile display button (toggles dropdown)
+  const handleProfileClick = () => {
+    setProfileDropdownOpen(prev => !prev);
+  };
+
+  // UPDATED: Handle navigation to the full profile page with toggle logic
+  const handleViewProfile = () => {
+    setProfileDropdownOpen(false); // Close dropdown
+    if (location.pathname === '/profile') {
+      // If already on the profile page, navigate to home (or previous page)
+      navigate('/'); // You can change '/' to navigate(-1) to go back to the previous page
+    } else {
+      // If not on the profile page, navigate to it
+      navigate('/profile');
+    }
+  };
+
+  const getFirstLetter = (name) => {
+    return name ? name.charAt(0).toUpperCase() : '?';
+  };
 
   return (
     <nav className="sticky top-0 z-50 w-full bg-white/90 shadow-md backdrop-blur">
@@ -56,10 +83,34 @@ const Navbar = () => {
               <Link to="/login" className="px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-sky-50 hover:text-sky-600">Login</Link>
             )}
           </li>
+          {/* Compact Profile Display for Desktop (visible only when authenticated) */}
+          {isAuthenticated && currentUser && (
+            <li className="relative">
+              <button
+                onClick={handleProfileClick} // This toggles the small dropdown
+                className="flex items-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 rounded-full p-1"
+              >
+                <div className="w-10 h-10 bg-sky-500 text-white rounded-full flex items-center justify-center font-bold text-lg shadow-sm">
+                  {getFirstLetter(currentUser.name || currentUser.username)}
+                </div>
+                <span className="text-slate-700 font-medium hidden lg:block">{currentUser.name || currentUser.username}</span>
+              </button>
+              {profileDropdownOpen && ( // This is the small dropdown that appears
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2 z-50 border border-gray-200">
+                  <button
+                    onClick={handleViewProfile} // This navigates to /profile or toggles away
+                    className="block w-full text-left px-4 py-2 text-gray-800 hover:bg-gray-100 transition-colors"
+                  >
+                    {location.pathname === '/profile' ? 'Close Profile' : 'View Full Profile'} {/* Dynamic text */}
+                  </button>
+                </div>
+              )}
+            </li>
+          )}
         </ul>
         {/* Audio Button (always visible) */}
         <VoiceButton />
-        {/* Hamburger (Mobile) */}
+        {/* Hamburger (Mobile) - also includes compact profile for mobile */}
         <MenuButton onClick={() => setMenuOpen((open) => !open)} />
       </div>
       {/* Mobile Menu */}
@@ -79,6 +130,22 @@ const Navbar = () => {
               </Link>
             </li>
           ))}
+          {/* Mobile Profile Link (visible only when authenticated) */}
+          {isAuthenticated && currentUser && (
+            <li>
+              <button
+                onClick={() => { handleViewProfile(); setMenuOpen(false); }} // This navigates/toggles and closes mobile menu
+                className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-sky-50 hover:text-sky-600 flex items-center gap-2"
+              >
+                <div className="w-8 h-8 bg-sky-500 text-white rounded-full flex items-center justify-center font-bold text-sm">
+                  {getFirstLetter(currentUser.name || currentUser.username)}
+                </div>
+                <span>
+                  {currentUser.name || currentUser.username} ({location.pathname === '/profile' ? 'Close Profile' : 'View Profile'}) {/* Dynamic text */}
+                </span>
+              </button>
+            </li>
+          )}
           <li>
             {isAuthenticated ? (
               <button onClick={() => { logout(); setMenuOpen(false); }} className="px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-sky-50 hover:text-sky-600">Logout</button>
@@ -88,23 +155,6 @@ const Navbar = () => {
           </li>
         </ul>
       </div>
-      {/* Profile dropdown if logged in */}
-      {isAuthenticated && currentUser && ( // Use currentUser from context
-        <div className="absolute right-4 top-20 bg-white rounded-lg shadow-lg p-4 z-50 min-w-[220px] border border-gray-200">
-          <div className="mb-2 text-base font-semibold text-gray-800">Profile</div>
-          <div className="text-sm text-gray-700 mb-1"><b>Role:</b> <span className="capitalize">{currentUser.role}</span></div>
-          <div className="text-sm text-gray-700 mb-1"><b>Name:</b> {currentUser.name || '-'}</div>
-          <div className="text-sm text-gray-700 mb-1"><b>Email:</b> {currentUser.email}</div>
-          <div className="text-sm text-gray-700 mb-1"><b>Username:</b> {currentUser.username}</div>
-          <div className="text-sm text-gray-700 mb-3"><b>Phone:</b> {currentUser.phone || '-'}</div>
-          <button
-            onClick={logout}
-            className="w-full mt-2 rounded bg-red-600 text-white py-2 font-semibold hover:bg-red-500 transition"
-          >
-            Logout
-          </button>
-        </div>
-      )}
     </nav>
   );
 };

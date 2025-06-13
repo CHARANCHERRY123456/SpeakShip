@@ -20,4 +20,7 @@ router.get('/my', authenticate(['driver']), DeliveryController.listForDriver);
 // List deliveries for customer
 router.get('/customer', authenticate(['customer']), DeliveryController.listForCustomer);
 
+// NEW ROUTE: Update delivery status (driver)
+router.patch('/status/:id', authenticate(['driver']), DeliveryController.updateStatus);
+
 export default router;

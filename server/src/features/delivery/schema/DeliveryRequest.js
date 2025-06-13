@@ -9,7 +9,7 @@ const DeliveryRequestSchema = new mongoose.Schema({
   dropoffAddress: { type: String, required: true },
   note: { type: String },
   photoUrl: { type: String }, // Optional, store file path or URL
-  status: { type: String, enum: ['Pending', 'Accepted', 'Completed'], default: 'Pending' },
+  status: { type: String, enum: ['Pending', 'Accepted', 'In-Transit', 'Delivered'], default: 'Pending' },
   driver: { type: mongoose.Schema.Types.ObjectId, ref: 'Driver' }, // Assigned driver
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }

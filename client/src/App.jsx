@@ -12,6 +12,8 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import CustomerDeliveryPage from './features/delivery/pages/CustomerDeliveryPage';
 import DriverDeliveryPage from './features/delivery/pages/DriverDeliveryPage';
 import ProtectedRoute from './components/ProtectedRoute';
+import ProfilePage from './features/profile/pages/ProfilePage'; 
+import { useNavigate } from 'react-router-dom'; // <--- Add this line
 
 function App() {
   return (
@@ -27,18 +29,16 @@ function App() {
 }
 
 function AuthRoutes() {
-  const { isAuthenticated, customer } = useAuth();
-  useEffect(() => {
-    if (isAuthenticated && customer) {
-      if (window.location.pathname === '/') {
-        if (customer.role === 'customer') {
-          window.location.replace('/delivery/customer');
-        } else if (customer.role === 'driver') {
-          window.location.replace('/delivery/driver');
-        }
-      }
+  const { isAuthenticated, currentUser } = useAuth();
+  const navigate = useNavigate();
+ useEffect(() => {
+  if (isAuthenticated && currentUser) {
+    if (location.pathname === '/login') {
+      navigate('/', { replace: true }); // Redirect to profile page
     }
-  }, [isAuthenticated, customer]);
+  }
+  // ... rest of the useEffect
+}, [isAuthenticated, currentUser, navigate, location.pathname]);
   return (
     <main className="max-w-5xl mx-auto w-full px-4 py-8">
       <Routes>
@@ -56,6 +56,11 @@ function AuthRoutes() {
           <ProtectedRoute allowedRoles={['driver']}>
             <DriverDeliveryPage />
           </ProtectedRoute>
+        } />
+       <Route path="/profile" element={
+         <ProtectedRoute allowedRoles={['customer', 'driver', 'admin']}>
+              <ProfilePage />
+       </ProtectedRoute>
         } />
         <Route path="/" element={<Home/>}/>
 
