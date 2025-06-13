@@ -46,6 +46,24 @@ export async function acceptDeliveryRequest(deliveryId) {
     return response.data;
 }
 
+// NEW FUNCTION: Update delivery status
+/**
+ * Updates the status of a specific delivery request.
+ * @param {string} deliveryId - The ID of the delivery request to update.
+ * @param {string} newStatus - The new status (e.g., 'Completed').
+ * @returns {Promise<Object>} - The updated delivery request object.
+ */
+export async function updateDeliveryStatus(deliveryId, newStatus) {
+    const token = localStorage.getItem('authToken');
+    const response = await axios.patch(`/api/delivery/status/${deliveryId}`, { status: newStatus }, {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    });
+    return response.data;
+}
+
+
 /**
  * Fetches all deliveries assigned to the current driver.
  * @param {string} driverId - The ID of the driver (optional, can be inferred from token on backend).

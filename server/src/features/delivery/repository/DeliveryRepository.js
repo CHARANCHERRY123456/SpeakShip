@@ -22,6 +22,14 @@ const DeliveryRepository = {
     );
   },
 
+  async updateStatus(id, newStatus) {
+    return DeliveryRequest.findByIdAndUpdate(
+      id,
+      { status: newStatus, updatedAt: Date.now() },
+      { new: true }
+    );
+  },
+
   async findByDriver(driverId) {
     return DeliveryRequest.find({ driver: driverId }).sort({ createdAt: -1 }).populate('customer');
   },

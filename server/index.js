@@ -20,7 +20,7 @@ const PORT = process.env.PORT || 3000;
 const corsOptions = {
   origin: 'http://localhost:5173', // Set to your frontend URL
   credentials: true, // Allow cookies/credentials
-  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed HTTP methods for cross-origin requests
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'], // Allowed HTTP methods for cross-origin requests
   allowedHeaders: ['Content-Type', 'Authorization'], // Allowed request headers
 };
 app.use(cors(corsOptions)); 
