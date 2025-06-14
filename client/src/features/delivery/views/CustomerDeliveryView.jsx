@@ -7,14 +7,7 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { filterDeliveries } from '../utils/deliveryFilters';
 import { useCustomerDeliveryActions } from '../ui-actions/useCustomerDeliveryActions';
 import LoadingSpinner from '../../../features/core/components/LoadingSpinner'
-
-const STATUS_OPTIONS = [
-    { value: '', label: 'All' },
-    { value: 'Pending', label: 'Pending' },
-    { value: 'Accepted', label: 'Accepted' },
-    { value: 'In-Transit', label: 'In-Transit' },
-    { value: 'Delivered', label: 'Delivered' },
-];
+import { STATUS_OPTIONS, DELIVERY_MESSAGES } from '../constants';
 
 export default function CustomerDeliveryView() {
     const { isAuthenticated, currentUser } = useAuth();
@@ -37,7 +30,7 @@ export default function CustomerDeliveryView() {
     if (!isAuthenticated || currentUser?.role !== 'customer') {
         return (
             <div className="text-center py-12 text-red-600 font-semibold text-lg">
-                You must be logged in as a customer to view this page.
+                {DELIVERY_MESSAGES.notCustomer}
             </div>
         );
     }
@@ -79,7 +72,7 @@ export default function CustomerDeliveryView() {
                 <div className="text-center py-8 text-red-600">{myDeliveriesError}</div>
             ) : filteredDeliveries.length === 0 ? (
                 <div className="text-center py-8 text-gray-600">
-                    No delivery requests found.
+                    {DELIVERY_MESSAGES.noDeliveries}
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
