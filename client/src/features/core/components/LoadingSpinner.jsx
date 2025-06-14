@@ -2,45 +2,71 @@
 // eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
 
-const dotVariants = {
-  animate: {
-    y: [0, -12, 0],
-    transition: {
-      y: {
-        repeat: Infinity,
-        repeatType: "loop",
-        duration: 0.8,
-        ease: "easeInOut",
-        staggerChildren: 0.15,
-      },
-    },
-  },
-};
-
 const LoadingSpinner = () => (
-  <div className="flex flex-col items-center justify-center py-12">
-    <div className="flex space-x-2 mb-4">
+  <div className="flex flex-col items-center justify-center py-12 select-none">
+    {/* Animated Ship SVG */}
+    <motion.svg
+      width="64"
+      height="64"
+      viewBox="0 0 64 64"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className="mb-2"
+      initial={{ y: 0 }}
+      animate={{ y: [0, -8, 0] }}
+      transition={{ repeat: Infinity, duration: 1.2, ease: "easeInOut" }}
+    >
+      {/* Ship body */}
+      <rect x="20" y="32" width="24" height="12" rx="6" fill="#0ea5e9" />
+      {/* Ship deck */}
+      <rect x="28" y="26" width="8" height="8" rx="2" fill="#38bdf8" />
+      {/* Ship mast */}
+      <rect x="31" y="14" width="2" height="14" rx="1" fill="#1e293b" />
+      {/* Ship flag */}
+      <motion.polygon
+        points="32,14 32,20 40,17"
+        fill="#facc15"
+        initial={{ x: 0 }}
+        animate={{ x: [0, 2, 0, -2, 0] }}
+        transition={{ repeat: Infinity, duration: 1.2, ease: "easeInOut" }}
+      />
+    </motion.svg>
+    {/* Animated Waves */}
+    <motion.div
+      className="flex space-x-1 mb-4"
+      initial={{ x: 0 }}
+      animate={{ x: [0, 8, 0, -8, 0] }}
+      transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+    >
       {[0, 1, 2].map((i) => (
-        <motion.span
+        <span
           key={i}
-          className="block h-4 w-4 rounded-full bg-sky-500 shadow-md"
-          variants={dotVariants}
-          animate="animate"
-          style={{ animationDelay: `${i * 0.15}s` }}
+          className="block h-2 w-6 rounded-full bg-sky-300 opacity-70"
+          style={{ animationDelay: `${i * 0.2}s` }}
         />
       ))}
+    </motion.div>
+    {/* Animated SpeakShip Text */}
+    <div className="text-xl font-extrabold text-sky-600 tracking-widest flex items-center gap-1">
+      {"SpeakShip".split("").map((char, i) => (
+        <motion.span
+          key={i}
+          className="inline-block"
+          initial={{ y: 0 }}
+          animate={{ y: [0, -4, 0] }}
+          transition={{
+            repeat: Infinity,
+            duration: 1.2,
+            delay: i * 0.07,
+            ease: "easeInOut",
+          }}
+        >
+          {char}
+        </motion.span>
+      ))}
     </div>
-    <div className="text-lg font-bold text-sky-600 tracking-widest flex items-center gap-2 select-none">
-      <span className="animate-pulse">S</span>
-      <span className="animate-bounce [animation-delay:.1s]">p</span>
-      <span className="animate-bounce [animation-delay:.2s]">e</span>
-      <span className="animate-bounce [animation-delay:.3s]">a</span>
-      <span className="animate-bounce [animation-delay:.4s]">k</span>
-      <span className="animate-pulse [animation-delay:.5s]">S</span>
-      <span className="animate-bounce [animation-delay:.6s]">h</span>
-      <span className="animate-bounce [animation-delay:.7s]">i</span>
-      <span className="animate-bounce [animation-delay:.8s]">p</span>
-      <span className="ml-2 animate-pulse text-gray-400">•</span>
+    <div className="text-sm text-gray-400 mt-2 tracking-wide">
+      Preparing your delivery experience...
     </div>
   </div>
 );
