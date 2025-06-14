@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom"; // Import useNavigate
 import { navLinks as baseNavLinks } from "../../constants/navLinks";
 import VoiceButton from "../VoiceButton";
@@ -108,9 +108,7 @@ const Navbar = () => {
             </li>
           )}
         </ul>
-        {/* Audio Button (always visible) */}
         <VoiceButton />
-        {/* Hamburger (Mobile) - also includes compact profile for mobile */}
         <MenuButton onClick={() => setMenuOpen((open) => !open)} />
       </div>
       {/* Mobile Menu */}

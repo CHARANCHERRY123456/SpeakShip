@@ -1,27 +1,14 @@
 import { useAuth } from '../contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
-import React, { useEffect } from 'react'; // Import React and useEffect for debugging logs
 
 export default function ProtectedRoute({ children, allowedRoles }) {
   // Destructure isAuthenticated and currentUser from useAuth
-  const { isAuthenticated, currentUser, loading } = useAuth(); // Also get 'loading' state from AuthContext
+  const { isAuthenticated, currentUser, loading } = useAuth();
 
-  // --- DEBUGGING LOGS ---
-  useEffect(() => {
-    console.log("ProtectedRoute - Render Check:");
-    console.log("  isAuthenticated:", isAuthenticated);
-    console.log("  currentUser:", currentUser);
-    if (currentUser) {
-      console.log("  currentUser.role:", currentUser.role);
-    }
-    console.log("  allowedRoles:", allowedRoles);
-    console.log("  AuthContext Loading:", loading);
-  }, [isAuthenticated, currentUser, allowedRoles, loading]);
 
-  // If AuthContext is still loading the initial authentication state, show a loading message
+
   if (loading) {
-    console.log("ProtectedRoute - Path: AuthContext is still loading.");
-    return <div>Loading authentication...</div>; // Or a more visually appealing spinner
+    return <div>Loading authentication...</div>;
   }
 
   // If not authenticated, redirect to login page

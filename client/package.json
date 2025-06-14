@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "start" : "npm run dev",
+    "start": "npm run dev",
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
@@ -17,6 +17,7 @@
     "client": "file:",
     "dotenv": "^16.5.0",
     "express-session": "^1.18.1",
+    "framer-motion": "^12.18.1",
     "lucide-react": "^0.513.0",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
