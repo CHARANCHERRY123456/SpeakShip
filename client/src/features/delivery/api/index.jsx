@@ -1,5 +1,5 @@
 // src/features/delivery/api/index.jsx
-import axios from '../../../api/axios'; // Import the pre-configured axios instance
+import axios from '../../../api/axios';
 
 /**
  * Creates a new delivery request.
