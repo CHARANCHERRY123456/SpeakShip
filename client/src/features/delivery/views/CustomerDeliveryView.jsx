@@ -18,29 +18,15 @@ const STATUS_OPTIONS = [
 
 export default function CustomerDeliveryView() {
     const { isAuthenticated, currentUser } = useAuth();
-    const {
-        deliveries: allMyDeliveries,
-        loading: myDeliveriesLoading,
-        error: myDeliveriesError,
-        getDeliveries: getMyDeliveries,
-    } = useDeliveryApi('customer');
+    const {deliveries: allMyDeliveries,loading: myDeliveriesLoading,
+        error: myDeliveriesError,getDeliveries: getMyDeliveries,} = useDeliveryApi('customer');
 
     const [showCreateForm, setShowCreateForm] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
 
-    // Use modular UI actions
-    const {
-        handleSearchChange,
-        handleStatusChange,
-        handleDeliveryCreated,
-        handleToggleCreateForm
-    } = useCustomerDeliveryActions({
-        setSearchTerm,
-        setStatusFilter,
-        setShowCreateForm,
-        getMyDeliveries
-    });
+    const {handleSearchChange,handleStatusChange,handleDeliveryCreated,handleToggleCreateForm} =
+         useCustomerDeliveryActions({setSearchTerm,setStatusFilter,setShowCreateForm,getMyDeliveries});
 
     useEffect(() => {
         if (isAuthenticated && currentUser?.role === 'customer') {
