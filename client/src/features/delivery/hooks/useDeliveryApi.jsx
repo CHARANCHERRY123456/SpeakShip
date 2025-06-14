@@ -2,7 +2,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
     fetchCustomerDeliveries,
-    fetchPendingDeliveries,
     fetchDriverDeliveries,
     acceptDeliveryRequest,
     updateDeliveryStatus // Make sure this is imported

@@ -60,8 +60,13 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto flex items-center justify-between px-4 py-2 md:py-3">
         {/* Logo */}
         <div className="flex items-center gap-2">
-          <Link to="/" className="flex items-center text-xl font-bold text-sky-600 hover:text-sky-700 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 rounded">
-            QuickDeliver <span className="ml-1 text-sky-400 font-semibold">Lite</span>
+          <Link
+            to="/"
+            className="flex items-center text-2xl font-extrabold text-sky-600 hover:text-sky-700 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 rounded"
+            aria-label="SpeakShip Home"
+          >
+            <span className="mr-2 text-3xl" role="img" aria-label="ship">🚢 </span>
+            <span>SpeakShip</span>
           </Link>
         </div>
         {/* Desktop Nav */}
