@@ -12,23 +12,6 @@ const DeliveryCard = ({ delivery, isDriverView = false, onAccept, onUpdateStatus
     const isInTransit = delivery.status === 'In-Transit';
     const isDelivered = delivery.status === 'Delivered'; // Renamed from isCompleted
 
-    // --- DEBUGGING LOGS (CRITICAL FOR THIS ISSUE) ---
-    React.useEffect(() => {
-        console.groupCollapsed(`DeliveryCard Render Check for ID: ${delivery._id.substring(0, 8)}...`);
-        console.log(`  Current Status: "${delivery.status}"`);
-        console.log(`  isDriverView (prop): ${isDriverView}`);
-        console.log(`  isPending (calculated in card): ${isPending}`); // Confirm this value
-        console.log(`  isAccepted (calculated in card): ${isAccepted}`);
-        console.log(`  isInTransit (calculated in card): ${isInTransit}`);
-        console.log(`  isDelivered (calculated in card): ${isDelivered}`);
-        console.log(`  onAccept prop provided: ${!!onAccept}`); // Should be true for pending
-        console.log(`  onUpdateStatus prop provided: ${!!onUpdateStatus}`); // Should be true for accepted/in-transit
-        console.log(`  --- Conditions for Accept Button ---`);
-        console.log(`  Condition 1: isDriverView && isPending && onAccept`);
-        console.log(`  Value: ${isDriverView} && ${isPending} && ${!!onAccept} = ${isDriverView && isPending && !!onAccept}`);
-        console.groupEnd();
-    }, [delivery, isDriverView, isPending, isAccepted, isInTransit, isDelivered, onAccept, onUpdateStatus]);
-    // --- END DEBUGGING LOGS ---
 
     // Safely get customer display information, falling back to delivery object's fields
     const customerDisplayName = (typeof delivery.customer === 'object' && delivery.customer !== null) ? delivery.customer.name : delivery.name;
