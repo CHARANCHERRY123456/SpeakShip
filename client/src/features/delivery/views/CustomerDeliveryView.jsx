@@ -6,6 +6,7 @@ import useDeliveryApi from '../hooks/useDeliveryApi';
 import { useAuth } from '../../../contexts/AuthContext';
 import { filterDeliveries } from '../utils/deliveryFilters';
 import { useCustomerDeliveryActions } from '../ui-actions/useCustomerDeliveryActions';
+import LoadingSpinner from '../../../features/core/components/LoadingSpinner'
 
 const STATUS_OPTIONS = [
     { value: '', label: 'All' },
@@ -87,8 +88,7 @@ export default function CustomerDeliveryView() {
                     ))}
                 </select>
             </div>
-            {myDeliveriesLoading ? (
-                <div className="text-center py-8 text-gray-600">Loading your deliveries...</div>
+            {myDeliveriesLoading ? ( <LoadingSpinner />
             ) : myDeliveriesError ? (
                 <div className="text-center py-8 text-red-600">{myDeliveriesError}</div>
             ) : filteredDeliveries.length === 0 ? (
