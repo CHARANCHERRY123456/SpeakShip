@@ -3,9 +3,6 @@ import config from "./config.js";
 
 const connectDB = async ()=>{
     try {
-        
-        console.log("connecting to mongodb.........." , config.MONGO_URI.slice(0, 8));
-
         const conn = await mongoose.connect(config.MONGO_URI);
         console.log("Mongo DB Connected" , config.MONGO_URI.slice(0, 8));
     } catch (error) {
