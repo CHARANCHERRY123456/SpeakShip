@@ -51,20 +51,26 @@ photo: (file upload, optional)
 - **Endpoint:** `GET /api/delivery/pending`
 - **Auth:** Bearer Token (driver)
 - **Description:** Get all pending delivery requests available for drivers.
+- **Query Parameters:**
+  - `page` (integer, optional): Page number (default: 1)
+  - `limit` (integer, optional): Number of results per page (default: 10)
 - **Response Example (200):**
 ```json
-[
-  {
-    "_id": "664f1c...",
-    "name": "John Doe",
-    "pickupAddress": "123 Main St, City",
-    "dropoffAddress": "456 Market St, City",
-    "note": "Handle with care",
-    "photoUrl": "/uploads/photo.jpg",
-    "status": "Pending"
-  },
-  ...
-]
+{
+  "results": [
+    {
+      "_id": "664f1c...",
+      "name": "John Doe",
+      "pickupAddress": "123 Main St, City",
+      "dropoffAddress": "456 Market St, City",
+      "note": "Handle with care",
+      "photoUrl": "/uploads/photo.jpg",
+      "status": "Pending"
+    },
+    ...
+  ],
+  "total": 42
+}
 ```
 - **Error (401):**
 ```json
@@ -100,19 +106,25 @@ photo: (file upload, optional)
 - **Endpoint:** `GET /api/delivery/my`
 - **Auth:** Bearer Token (driver)
 - **Description:** Get all deliveries assigned to the authenticated driver.
+- **Query Parameters:**
+  - `page` (integer, optional): Page number (default: 1)
+  - `limit` (integer, optional): Number of results per page (default: 10)
 - **Response Example (200):**
 ```json
-[
-  {
-    "_id": "664f1c...",
-    "name": "John Doe",
-    "pickupAddress": "123 Main St, City",
-    "dropoffAddress": "456 Market St, City",
-    "status": "Accepted",
-    "photoUrl": "/uploads/photo.jpg"
-  },
-  ...
-]
+{
+  "results": [
+    {
+      "_id": "664f1c...",
+      "name": "John Doe",
+      "pickupAddress": "123 Main St, City",
+      "dropoffAddress": "456 Market St, City",
+      "status": "Accepted",
+      "photoUrl": "/uploads/photo.jpg"
+    },
+    ...
+  ],
+  "total": 17
+}
 ```
 
 ---
@@ -122,19 +134,25 @@ photo: (file upload, optional)
 - **Endpoint:** `GET /api/delivery/customer`
 - **Auth:** Bearer Token (customer)
 - **Description:** Get all deliveries created by the authenticated customer.
+- **Query Parameters:**
+  - `page` (integer, optional): Page number (default: 1)
+  - `limit` (integer, optional): Number of results per page (default: 10)
 - **Response Example (200):**
 ```json
-[
-  {
-    "_id": "664f1c...",
-    "name": "John Doe",
-    "pickupAddress": "123 Main St, City",
-    "dropoffAddress": "456 Market St, City",
-    "status": "Pending",
-    "photoUrl": "/uploads/photo.jpg"
-  },
-  ...
-]
+{
+  "results": [
+    {
+      "_id": "664f1c...",
+      "name": "John Doe",
+      "pickupAddress": "123 Main St, City",
+      "dropoffAddress": "456 Market St, City",
+      "status": "Pending",
+      "photoUrl": "/uploads/photo.jpg"
+    },
+    ...
+  ],
+  "total": 8
+}
 ```
 
 ---

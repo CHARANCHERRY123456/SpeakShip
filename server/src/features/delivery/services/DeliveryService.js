@@ -15,8 +15,8 @@ class DeliveryService {
     return DeliveryRepository.create(deliveryData);
   }
 
-  async listPending() {
-    return DeliveryRepository.findPending();
+  async listPending({ page = 1, limit = 10 } = {}) {
+    return DeliveryRepository.findPending({ page, limit });
   }
 
   async acceptRequest(id, driverId) {
@@ -43,12 +43,12 @@ class DeliveryService {
     return DeliveryRepository.updateStatus(id, newStatus);
   }
 
-  async listForDriver(driverId) {
-    return DeliveryRepository.findByDriver(driverId);
+  async listForDriver(driverId, { page = 1, limit = 10 } = {}) {
+    return DeliveryRepository.findByDriver(driverId, { page, limit });
   }
 
-  async listForCustomer(customerId) {
-    return DeliveryRepository.findByCustomer(customerId);
+  async listForCustomer(customerId, { page = 1, limit = 10 } = {}) {
+    return DeliveryRepository.findByCustomer(customerId, { page, limit });
   }
 }
 

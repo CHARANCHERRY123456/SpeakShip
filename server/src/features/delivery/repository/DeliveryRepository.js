@@ -5,8 +5,17 @@ const DeliveryRepository = {
     return DeliveryRequest.create(data);
   },
 
-  async findPending() {
-    return DeliveryRequest.find({ status: 'Pending' }).sort({ createdAt: -1 }).populate('customer');
+  async findPending({ page = 1, limit = 10 } = {}) {
+    const skip = (page - 1) * limit;
+    const [results, total] = await Promise.all([
+      DeliveryRequest.find({ status: 'Pending' })
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .populate('customer'),
+      DeliveryRequest.countDocuments({ status: 'Pending' })
+    ]);
+    return { results, total };
   },
 
   async findById(id) {
@@ -30,12 +39,30 @@ const DeliveryRepository = {
     );
   },
 
-  async findByDriver(driverId) {
-    return DeliveryRequest.find({ driver: driverId }).sort({ createdAt: -1 }).populate('customer');
+  async findByDriver(driverId, { page = 1, limit = 10 } = {}) {
+    const skip = (page - 1) * limit;
+    const [results, total] = await Promise.all([
+      DeliveryRequest.find({ driver: driverId })
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .populate('customer'),
+      DeliveryRequest.countDocuments({ driver: driverId })
+    ]);
+    return { results, total };
   },
 
-  async findByCustomer(customerId) {
-    return DeliveryRequest.find({ customer: customerId }).sort({ createdAt: -1 }).populate('driver');
+  async findByCustomer(customerId, { page = 1, limit = 10 } = {}) {
+    const skip = (page - 1) * limit;
+    const [results, total] = await Promise.all([
+      DeliveryRequest.find({ customer: customerId })
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .populate('driver'),
+      DeliveryRequest.countDocuments({ customer: customerId })
+    ]);
+    return { results, total };
   }
 };
 

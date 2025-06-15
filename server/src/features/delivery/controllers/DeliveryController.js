@@ -20,8 +20,10 @@ const DeliveryController = {
 
   async listPending(req, res) {
     try {
-      const deliveries = await DeliveryService.listPending();
-      res.json(deliveries);
+      const page = parseInt(req.query.page, 10) || 1;
+      const limit = parseInt(req.query.limit, 10) || 10;
+      const data = await DeliveryService.listPending({ page, limit });
+      res.json(data);
     } catch (err) {
       console.error("Backend Error in DeliveryController.listPending:", err);
       res.status(500).json({ error: err.message });
@@ -65,8 +67,10 @@ const DeliveryController = {
   async listForDriver(req, res) {
     try {
       const driverId = req.user.id;
-      const deliveries = await DeliveryService.listForDriver(driverId);
-      res.json(deliveries);
+      const page = parseInt(req.query.page, 10) || 1;
+      const limit = parseInt(req.query.limit, 10) || 10;
+      const data = await DeliveryService.listForDriver(driverId, { page, limit });
+      res.json(data);
     } catch (err) {
       console.error("Backend Error in DeliveryController.listForDriver:", err);
       res.status(500).json({ error: err.message });
@@ -76,8 +80,10 @@ const DeliveryController = {
   async listForCustomer(req, res) {
     try {
       const customerId = req.user.id;
-      const deliveries = await DeliveryService.listForCustomer(customerId);
-      res.json(deliveries);
+      const page = parseInt(req.query.page, 10) || 1;
+      const limit = parseInt(req.query.limit, 10) || 10;
+      const data = await DeliveryService.listForCustomer(customerId, { page, limit });
+      res.json(data);
     } catch (err) {
       console.error("Backend Error in DeliveryController.listForCustomer:", err);
       res.status(500).json({ error: err.message });
