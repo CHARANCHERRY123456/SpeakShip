@@ -54,6 +54,8 @@ photo: (file upload, optional)
 - **Query Parameters:**
   - `page` (integer, optional): Page number (default: 1)
   - `limit` (integer, optional): Number of results per page (default: 10)
+  - `search` (string, optional): Search by name, packageName, address, email, phone, or ID
+  - `status` (string, optional): Filter by delivery status
 - **Response Example (200):**
 ```json
 {
@@ -61,6 +63,7 @@ photo: (file upload, optional)
     {
       "_id": "664f1c...",
       "name": "John Doe",
+      "packageName": "Books",
       "pickupAddress": "123 Main St, City",
       "dropoffAddress": "456 Market St, City",
       "note": "Handle with care",
@@ -109,6 +112,8 @@ photo: (file upload, optional)
 - **Query Parameters:**
   - `page` (integer, optional): Page number (default: 1)
   - `limit` (integer, optional): Number of results per page (default: 10)
+  - `search` (string, optional): Search by name, packageName, address, email, phone, or ID
+  - `status` (string, optional): Filter by delivery status
 - **Response Example (200):**
 ```json
 {
@@ -116,6 +121,7 @@ photo: (file upload, optional)
     {
       "_id": "664f1c...",
       "name": "John Doe",
+      "packageName": "Laptop",
       "pickupAddress": "123 Main St, City",
       "dropoffAddress": "456 Market St, City",
       "status": "Accepted",
@@ -137,6 +143,8 @@ photo: (file upload, optional)
 - **Query Parameters:**
   - `page` (integer, optional): Page number (default: 1)
   - `limit` (integer, optional): Number of results per page (default: 10)
+  - `search` (string, optional): Search by name, packageName, address, email, phone, or ID
+  - `status` (string, optional): Filter by delivery status
 - **Response Example (200):**
 ```json
 {
@@ -144,6 +152,7 @@ photo: (file upload, optional)
     {
       "_id": "664f1c...",
       "name": "John Doe",
+      "packageName": "Shoes",
       "pickupAddress": "123 Main St, City",
       "dropoffAddress": "456 Market St, City",
       "status": "Pending",

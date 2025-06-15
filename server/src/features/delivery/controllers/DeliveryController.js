@@ -22,7 +22,9 @@ const DeliveryController = {
     try {
       const page = parseInt(req.query.page, 10) || 1;
       const limit = parseInt(req.query.limit, 10) || 10;
-      const data = await DeliveryService.listPending({ page, limit });
+      const search = req.query.search || '';
+      const status = req.query.status || '';
+      const data = await DeliveryService.listPending({ page, limit, search, status });
       res.json(data);
     } catch (err) {
       console.error("Backend Error in DeliveryController.listPending:", err);
@@ -69,7 +71,9 @@ const DeliveryController = {
       const driverId = req.user.id;
       const page = parseInt(req.query.page, 10) || 1;
       const limit = parseInt(req.query.limit, 10) || 10;
-      const data = await DeliveryService.listForDriver(driverId, { page, limit });
+      const search = req.query.search || '';
+      const status = req.query.status || '';
+      const data = await DeliveryService.listForDriver(driverId, { page, limit, search, status });
       res.json(data);
     } catch (err) {
       console.error("Backend Error in DeliveryController.listForDriver:", err);
@@ -82,7 +86,9 @@ const DeliveryController = {
       const customerId = req.user.id;
       const page = parseInt(req.query.page, 10) || 1;
       const limit = parseInt(req.query.limit, 10) || 10;
-      const data = await DeliveryService.listForCustomer(customerId, { page, limit });
+      const search = req.query.search || '';
+      const status = req.query.status || '';
+      const data = await DeliveryService.listForCustomer(customerId, { page, limit, search, status });
       res.json(data);
     } catch (err) {
       console.error("Backend Error in DeliveryController.listForCustomer:", err);

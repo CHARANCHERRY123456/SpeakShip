@@ -1,19 +1,21 @@
 import DeliveryRequest from '../schema/DeliveryRequest.js';
+import { buildDeliveryFilters } from '../utils/deliveryFilters.js';
 
 const DeliveryRepository = {
   async create(data) {
     return DeliveryRequest.create(data);
   },
 
-  async findPending({ page = 1, limit = 10 } = {}) {
+  async findPending({ page = 1, limit = 10, search = '', status = '' } = {}) {
     const skip = (page - 1) * limit;
+    const filter = buildDeliveryFilters({ search, status }); // No default to 'Pending', allow all statuses if not set
     const [results, total] = await Promise.all([
-      DeliveryRequest.find({ status: 'Pending' })
+      DeliveryRequest.find(filter)
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
         .populate('customer'),
-      DeliveryRequest.countDocuments({ status: 'Pending' })
+      DeliveryRequest.countDocuments(filter)
     ]);
     return { results, total };
   },
@@ -39,28 +41,30 @@ const DeliveryRepository = {
     );
   },
 
-  async findByDriver(driverId, { page = 1, limit = 10 } = {}) {
+  async findByDriver(driverId, { page = 1, limit = 10, search = '', status = '' } = {}) {
     const skip = (page - 1) * limit;
+    const filter = { driver: driverId, ...buildDeliveryFilters({ search, status }) };
     const [results, total] = await Promise.all([
-      DeliveryRequest.find({ driver: driverId })
+      DeliveryRequest.find(filter)
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
         .populate('customer'),
-      DeliveryRequest.countDocuments({ driver: driverId })
+      DeliveryRequest.countDocuments(filter)
     ]);
     return { results, total };
   },
 
-  async findByCustomer(customerId, { page = 1, limit = 10 } = {}) {
+  async findByCustomer(customerId, { page = 1, limit = 10, search = '', status = '' } = {}) {
     const skip = (page - 1) * limit;
+    const filter = { customer: customerId, ...buildDeliveryFilters({ search, status }) };
     const [results, total] = await Promise.all([
-      DeliveryRequest.find({ customer: customerId })
+      DeliveryRequest.find(filter)
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
         .populate('driver'),
-      DeliveryRequest.countDocuments({ customer: customerId })
+      DeliveryRequest.countDocuments(filter)
     ]);
     return { results, total };
   }
