@@ -1,4 +1,5 @@
 // Centralized delivery feature constants
+import { GLOBAL_MESSAGES } from '../../../constants/globalConstants';
 
 export const STATUS_OPTIONS = [
   { value: '', label: 'All' },
@@ -11,5 +12,5 @@ export const STATUS_OPTIONS = [
 export const DELIVERY_MESSAGES = {
   notCustomer: 'You must be logged in as a customer to view this page.',
   noDeliveries: 'No delivery requests found.',
-  error: 'Something went wrong. Please try again.',
+  error: GLOBAL_MESSAGES.GENERIC_ERROR,
 };
