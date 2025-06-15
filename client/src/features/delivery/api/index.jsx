@@ -18,14 +18,20 @@ export async function createDeliveryRequest(formData) {
 }
 
 /**
- * Fetches all pending delivery requests (for drivers).
- * @returns {Promise<Array<Object>>} - An array of pending delivery request objects.
+ * Fetches all pending delivery requests (for drivers) with pagination and filtering.
+ * @param {Object} params - { page, limit, search, status }
+ * @returns {Promise<Object>} - { results, total }
  */
-export async function fetchPendingDeliveries() {
+export async function fetchPendingDeliveries({ page = 1, search = '', status = '' } = {}) {
     const token = localStorage.getItem('authToken');
-    const response = await axios.get('/api/delivery/pending', {
+    const params = new URLSearchParams();
+    params.append('page', page);
+    params.append('limit', 10);
+    if (search) params.append('search', search);
+    if (status) params.append('status', status);
+    const response = await axios.get(`/api/delivery/pending?${params.toString()}`, {
         headers: {
-            Authorization: `Bearer ${token}` // Ensure token is sent for authentication
+            Authorization: `Bearer ${token}`
         }
     });
     return response.data;
@@ -65,13 +71,18 @@ export async function updateDeliveryStatus(deliveryId, newStatus) {
 
 
 /**
- * Fetches all deliveries assigned to the current driver.
- * @param {string} driverId - The ID of the driver (optional, can be inferred from token on backend).
- * @returns {Promise<Array<Object>>} - An array of delivery request objects assigned to the driver.
+ * Fetches all deliveries assigned to the current driver with pagination and filtering.
+ * @param {Object} params - { page, limit, search, status }
+ * @returns {Promise<Object>} - { results, total }
  */
-export async function fetchDriverDeliveries() {
+export async function fetchDriverDeliveries({ page = 1, search = '', status = '' } = {}) {
     const token = localStorage.getItem('authToken');
-    const response = await axios.get('/api/delivery/my', {
+    const params = new URLSearchParams();
+    params.append('page', page);
+    params.append('limit', 10);
+    if (search) params.append('search', search);
+    if (status) params.append('status', status);
+    const response = await axios.get(`/api/delivery/my?${params.toString()}`, {
         headers: {
             Authorization: `Bearer ${token}`
         }
@@ -80,13 +91,18 @@ export async function fetchDriverDeliveries() {
 }
 
 /**
- * Fetches all delivery requests made by the current customer.
- * @param {string} customerId - The ID of the customer (optional, can be inferred from token on backend).
- * @returns {Promise<Array<Object>>} - An array of delivery request objects made by the customer.
+ * Fetches all delivery requests made by the current customer with pagination and filtering.
+ * @param {Object} params - { page, limit, search, status }
+ * @returns {Promise<Object>} - { results, total }
  */
-export async function fetchCustomerDeliveries() {
+export async function fetchCustomerDeliveries({ page = 1, search = '', status = '' } = {}) {
     const token = localStorage.getItem('authToken');
-    const response = await axios.get('/api/delivery/customer', {
+    const params = new URLSearchParams();
+    params.append('page', page);
+    params.append('limit', 10);
+    if (search) params.append('search', search);
+    if (status) params.append('status', status);
+    const response = await axios.get(`/api/delivery/customer?${params.toString()}`, {
         headers: {
             Authorization: `Bearer ${token}`
         }

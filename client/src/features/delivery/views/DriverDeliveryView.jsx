@@ -1,10 +1,7 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect } from 'react';
 import DeliveryCard from '../components/DeliveryCard';
 import useDeliveryApi from '../hooks/useDeliveryApi';
 import { useAuth } from '../../../contexts/AuthContext';
-import { fetchPendingDeliveries } from '../api';
-import { filterDriverDeliveries } from '../utils/driverDeliveryFilters';
-import { useDriverDeliveryActions } from '../ui-actions/useDriverDeliveryActions';
 
 const STATUS_OPTIONS = [
   { value: '', label: 'All' },
@@ -17,56 +14,29 @@ const STATUS_OPTIONS = [
 export default function DriverDeliveryView() {
   const { isAuthenticated, currentUser } = useAuth();
   const {
-    deliveries: allMyAssignedDeliveries,
+    deliveries,
+    total,
     loading: myDeliveriesLoading,
     error: myDeliveriesError,
     getDeliveries: getMyAssignedDeliveries,
+    page, setPage, search, setSearch, status, setStatus,
     handleAcceptDelivery,
     isAccepting,
     handleUpdateDeliveryStatus,
     isUpdatingStatus
   } = useDeliveryApi('driver');
 
-  const [pendingDeliveries, setPendingDeliveries] = useState([]);
-  const [pendingLoading, setPendingLoading] = useState(true);
-  const [pendingError, setPendingError] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
-
-  const getPendingDeliveries = useCallback(async () => {
-    setPendingLoading(true);
-    setPendingError(null);
-    try {
-      const data = await fetchPendingDeliveries();
-      setPendingDeliveries(data);
-    } catch (err) {
-      setPendingError(err.response?.data?.error || 'Failed to load pending deliveries.');
-    } finally {
-      setPendingLoading(false);
-    }
-  }, []);
-
-  // Modular UI actions
-  const {
-    handleSearchChange,
-    handleStatusChange,
-    onAcceptDelivery,
-    onUpdateStatus
-  } = useDriverDeliveryActions({
-    setSearchTerm,
-    setStatusFilter,
-    handleAcceptDelivery,
-    handleUpdateDeliveryStatus,
-    getPendingDeliveries,
-    getMyAssignedDeliveries
-  });
+  // Handlers for search and status
+  const handleSearchChange = e => { setSearch(e.target.value); setPage(1); };
+  const handleStatusChange = e => { setStatus(e.target.value); setPage(1); };
+  // const handleLimitChange = e => { setLimit(Number(e.target.value)); setPage(1); };
+  const handlePageChange = newPage => setPage(newPage);
 
   useEffect(() => {
     if (isAuthenticated && currentUser?.role === 'driver') {
-      getPendingDeliveries();
       getMyAssignedDeliveries();
     }
-  }, [isAuthenticated, currentUser, getMyAssignedDeliveries, getPendingDeliveries]);
+  }, [isAuthenticated, currentUser, getMyAssignedDeliveries, page, search, status]);
 
   if (!isAuthenticated || currentUser?.role !== 'driver') {
     return (
@@ -76,13 +46,6 @@ export default function DriverDeliveryView() {
     );
   }
 
-  // Combine all deliveries for filtering
-  const allDeliveries = [
-    ...pendingDeliveries,
-    ...allMyAssignedDeliveries.filter(d => d.status !== 'Pending')
-  ];
-  const filteredDeliveries = filterDriverDeliveries(allDeliveries, searchTerm, statusFilter);
-
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold text-gray-900 mb-6 text-center">Driver Dashboard</h1>
@@ -90,12 +53,12 @@ export default function DriverDeliveryView() {
         <input
           type="text"
           placeholder="Search deliveries by address, customer, driver, or ID..."
-          value={searchTerm}
+          value={search}
           onChange={handleSearchChange}
           className="w-full sm:w-2/3 p-3 border border-gray-300 rounded-lg focus:ring-sky-500 focus:border-sky-500 text-gray-900 placeholder-gray-400 font-inter"
         />
         <select
-          value={statusFilter}
+          value={status}
           onChange={handleStatusChange}
           className="w-full sm:w-1/3 p-3 border border-gray-300 rounded-lg focus:ring-sky-500 focus:border-sky-500 text-gray-900 font-inter"
         >
@@ -104,28 +67,34 @@ export default function DriverDeliveryView() {
           ))}
         </select>
       </div>
-      {pendingLoading || myDeliveriesLoading ? (
+      {myDeliveriesLoading ? (
         <div className="text-center py-8 text-gray-600">Loading deliveries...</div>
-      ) : pendingError || myDeliveriesError ? (
-        <div className="text-center py-8 text-red-600">{pendingError || myDeliveriesError}</div>
-      ) : filteredDeliveries.length === 0 ? (
-        <div className="text-center py-8 text-gray-600">
-          No delivery requests found.
-        </div>
+      ) : myDeliveriesError ? (
+        <div className="text-center py-8 text-red-600">{myDeliveriesError}</div>
+      ) : deliveries.length === 0 ? (
+        <div className="text-center py-8 text-gray-600">No delivery requests found.</div>
       ) : (
+        <>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredDeliveries.map(delivery => (
+          {deliveries.map(delivery => (
             <DeliveryCard
               key={delivery._id}
               delivery={delivery}
               isDriverView={true}
-              onAccept={onAcceptDelivery}
+              onAccept={handleAcceptDelivery}
               isAccepting={isAccepting}
-              onUpdateStatus={onUpdateStatus}
+              onUpdateStatus={handleUpdateDeliveryStatus}
               updateLoading={isUpdatingStatus}
             />
           ))}
         </div>
+        {/* Pagination Controls */}
+        <div className="flex justify-center items-center gap-2 mt-8">
+          <button onClick={() => handlePageChange(page - 1)} disabled={page === 1} className="px-3 py-2 rounded bg-gray-200 text-gray-700 disabled:opacity-50">Prev</button>
+          <span>Page {page} of {Math.ceil(total / 10) || 1}</span>
+          <button onClick={() => handlePageChange(page + 1)} disabled={page * 10 >= total} className="px-3 py-2 rounded bg-gray-200 text-gray-700 disabled:opacity-50">Next</button>
+        </div>
+        </>
       )}
     </div>
   );
