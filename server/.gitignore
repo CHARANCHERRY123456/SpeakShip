@@ -9,6 +9,8 @@ pnpm-debug.log*
 .env
 .env.*
 
+.vscode/
+
 # Logs
 logs/
 *.log

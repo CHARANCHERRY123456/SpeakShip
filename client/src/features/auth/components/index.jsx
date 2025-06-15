@@ -1,5 +1,6 @@
 import React from 'react';
 import { Mail, Lock, Eye, EyeOff, User, MapPin, Tag, Phone } from 'lucide-react'; // Added Tag and Phone icons
+import { USER_ROLES } from '../../../constants/globalConstants';
 
 // UI components specific to authentication (e.g., LoginForm, RegisterForm).
 
@@ -19,9 +20,9 @@ export function RoleSelect({ value, onChange, isLogin }) {
           className="block w-full rounded-lg border border-gray-300 py-3 pl-10 pr-3 text-gray-900 placeholder-gray-400 focus:border-sky-500 focus:outline-none focus:ring-sky-500 sm:text-sm font-inter appearance-none"
           style={{ marginBottom: 0 }}
         >
-          <option value="customer">Customer</option>
-          <option value="driver">Driver</option>
-          {isLogin && <option value="admin">Admin</option>}
+          <option value={USER_ROLES.CUSTOMER}>Customer</option>
+          <option value={USER_ROLES.DRIVER}>Driver</option>
+          {isLogin && <option value={USER_ROLES.ADMIN}>Admin</option>}
         </select>
         {/* Custom dropdown arrow for better alignment */}
         <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
