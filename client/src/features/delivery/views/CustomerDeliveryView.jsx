@@ -19,9 +19,15 @@ export default function CustomerDeliveryView() {
     } = useDeliveryApi('customer');
 
     const [showCreateForm, setShowCreateForm] = useState(false);
+    const [searchInput, setSearchInput] = useState(search);
 
     // Handlers for search and status
-    const handleSearchChange = e => { setSearch(e.target.value); setPage(1); };
+    const handleSearchInputChange = e => setSearchInput(e.target.value);
+    const handleSearchSubmit = e => {
+        e.preventDefault();
+        setSearch(searchInput);
+        setPage(1);
+    };
     const handleStatusChange = e => { setStatus(e.target.value); setPage(1); };
     const handlePageChange = newPage => setPage(newPage);
 
@@ -57,14 +63,15 @@ export default function CustomerDeliveryView() {
                 </button>
             </div>
             {showCreateForm && <CreateDeliveryForm onDeliveryCreated={handleDeliveryCreated} />}
-            <div className="flex flex-col sm:flex-row gap-4 mb-6">
+            <form className="flex flex-col sm:flex-row gap-4 mb-6" onSubmit={handleSearchSubmit}>
                 <input
                     type="text"
                     placeholder="Search deliveries by address, name, or ID..."
-                    value={search}
-                    onChange={handleSearchChange}
+                    value={searchInput}
+                    onChange={handleSearchInputChange}
                     className="w-full sm:w-2/3 p-3 border border-gray-300 rounded-lg focus:ring-sky-500 focus:border-sky-500 text-gray-900 placeholder-gray-400 font-inter"
                 />
+                <button type="submit" className="px-4 py-3 rounded-lg bg-sky-600 text-white font-semibold hover:bg-sky-700 transition-colors">Search</button>
                 <select
                     value={status}
                     onChange={handleStatusChange}
@@ -74,7 +81,7 @@ export default function CustomerDeliveryView() {
                         <option key={opt.value} value={opt.value}>{opt.label}</option>
                     ))}
                 </select>
-            </div>
+            </form>
             {myDeliveriesLoading ? (
                 <LoadingSpinner />
             ) : myDeliveriesError ? (

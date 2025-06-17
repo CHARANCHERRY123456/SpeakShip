@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import DeliveryCard from '../components/DeliveryCard';
 import useDeliveryApi from '../hooks/useDeliveryApi';
 import { useAuth } from '../../../contexts/AuthContext';
@@ -26,8 +26,15 @@ export default function DriverDeliveryView() {
     isUpdatingStatus
   } = useDeliveryApi('driver');
 
+  const [searchInput, setSearchInput] = useState(search);
+
   // Handlers for search and status
-  const handleSearchChange = e => { setSearch(e.target.value); setPage(1); };
+  const handleSearchInputChange = e => setSearchInput(e.target.value);
+  const handleSearchSubmit = e => {
+    e.preventDefault();
+    setSearch(searchInput);
+    setPage(1);
+  };
   const handleStatusChange = e => { setStatus(e.target.value); setPage(1); };
   // const handleLimitChange = e => { setLimit(Number(e.target.value)); setPage(1); };
   const handlePageChange = newPage => setPage(newPage);
@@ -49,14 +56,15 @@ export default function DriverDeliveryView() {
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold text-gray-900 mb-6 text-center">Driver Dashboard</h1>
-      <div className="flex flex-col sm:flex-row gap-4 mb-6">
+      <form className="flex flex-col sm:flex-row gap-4 mb-6" onSubmit={handleSearchSubmit}>
         <input
           type="text"
           placeholder="Search deliveries by address, customer, driver, or ID..."
-          value={search}
-          onChange={handleSearchChange}
+          value={searchInput}
+          onChange={handleSearchInputChange}
           className="w-full sm:w-2/3 p-3 border border-gray-300 rounded-lg focus:ring-sky-500 focus:border-sky-500 text-gray-900 placeholder-gray-400 font-inter"
         />
+        <button type="submit" className="px-4 py-3 rounded-lg bg-sky-600 text-white font-semibold hover:bg-sky-700 transition-colors">Search</button>
         <select
           value={status}
           onChange={handleStatusChange}
@@ -66,7 +74,7 @@ export default function DriverDeliveryView() {
             <option key={opt.value} value={opt.value}>{opt.label}</option>
           ))}
         </select>
-      </div>
+      </form>
       {myDeliveriesLoading ? (
         <div className="text-center py-8 text-gray-600">Loading deliveries...</div>
       ) : myDeliveriesError ? (

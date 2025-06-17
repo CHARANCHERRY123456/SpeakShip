@@ -4,50 +4,13 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { createDeliveryRequest } from '../api';
 import { Mail, Phone, MapPin, Notebook, Camera, Tag } from 'lucide-react'; // Import relevant icons
 
-// Moved InputField component OUTSIDE of CreateDeliveryForm
-// This prevents it from being redefined on every render of CreateDeliveryForm,
-// which fixes the input focus and typing issues.
-const InputField = ({ icon: Icon, label, name, type = "text", value, onChange, placeholder, required = false, isTextArea = false }) => (
-    <div>
-        <label htmlFor={name} className="sr-only">{label}</label>
-        <div className="relative">
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                <Icon className="h-5 w-5 text-gray-400" aria-hidden="true" />
-            </div>
-            {isTextArea ? (
-                <textarea
-                    id={name}
-                    name={name}
-                    value={value}
-                    onChange={onChange}
-                    placeholder={placeholder}
-                    required={required}
-                    rows="3"
-                    className="block w-full rounded-lg border border-gray-300 py-3 pl-10 pr-3 text-gray-900 placeholder-gray-400 focus:border-sky-500 focus:outline-none focus:ring-sky-500 sm:text-sm font-inter"
-                />
-            ) : (
-                <input
-                    id={name}
-                    name={name}
-                    type={type}
-                    value={value}
-                    onChange={onChange}
-                    placeholder={placeholder}
-                    required={required}
-                    className="block w-full rounded-lg border border-gray-300 py-3 pl-10 pr-3 text-gray-900 placeholder-gray-400 focus:border-sky-500 focus:outline-none focus:ring-sky-500 sm:text-sm font-inter"
-                />
-            )}
-        </div>
-    </div>
-);
-
-
 const CreateDeliveryForm = ({ onDeliveryCreated }) => {
     const { currentUser } = useAuth(); // Assuming 'currentUser' holds the logged-in user's data
     const [formData, setFormData] = useState({
         name: currentUser?.name || '',
         email: currentUser?.email || '',
         phone: currentUser?.phone || '',
+        packageName: '',
         pickupAddress: '',
         dropoffAddress: '',
         note: '',
@@ -97,11 +60,11 @@ const CreateDeliveryForm = ({ onDeliveryCreated }) => {
         try {
             const response = await createDeliveryRequest(data);
             setSuccessMessage('Delivery request created successfully!');
-            // Clear form fields after successful submission
             setFormData({
                 name: currentUser?.name || '',
                 email: currentUser?.email || '',
                 phone: currentUser?.phone || '',
+                packageName: '',
                 pickupAddress: '',
                 dropoffAddress: '',
                 note: '',
@@ -132,12 +95,137 @@ const CreateDeliveryForm = ({ onDeliveryCreated }) => {
                 </div>
             )}
             <form onSubmit={handleSubmit} className="space-y-4">
-                <InputField icon={Tag} label="Your Name" name="name" value={formData.name} onChange={handleChange} placeholder="Your Name" required />
-                <InputField icon={Mail} label="Your Email" name="email" type="email" value={formData.email} onChange={handleChange} placeholder="Your Email" required />
-                <InputField icon={Phone} label="Your Phone" name="phone" type="tel" value={formData.phone} onChange={handleChange} placeholder="Your Phone Number" required />
-                <InputField icon={MapPin} label="Pickup Address" name="pickupAddress" value={formData.pickupAddress} onChange={handleChange} placeholder="Pickup Address" required />
-                <InputField icon={MapPin} label="Dropoff Address" name="dropoffAddress" value={formData.dropoffAddress} onChange={handleChange} placeholder="Dropoff Address" required />
-                <InputField icon={Notebook} label="Note" name="note" value={formData.note} onChange={handleChange} placeholder="Any special notes for delivery" isTextArea />
+                <div>
+                    <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Your Name</label>
+                    <div className="relative">
+                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                            <Tag className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                        </div>
+                        <input
+                            id="name"
+                            name="name"
+                            type="text"
+                            value={formData.name}
+                            onChange={handleChange}
+                            placeholder="Your Name"
+                            required
+                            className="block w-full rounded-lg border border-gray-300 py-3 pl-10 pr-3 text-gray-900 placeholder-gray-400 focus:border-sky-500 focus:outline-none focus:ring-sky-500 sm:text-sm font-inter"
+                        />
+                    </div>
+                </div>
+
+                <div>
+                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Your Email</label>
+                    <div className="relative">
+                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                            <Mail className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                        </div>
+                        <input
+                            id="email"
+                            name="email"
+                            type="email"
+                            value={formData.email}
+                            onChange={handleChange}
+                            placeholder="Your Email"
+                            required
+                            className="block w-full rounded-lg border border-gray-300 py-3 pl-10 pr-3 text-gray-900 placeholder-gray-400 focus:border-sky-500 focus:outline-none focus:ring-sky-500 sm:text-sm font-inter"
+                        />
+                    </div>
+                </div>
+
+                <div>
+                    <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">Your Phone</label>
+                    <div className="relative">
+                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                            <Phone className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                        </div>
+                        <input
+                            id="phone"
+                            name="phone"
+                            type="tel"
+                            value={formData.phone}
+                            onChange={handleChange}
+                            placeholder="Your Phone Number"
+                            required
+                            className="block w-full rounded-lg border border-gray-300 py-3 pl-10 pr-3 text-gray-900 placeholder-gray-400 focus:border-sky-500 focus:outline-none focus:ring-sky-500 sm:text-sm font-inter"
+                        />
+                    </div>
+                </div>
+
+                <div>
+                    <label htmlFor="packageName" className="block text-sm font-medium text-gray-700 mb-1">Package Name</label>
+                    <div className="relative">
+                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                            <Tag className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                        </div>
+                        <input
+                            id="packageName"
+                            name="packageName"
+                            type="text"
+                            value={formData.packageName}
+                            onChange={handleChange}
+                            placeholder="Package Name"
+                            required
+                            className="block w-full rounded-lg border border-gray-300 py-3 pl-10 pr-3 text-gray-900 placeholder-gray-400 focus:border-sky-500 focus:outline-none focus:ring-sky-500 sm:text-sm font-inter"
+                        />
+                    </div>
+                </div>
+
+                <div>
+                    <label htmlFor="pickupAddress" className="block text-sm font-medium text-gray-700 mb-1">Pickup Address</label>
+                    <div className="relative">
+                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                            <MapPin className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                        </div>
+                        <input
+                            id="pickupAddress"
+                            name="pickupAddress"
+                            type="text"
+                            value={formData.pickupAddress}
+                            onChange={handleChange}
+                            placeholder="Pickup Address"
+                            required
+                            className="block w-full rounded-lg border border-gray-300 py-3 pl-10 pr-3 text-gray-900 placeholder-gray-400 focus:border-sky-500 focus:outline-none focus:ring-sky-500 sm:text-sm font-inter"
+                        />
+                    </div>
+                </div>
+
+                <div>
+                    <label htmlFor="dropoffAddress" className="block text-sm font-medium text-gray-700 mb-1">Dropoff Address</label>
+                    <div className="relative">
+                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                            <MapPin className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                        </div>
+                        <input
+                            id="dropoffAddress"
+                            name="dropoffAddress"
+                            type="text"
+                            value={formData.dropoffAddress}
+                            onChange={handleChange}
+                            placeholder="Dropoff Address"
+                            required
+                            className="block w-full rounded-lg border border-gray-300 py-3 pl-10 pr-3 text-gray-900 placeholder-gray-400 focus:border-sky-500 focus:outline-none focus:ring-sky-500 sm:text-sm font-inter"
+                        />
+                    </div>
+                </div>
+
+                <div>
+                    <label htmlFor="note" className="block text-sm font-medium text-gray-700 mb-1">Note</label>
+                    <div className="relative">
+                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                            <Notebook className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                        </div>
+                        <textarea
+                            id="note"
+                            name="note"
+                            value={formData.note}
+                            onChange={handleChange}
+                            placeholder="Any special notes for delivery"
+                            rows="3"
+                            className="block w-full rounded-lg border border-gray-300 py-3 pl-10 pr-3 text-gray-900 placeholder-gray-400 focus:border-sky-500 focus:outline-none focus:ring-sky-500 sm:text-sm font-inter"
+                        />
+                    </div>
+                </div>
 
                 <div>
                     <label htmlFor="photo" className="block text-sm font-medium text-gray-700 mb-1">Upload Item Photo (Optional)</label>

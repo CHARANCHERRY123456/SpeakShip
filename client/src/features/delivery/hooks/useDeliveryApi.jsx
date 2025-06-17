@@ -45,11 +45,13 @@ const useDeliveryApi = (role) => {
             } else {
                 setError('You are not authorized to view this content.');
             }
-            setDeliveries(data.results);
-            setTotal(data.total);
+            setDeliveries(Array.isArray(data.results) ? data.results : []);
+            setTotal(typeof data.total === 'number' ? data.total : 0);
         } catch (err) {
             console.error(`Failed to fetch ${role} deliveries:`, err);
             setError(err.response?.data?.error || `Failed to load ${role} deliveries.`);
+            setDeliveries([]);
+            setTotal(0);
         } finally {
             setLoading(false);
         }
