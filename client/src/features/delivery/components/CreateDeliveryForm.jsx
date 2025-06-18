@@ -1,270 +1,719 @@
-// src/features/delivery/components/CreateDeliveryForm.jsx
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../../contexts/AuthContext';
-import { createDeliveryRequest } from '../api';
-import { Mail, Phone, MapPin, Notebook, Camera, Tag } from 'lucide-react'; // Import relevant icons
+import React, { useState } from 'react';
+import { MapPin, Package, Clock, DollarSign, CheckCircle, XCircle, X, Sparkles, Truck, Star } from 'lucide-react';
 
-const CreateDeliveryForm = ({ onDeliveryCreated }) => {
-    const { currentUser } = useAuth(); // Assuming 'currentUser' holds the logged-in user's data
-    const [formData, setFormData] = useState({
-        name: currentUser?.name || '',
-        email: currentUser?.email || '',
-        phone: currentUser?.phone || '',
-        packageName: '',
-        pickupAddress: '',
-        dropoffAddress: '',
-        note: '',
-    });
-    const [photo, setPhoto] = useState(null);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
-    const [successMessage, setSuccessMessage] = useState(null);
+const CreateDeliveryForm = () => {
+  const [currentStep, setCurrentStep] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [modalType, setModalType] = useState('success'); // 'success' or 'error'
+  const [modalMessage, setModalMessage] = useState('');
+  
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    packageName: '',
+    pickupAddress: '',
+    dropoffAddress: '',
+    note: '',
+    photoUrl: 'https://housing.com/news/wp-content/uploads/2023/10/Top-10-courier-companies-in-India-ft.jpg',
+    priorityLevel: 'Normal',
+    deliveryTimeEstimate: null,
+    priceEstimate: 0,
+    distanceInKm: 0
+  });
 
-    // Pre-fill form with current user's data if available
-    useEffect(() => {
-        if (currentUser) {
-            setFormData(prev => ({
-                ...prev,
-                name: currentUser.name || '',
-                email: currentUser.email || '',
-                phone: currentUser.phone || '',
-                // If currentUser has a default address, you could pre-fill pickupAddress
-                // pickupAddress: currentUser.address || '',
-            }));
-        }
-    }, [currentUser]);
+  const steps = [
+    { number: 1, title: 'Customer & Package Details', icon: Package },
+    { number: 2, title: 'Pickup Information', icon: MapPin },
+    { number: 3, title: 'Delivery Information', icon: MapPin },
+    { number: 4, title: 'Review & Confirm', icon: Clock }
+  ];
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+  // Helper functions
+  const handleLocationSearch = async (address, type) => {
+    const mockDistance = Math.random() * 20 + 5; // 5-25 km
+    const mockPrice = calculatePrice(mockDistance, formData.priorityLevel);
+
+    setFormData(prev => ({
+      ...prev,
+      [`${type}Address`]: address,
+      distanceInKm: mockDistance,
+      priceEstimate: mockPrice
+    }));
+  };
+
+  const calculatePrice = (distance, priority) => {
+    const basePrice = 5 + (distance * 0.5);
+    const multipliers = {
+      'Normal': 1,
+      'Urgent': 1.5,
+      'Overnight': 2
     };
+    return Math.round(basePrice * multipliers[priority] * 100) / 100;
+  };
 
-    const handleFileChange = (e) => {
-        setPhoto(e.target.files[0]);
+  const calculateDeliveryTimeEstimate = (distance, priority) => {
+    const now = new Date();
+    const hoursToAdd = {
+      'Normal': distance * 0.3,
+      'Urgent': distance * 0.2,
+      'Overnight': 24
     };
+    
+    if (priority === 'Overnight') {
+      now.setDate(now.getDate() + 1);
+      now.setHours(9, 0, 0, 0);
+    } else {
+      now.setHours(now.getHours() + hoursToAdd[priority]);
+    }
+    
+    return now;
+  };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-        setError(null);
-        setSuccessMessage(null);
+  // Success/Error Modal Component
+  const Modal = ({ isOpen, onClose, type, message }) => {
+    if (!isOpen) return null;
 
-        const data = new FormData();
-        for (const key in formData) {
-            data.append(key, formData[key]);
-        }
-        if (photo) {
-            data.append('photo', photo); // 'photo' must match the field name in upload.single('photo')
-        }
-
-        try {
-            const response = await createDeliveryRequest(data);
-            setSuccessMessage('Delivery request created successfully!');
-            setFormData({
-                name: currentUser?.name || '',
-                email: currentUser?.email || '',
-                phone: currentUser?.phone || '',
-                packageName: '',
-                pickupAddress: '',
-                dropoffAddress: '',
-                note: '',
-            });
-            setPhoto(null);
-            if (onDeliveryCreated) {
-                onDeliveryCreated(response); // Callback to parent to update lists
-            }
-        } catch (err) {
-            console.error('Failed to create delivery request:', err);
-            setError(err.response?.data?.error || 'Failed to create delivery request. Please try again.');
-        } finally {
-            setLoading(false);
-        }
-    };
-
+    const isSuccess = type === 'success';
+    
     return (
-        <div className="max-w-xl mx-auto p-6 bg-white rounded-lg shadow-xl mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">Create New Delivery Request</h2>
-            {successMessage && (
-                <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg mb-4" role="alert">
-                    {successMessage}
-                </div>
-            )}
-            {error && (
-                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4" role="alert">
-                    {error}
-                </div>
-            )}
-            <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                    <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Your Name</label>
-                    <div className="relative">
-                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                            <Tag className="h-5 w-5 text-gray-400" aria-hidden="true" />
-                        </div>
-                        <input
-                            id="name"
-                            name="name"
-                            type="text"
-                            value={formData.name}
-                            onChange={handleChange}
-                            placeholder="Your Name"
-                            required
-                            className="block w-full rounded-lg border border-gray-300 py-3 pl-10 pr-3 text-gray-900 placeholder-gray-400 focus:border-sky-500 focus:outline-none focus:ring-sky-500 sm:text-sm font-inter"
-                        />
-                    </div>
-                </div>
-
-                <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Your Email</label>
-                    <div className="relative">
-                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                            <Mail className="h-5 w-5 text-gray-400" aria-hidden="true" />
-                        </div>
-                        <input
-                            id="email"
-                            name="email"
-                            type="email"
-                            value={formData.email}
-                            onChange={handleChange}
-                            placeholder="Your Email"
-                            required
-                            className="block w-full rounded-lg border border-gray-300 py-3 pl-10 pr-3 text-gray-900 placeholder-gray-400 focus:border-sky-500 focus:outline-none focus:ring-sky-500 sm:text-sm font-inter"
-                        />
-                    </div>
-                </div>
-
-                <div>
-                    <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">Your Phone</label>
-                    <div className="relative">
-                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                            <Phone className="h-5 w-5 text-gray-400" aria-hidden="true" />
-                        </div>
-                        <input
-                            id="phone"
-                            name="phone"
-                            type="tel"
-                            value={formData.phone}
-                            onChange={handleChange}
-                            placeholder="Your Phone Number"
-                            required
-                            className="block w-full rounded-lg border border-gray-300 py-3 pl-10 pr-3 text-gray-900 placeholder-gray-400 focus:border-sky-500 focus:outline-none focus:ring-sky-500 sm:text-sm font-inter"
-                        />
-                    </div>
-                </div>
-
-                <div>
-                    <label htmlFor="packageName" className="block text-sm font-medium text-gray-700 mb-1">Package Name</label>
-                    <div className="relative">
-                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                            <Tag className="h-5 w-5 text-gray-400" aria-hidden="true" />
-                        </div>
-                        <input
-                            id="packageName"
-                            name="packageName"
-                            type="text"
-                            value={formData.packageName}
-                            onChange={handleChange}
-                            placeholder="Package Name"
-                            required
-                            className="block w-full rounded-lg border border-gray-300 py-3 pl-10 pr-3 text-gray-900 placeholder-gray-400 focus:border-sky-500 focus:outline-none focus:ring-sky-500 sm:text-sm font-inter"
-                        />
-                    </div>
-                </div>
-
-                <div>
-                    <label htmlFor="pickupAddress" className="block text-sm font-medium text-gray-700 mb-1">Pickup Address</label>
-                    <div className="relative">
-                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                            <MapPin className="h-5 w-5 text-gray-400" aria-hidden="true" />
-                        </div>
-                        <input
-                            id="pickupAddress"
-                            name="pickupAddress"
-                            type="text"
-                            value={formData.pickupAddress}
-                            onChange={handleChange}
-                            placeholder="Pickup Address"
-                            required
-                            className="block w-full rounded-lg border border-gray-300 py-3 pl-10 pr-3 text-gray-900 placeholder-gray-400 focus:border-sky-500 focus:outline-none focus:ring-sky-500 sm:text-sm font-inter"
-                        />
-                    </div>
-                </div>
-
-                <div>
-                    <label htmlFor="dropoffAddress" className="block text-sm font-medium text-gray-700 mb-1">Dropoff Address</label>
-                    <div className="relative">
-                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                            <MapPin className="h-5 w-5 text-gray-400" aria-hidden="true" />
-                        </div>
-                        <input
-                            id="dropoffAddress"
-                            name="dropoffAddress"
-                            type="text"
-                            value={formData.dropoffAddress}
-                            onChange={handleChange}
-                            placeholder="Dropoff Address"
-                            required
-                            className="block w-full rounded-lg border border-gray-300 py-3 pl-10 pr-3 text-gray-900 placeholder-gray-400 focus:border-sky-500 focus:outline-none focus:ring-sky-500 sm:text-sm font-inter"
-                        />
-                    </div>
-                </div>
-
-                <div>
-                    <label htmlFor="note" className="block text-sm font-medium text-gray-700 mb-1">Note</label>
-                    <div className="relative">
-                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                            <Notebook className="h-5 w-5 text-gray-400" aria-hidden="true" />
-                        </div>
-                        <textarea
-                            id="note"
-                            name="note"
-                            value={formData.note}
-                            onChange={handleChange}
-                            placeholder="Any special notes for delivery"
-                            rows="3"
-                            className="block w-full rounded-lg border border-gray-300 py-3 pl-10 pr-3 text-gray-900 placeholder-gray-400 focus:border-sky-500 focus:outline-none focus:ring-sky-500 sm:text-sm font-inter"
-                        />
-                    </div>
-                </div>
-
-                <div>
-                    <label htmlFor="photo" className="block text-sm font-medium text-gray-700 mb-1">Upload Item Photo (Optional)</label>
-                    <div className="relative border border-gray-300 rounded-lg p-3 flex items-center gap-3 bg-gray-50">
-                        <Camera className="h-5 w-5 text-gray-400" />
-                        <input
-                            id="photo"
-                            name="photo"
-                            type="file"
-                            accept="image/*"
-                            onChange={handleFileChange}
-                            className="block w-full text-sm text-gray-900 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100 cursor-pointer"
-                        />
-                        {photo && <span className="text-sm text-gray-500">{photo.name}</span>}
-                    </div>
-                </div>
-
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        {/* Backdrop */}
+        <div 
+          className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300"
+          onClick={onClose}
+        />
+        
+        {/* Modal */}
+        <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full mx-4 overflow-hidden transform transition-all duration-300 scale-100">
+          {/* Header with gradient */}
+          <div className={`relative p-6 text-center ${
+            isSuccess 
+              ? 'bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-900/20 dark:to-emerald-900/30' 
+              : 'bg-gradient-to-br from-red-50 to-rose-100 dark:from-red-900/20 dark:to-rose-900/30'
+          }`}>
+            {/* Animated background elements */}
+            <div className="absolute inset-0 overflow-hidden">
+              <div className={`absolute -top-4 -right-4 w-24 h-24 rounded-full opacity-20 ${
+                isSuccess ? 'bg-green-400' : 'bg-red-400'
+              }`} />
+              <div className={`absolute -bottom-4 -left-4 w-32 h-32 rounded-full opacity-10 ${
+                isSuccess ? 'bg-emerald-400' : 'bg-rose-400'
+              }`} />
+            </div>
+            
+            {/* Close button */}
+            <button
+              onClick={onClose}
+              className="absolute top-4 right-4 p-2 rounded-full hover:bg-white/20 transition-colors duration-200"
+            >
+              <X className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+            </button>
+            
+            {/* Icon */}
+            <div className={`relative mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-4 ${
+              isSuccess 
+                ? 'bg-green-100 dark:bg-green-800/50' 
+                : 'bg-red-100 dark:bg-red-800/50'
+            }`}>
+              {isSuccess ? (
+                <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400" />
+              ) : (
+                <XCircle className="w-8 h-8 text-red-600 dark:text-red-400" />
+              )}
+              
+              {/* Sparkle animation for success */}
+              {isSuccess && (
+                <>
+                  <Sparkles className="absolute -top-1 -right-1 w-4 h-4 text-yellow-400 animate-pulse" />
+                  <Sparkles className="absolute -bottom-1 -left-1 w-3 h-3 text-green-400 animate-pulse delay-300" />
+                </>
+              )}
+            </div>
+            
+            {/* Title */}
+            <h3 className={`text-xl font-bold mb-2 ${
+              isSuccess 
+                ? 'text-green-800 dark:text-green-200' 
+                : 'text-red-800 dark:text-red-200'
+            }`}>
+              {isSuccess ? '🎉 Order Created Successfully!' : '❌ Submission Failed'}
+            </h3>
+            
+            {/* Message */}
+            <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+              {message}
+            </p>
+          </div>
+          
+          {/* Footer */}
+          <div className="p-6 bg-gray-50 dark:bg-gray-700/50">
+            <div className="flex gap-3">
+              <button
+                onClick={onClose}
+                className="flex-1 px-4 py-3 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-500 transition-colors duration-200 font-medium"
+              >
+                Close
+              </button>
+              {isSuccess && (
                 <button
-                    type="submit"
-                    disabled={loading}
-                    className={`w-full py-3 px-4 rounded-lg text-white font-semibold flex items-center justify-center gap-2 transition-colors ${
-                        loading ? 'bg-sky-300 cursor-not-allowed' : 'bg-sky-600 hover:bg-sky-700'
-                    }`}
+                  onClick={() => {
+                    onClose();
+                    // Navigate to orders page would go here
+                    console.log('Navigate to orders');
+                  }}
+                  className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg transition-all duration-200 font-medium flex items-center justify-center gap-2"
                 >
-                    {loading ? (
-                        <>
-                            <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            Submitting...
-                        </>
-                    ) : (
-                        'Submit Delivery Request'
-                    )}
+                  <Truck className="w-4 h-4" />
+                  View Orders
                 </button>
-            </form>
+              )}
+            </div>
+          </div>
         </div>
+      </div>
     );
-};
+  };
 
-export default CreateDeliveryForm;
+  // Form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Simulate random success/failure for demo
+      const isSuccess = Math.random() > 0.3; // 70% success rate
+      
+      if (isSuccess) {
+        setModalType('success');
+        setModalMessage('Your delivery request has been created successfully! Our team will contact you shortly to confirm pickup details. You can track your order status in the Orders section.');
+        
+        // Reset form after successful submission
+        setFormData({
+          name: '',
+          email: '',
+          phone: '',
+          packageName: '',
+          pickupAddress: '',
+          dropoffAddress: '',
+          note: '',
+          photoUrl: 'https://housing.com/news/wp-content/uploads/2023/10/Top-10-courier-companies-in-India-ft.jpg',
+          priorityLevel: 'Normal',
+          deliveryTimeEstimate: null,
+          priceEstimate: 0,
+          distanceInKm: 0
+        });
+        setCurrentStep(1);
+      } else {
+        setModalType('error');
+        setModalMessage('We encountered an issue while processing your delivery request. Please check your information and try again. If the problem persists, contact our support team.');
+      }
+      
+      setShowModal(true);
+    } catch (error) {
+      console.error('Delivery creation error:', error);
+      setModalType('error');
+      setModalMessage('Network error occurred. Please check your connection and try again.');
+      setShowModal(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Step 1: Customer & Package Details
+  const renderCustomerAndPackageDetails = () => (
+    <div className="space-y-8">
+      <div className="text-center mb-8">
+        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+          Customer & Package Details
+        </h3>
+        <p className="text-gray-600 dark:text-gray-400">
+          Let's start with your information and package details
+        </p>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-2">
+          <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+            Your Name *
+          </label>
+          <input
+            type="text"
+            value={formData.name}
+            onChange={(e) => setFormData({...formData, name: e.target.value})}
+            className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-all duration-200"
+            required
+          />
+        </div>
+        
+        <div className="space-y-2">
+          <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+            Your Email *
+          </label>
+          <input
+            type="email"
+            value={formData.email}
+            onChange={(e) => setFormData({...formData, email: e.target.value})}
+            className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-all duration-200"
+            required
+          />
+        </div>
+      </div>
+  
+      <div className="space-y-2">
+        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+          Phone Number
+        </label>
+        <input
+          type="tel"
+          value={formData.phone}
+          onChange={(e) => setFormData({...formData, phone: e.target.value})}
+          className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-all duration-200"
+        />
+      </div>
+  
+      <div className="space-y-2">
+        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+          Package Name *
+        </label>
+        <input
+          type="text"
+          value={formData.packageName}
+          onChange={(e) => setFormData({...formData, packageName: e.target.value})}
+          className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-all duration-200"
+          placeholder="What are you sending? (e.g., Documents, Electronics, Gifts)"
+          required
+        />
+      </div>
+  
+     {/* Enhanced Image Upload Field */}
+     <div className="space-y-3">
+        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+          Package Photo
+        </label>
+        <div className="flex items-center space-x-6">
+          <div className="relative">
+            <img 
+              src={formData.photoUrl} 
+              alt="Package preview" 
+              className="w-20 h-20 rounded-xl object-cover border-2 border-gray-200 dark:border-gray-600 shadow-md"
+            />
+            {formData.photoUrl && (
+              <button
+                type="button"
+                onClick={() => setFormData({...formData, photoUrl: ''})}
+                className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1.5 shadow-lg transition-all duration-200"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            )}
+          </div>
+          <div className="flex-1">
+            <label className="flex flex-col items-center px-6 py-4 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/30 rounded-xl border-2 border-dashed border-blue-300 dark:border-blue-600 cursor-pointer hover:from-blue-100 hover:to-indigo-100 dark:hover:from-blue-900/30 dark:hover:to-indigo-900/40 transition-all duration-200">
+              <Package className="w-8 h-8 text-blue-500 mb-2" />
+              <span className="text-sm font-semibold text-blue-700 dark:text-blue-300">
+                {formData.photoUrl ? 'Change Photo' : 'Upload Photo'}
+              </span>
+              <input 
+                type="file" 
+                className="hidden" 
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files[0];
+                  if (file) {
+                    const imageUrl = URL.createObjectURL(file);
+                    setFormData({...formData, photoUrl: imageUrl});
+                  }
+                }}
+              />
+            </label>
+            <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+              Upload a photo of your package (optional)
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+          Priority Level *
+        </label>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {[
+            { value: 'Normal', label: 'Standard Delivery', desc: 'Regular speed', multiplier: '' },
+            { value: 'Urgent', label: 'Urgent Delivery', desc: 'Faster delivery', multiplier: '+50%' },
+            { value: 'Overnight', label: 'Overnight Delivery', desc: 'Next day delivery', multiplier: '+100%' }
+          ].map((option) => (
+            <div
+              key={option.value}
+              onClick={() => {
+                const newPrice = calculatePrice(formData.distanceInKm, option.value);
+                setFormData({
+                  ...formData,
+                  priorityLevel: option.value,
+                  priceEstimate: newPrice
+                });
+              }}
+              className={`relative p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 ${
+                formData.priorityLevel === option.value
+                  ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                  : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-semibold text-gray-900 dark:text-white">{option.label}</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">{option.desc}</p>
+                </div>
+                {option.multiplier && (
+                  <span className="text-xs font-bold text-orange-600 dark:text-orange-400 bg-orange-100 dark:bg-orange-900/30 px-2 py-1 rounded-full">
+                    {option.multiplier}
+                  </span>
+                )}
+              </div>
+              {formData.priorityLevel === option.value && (
+                <div className="absolute top-2 right-2">
+                  <CheckCircle className="w-5 h-5 text-blue-500" />
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  // Step 2: Pickup Information
+  const renderPickupInformation = () => (
+    <div className="space-y-8">
+      <div className="text-center mb-8">
+        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+          Pickup Information
+        </h3>
+        <p className="text-gray-600 dark:text-gray-400">
+          Where should we collect your package?
+        </p>
+      </div>
+      
+      <div className="space-y-2">
+        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+          Pickup Address *
+        </label>
+        <input
+          type="text"
+          value={formData.pickupAddress}
+          onChange={(e) => handleLocationSearch(e.target.value, 'pickup')}
+          className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-all duration-200"
+          placeholder="Enter pickup address (e.g., 123 Main St, City, State)"
+          required
+        />
+      </div>
+
+      <div className="space-y-2">
+        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+          Special Instructions
+        </label>
+        <textarea
+          value={formData.note}
+          onChange={(e) => setFormData({...formData, note: e.target.value})}
+          rows={4}
+          className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-all duration-200"
+          placeholder="Any special instructions for pickup (e.g., Call when arrived, Ring doorbell, etc.)"
+        />
+      </div>
+    </div>
+  );
+
+  // Step 3: Delivery Information
+  const renderDeliveryInformation = () => (
+    <div className="space-y-8">
+      <div className="text-center mb-8">
+        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+          Delivery Information
+        </h3>
+        <p className="text-gray-600 dark:text-gray-400">
+          Where should we deliver your package?
+        </p>
+      </div>
+      
+      <div className="space-y-2">
+        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+          Dropoff Address *
+        </label>
+        <input
+          type="text"
+          value={formData.dropoffAddress}
+          onChange={(e) => handleLocationSearch(e.target.value, 'dropoff')}
+          className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-all duration-200"
+          placeholder="Enter delivery address (e.g., 456 Oak Ave, City, State)"
+          required
+        />
+      </div>
+
+      <div className="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/30 p-8 rounded-2xl border border-blue-200 dark:border-blue-700">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <div className="p-3 bg-blue-100 dark:bg-blue-800/50 rounded-xl">
+              <DollarSign className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+            </div>
+            <div>
+              <h4 className="text-xl font-bold text-blue-900 dark:text-blue-100">
+                Delivery Estimates
+              </h4>
+              <p className="text-blue-700 dark:text-blue-300">
+                Based on distance and priority level
+              </p>
+            </div>
+          </div>
+          <div className="text-right">
+            <div className="text-4xl font-black text-blue-600 dark:text-blue-400">
+              ${formData.priceEstimate}
+            </div>
+            <div className="text-sm text-blue-700 dark:text-blue-300 flex items-center justify-end gap-2">
+              <MapPin className="w-4 h-4" />
+              {formData.distanceInKm.toFixed(1)} km • {formData.priorityLevel}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Step 4: Review & Confirm
+  const renderReviewAndConfirm = () => {
+    const deliveryTime = calculateDeliveryTimeEstimate(formData.distanceInKm, formData.priorityLevel);
+    
+    return (
+      <div className="space-y-8">
+        <div className="text-center mb-8">
+          <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+            Review Your Order
+          </h3>
+          <p className="text-gray-600 dark:text-gray-400">
+            Please review all details before confirming
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 p-6 rounded-2xl border border-gray-200 dark:border-gray-600">
+            <h4 className="font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+              <Package className="w-5 h-5" />
+              Customer Details
+            </h4>
+            <div className="space-y-2 text-sm">
+              <p className="text-gray-600 dark:text-gray-300"><span className="font-medium">Name:</span> {formData.name}</p>
+              <p className="text-gray-600 dark:text-gray-300"><span className="font-medium">Email:</span> {formData.email}</p>
+              <p className="text-gray-600 dark:text-gray-300"><span className="font-medium">Phone:</span> {formData.phone}</p>
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 p-6 rounded-2xl border border-gray-200 dark:border-gray-600">
+            <h4 className="font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+              <Package className="w-5 h-5" />
+              Package Details
+            </h4>
+            <div className="space-y-2 text-sm">
+              <p className="text-gray-600 dark:text-gray-300">
+                <span className="font-medium">Name:</span> {formData.packageName}
+              </p>
+              <p className="text-gray-600 dark:text-gray-300">
+                <span className="font-medium">Priority:</span> {formData.priorityLevel}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-900/20 dark:to-emerald-900/30 p-6 rounded-2xl border border-green-200 dark:border-green-700">
+            <h4 className="font-bold text-green-900 dark:text-green-100 mb-4 flex items-center gap-2">
+              <MapPin className="w-5 h-5" />
+              Pickup Location
+            </h4>
+            <p className="text-green-700 dark:text-green-300 text-sm mb-3">{formData.pickupAddress}</p>
+            {formData.note && (
+              <div className="mt-3 p-3 bg-green-100 dark:bg-green-800/30 rounded-lg">
+                <p className="text-xs font-medium text-green-800 dark:text-green-200 mb-1">Special Instructions:</p>
+                <p className="text-xs text-green-700 dark:text-green-300">{formData.note}</p>
+              </div>
+            )}
+          </div>
+
+          <div className="bg-gradient-to-br from-orange-50 to-red-100 dark:from-orange-900/20 dark:to-red-900/30 p-6 rounded-2xl border border-orange-200 dark:border-orange-700">
+            <h4 className="font-bold text-orange-900 dark:text-orange-100 mb-4 flex items-center gap-2">
+              <MapPin className="w-5 h-5" />
+              Delivery Location
+            </h4>
+            <p className="text-orange-700 dark:text-orange-300 text-sm">{formData.dropoffAddress}</p>
+          </div>
+        </div>
+
+        <div className="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/30 p-8 rounded-2xl border border-blue-200 dark:border-blue-700">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <div className="p-4 bg-blue-100 dark:bg-blue-800/50 rounded-xl">
+                <Clock className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+              </div>
+              <div>
+                <h4 className="text-xl font-bold text-blue-900 dark:text-blue-100">
+                  Delivery Summary
+                </h4>
+                <p className="text-blue-700 dark:text-blue-300 text-sm">
+                  Estimated delivery: {deliveryTime.toLocaleString()}
+                </p>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="text-4xl font-black text-blue-600 dark:text-blue-400 flex items-center gap-2">
+                ${formData.priceEstimate}
+                <Star className="w-6 h-6 text-yellow-500" />
+              </div>
+              <div className="text-sm text-blue-700 dark:text-blue-300 flex items-center justify-end gap-2">
+                <MapPin className="w-4 h-4" />
+                {formData.distanceInKm.toFixed(1)} km • {formData.priorityLevel}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Render current step
+  const renderStep = () => {
+    switch (currentStep) {
+      case 1: return renderCustomerAndPackageDetails();
+      case 2: return renderPickupInformation();
+      case 3: return renderDeliveryInformation();
+      case 4: return renderReviewAndConfirm();
+      default: return null;
+    }
+  };
+
+  return (
+    <div className="max-w-5xl mx-auto p-6">
+      {/* Enhanced Progress Steps */}
+      <div className="mb-12">
+        <div className="flex items-center justify-between">
+          {steps.map((step, index) => (
+            <div
+              key={step.number}
+              className={`flex items-center ${
+                index < steps.length - 1 ? 'flex-1' : ''
+              }`}
+            >
+              <div className="flex flex-col items-center">
+                <div
+                  className={`w-14 h-14 rounded-full flex items-center justify-center transition-all duration-300 ${
+                    currentStep >= step.number
+                      ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg transform scale-110'
+                      : currentStep === step.number - 1
+                      ? 'bg-gradient-to-br from-blue-200 to-blue-300 text-blue-700 animate-pulse'
+                      : 'bg-gray-200 dark:bg-gray-700 text-gray-500'
+                  }`}
+                >
+                  <step.icon className="w-6 h-6" />
+                </div>
+                <div className="mt-3 text-center">
+                  <p className={`text-xs font-bold ${
+                    currentStep >= step.number
+                      ? 'text-blue-600 dark:text-blue-400'
+                      : 'text-gray-500'
+                  }`}>
+                    Step {step.number}
+                  </p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 max-w-20">
+                    {step.title}
+                  </p>
+                </div>
+              </div>
+              {index < steps.length - 1 && (
+                <div className={`flex-1 h-1 mx-6 rounded-full transition-all duration-500 ${
+                  currentStep > step.number
+                    ? 'bg-gradient-to-r from-blue-500 to-blue-600'
+                    : 'bg-gray-200 dark:bg-gray-700'
+                }`} />
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Enhanced Form Content */}
+      <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700 p-10 relative overflow-hidden">
+        {/* Background decoration */}
+        <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-blue-50 to-transparent dark:from-blue-900/10 rounded-full -translate-y-32 translate-x-32 pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-indigo-50 to-transparent dark:from-indigo-900/10 rounded-full translate-y-24 -translate-x-24 pointer-events-none" />
+        
+        <div className="relative z-10">
+          {renderStep()}
+
+          {/* Enhanced Navigation Buttons */}
+          <div className="flex justify-between mt-12 pt-8 border-t-2 border-gray-100 dark:border-gray-700">
+            <button
+              onClick={() => setCurrentStep(Math.max(1, currentStep - 1))}
+              disabled={currentStep === 1}
+              className="px-8 py-4 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-semibold flex items-center gap-2"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              Previous
+            </button>
+
+            {currentStep < steps.length ? (
+              <button
+                onClick={() => setCurrentStep(Math.min(steps.length, currentStep + 1))}
+                disabled={
+                  (currentStep === 1 && !formData.packageName) ||
+                  (currentStep === 2 && !formData.pickupAddress) ||
+                  (currentStep === 3 && !formData.dropoffAddress)
+                }
+                className="px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-semibold flex items-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+              >
+                Next
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            ) : (
+              <button
+                onClick={handleSubmit}
+                disabled={loading}
+                className="px-8 py-4 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-xl disabled:opacity-50 transition-all duration-200 font-semibold flex items-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+              >
+                {loading ? (
+                  <>
+                    <svg className="animate-spin w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span>Creating Order...</span>
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle className="w-5 h-5" />
+                    <span>Confirm Order</span>
+                  </>
+                )}
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Modal */}
+      <Modal 
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        type={modalType}
+        message={modalMessage}
+      />
+    </div>
+     );
+    };
+    
+    export default CreateDeliveryForm;
