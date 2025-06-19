@@ -722,7 +722,7 @@
 import React, { useState } from 'react';
 import { MapPin, Package, Clock, DollarSign, Upload, X, Check, ArrowRight, ArrowLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import axios from 'axios';
+import axios from '../../../api/axios.js';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
@@ -831,7 +831,7 @@ const CreateDeliveryForm = () => {
       }
 
       // Send the request with proper headers for file upload
-      const response = await axios.post('/api/create', formDataToSend, {
+      const response = await axios.post('/api/delivery/create', formDataToSend, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
