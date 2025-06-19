@@ -10,14 +10,18 @@ const JWT_EXPIRES_IN = '7d';
 
 class AuthService {
   async registerCustomer(data) {
+    
     const existing = await CustomerRepository.findByUsername(data.username) || await CustomerRepository.findByEmail(data.email);
     if (existing) throw new Error(AUTH_MESSAGES.CUSTOMER_EXISTS);
     data.password = await bcrypt.hash(data.password, 10);
     return CustomerRepository.create(data);
   }
-
+  
   async registerDriver(data) {
+    // console.log('Registering customer:', data);
     const existing = await DriverRepository.findByUsername(data.username) || await DriverRepository.findByEmail(data.email);
+    console.log('Existing driver:', existing);
+    
     if (existing) throw new Error(AUTH_MESSAGES.DRIVER_EXISTS);
     data.password = await bcrypt.hash(data.password, 10);
     return DriverRepository.create(data);

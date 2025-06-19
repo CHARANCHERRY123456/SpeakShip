@@ -5,10 +5,12 @@ import jwt from 'jsonwebtoken';
 import Customer from '../schema/Customer.js';
 import Driver from '../schema/Driver.js';
 import Admin from '../schema/Admin.js';
+import sendMail from '../../../utils/mailer.js';
 
 class AuthController {
   async registerCustomer(req, res) {
     try {
+      // Only register if email sent successfully
       const customer = await AuthService.registerCustomer(req.body);
       res.status(201).json({ message: AUTH_MESSAGES.REGISTER_SUCCESS, customer });
     } catch (err) {
