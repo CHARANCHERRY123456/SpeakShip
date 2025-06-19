@@ -51,6 +51,20 @@ const Navbar = () => {
     }
   };
 
+  // Custom handler for Orders navigation
+  const handleOrdersClick = (e) => {
+    e.preventDefault();
+    if (!isAuthenticated) {
+      navigate('/orders');
+      return;
+    }
+    if (currentUser?.role === 'driver') {
+      navigate('/orders/driver');
+    } else {
+      navigate('/orders');
+    }
+  };
+
   const getFirstLetter = (name) => {
     return name ? name.charAt(0).toUpperCase() : '?';
   };
@@ -73,12 +87,22 @@ const Navbar = () => {
         <ul className="hidden md:flex items-center gap-2 lg:gap-4 xl:gap-6">
           {filteredNavLinks.map((link) => (
             <li key={link.to}>
-              <Link
-                to={link.to}
-                className={`flex items-center px-3 py-2 rounded-md text-base font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 ${location.pathname === link.to ? "bg-sky-100 text-sky-700" : "text-slate-700 hover:bg-sky-50 hover:text-sky-600"}`}
-              >
-                {link.label}
-              </Link>
+              {link.to === '/orders' ? (
+                <a
+                  href="/orders"
+                  onClick={handleOrdersClick}
+                  className={`flex items-center px-3 py-2 rounded-md text-base font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 ${location.pathname.startsWith('/orders') ? "bg-sky-100 text-sky-700" : "text-slate-700 hover:bg-sky-50 hover:text-sky-600"}`}
+                >
+                  {link.label}
+                </a>
+              ) : (
+                <Link
+                  to={link.to}
+                  className={`flex items-center px-3 py-2 rounded-md text-base font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 ${location.pathname === link.to ? "bg-sky-100 text-sky-700" : "text-slate-700 hover:bg-sky-50 hover:text-sky-600"}`}
+                >
+                  {link.label}
+                </Link>
+              )}
             </li>
           ))}
           <li>

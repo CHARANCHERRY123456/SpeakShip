@@ -15,6 +15,7 @@ import DriverDeliveryPage from './features/delivery/pages/DriverDeliveryPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import ProfilePage from './features/profile/pages/ProfilePage'; 
 import { useNavigate } from 'react-router-dom'; // <--- Add this line
+import DriverOrdersPage from './features/orders/pages/DriverOrdersPage';
 
 function App() {
   return (
@@ -45,6 +46,11 @@ function AuthRoutes() {
     <main className="max-w-5xl mx-auto w-full px-4 py-8">
       <Routes>
         <Route path="/orders" element={<OrdersPage />} />
+        <Route path="/orders/driver" element={
+          <ProtectedRoute allowedRoles={['driver']}>
+            <DriverOrdersPage />
+          </ProtectedRoute>
+        } />
         <Route path="/track" element={<TrackPage />} />
         <Route path="/feedback" element={<FeedbackPage />} />
         <Route path="/voice" element={<VoicePage />} />

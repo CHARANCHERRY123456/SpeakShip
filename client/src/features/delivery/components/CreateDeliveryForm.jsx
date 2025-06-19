@@ -5,6 +5,7 @@ import axios from '../../../api/axios.js';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
 import { toast } from 'react-hot-toast';
+import { STATUS_OPTIONS, DELIVERY_API_ROUTES } from '../constants';
 
 
 const CreateDeliveryForm = () => {
@@ -95,7 +96,7 @@ const CreateDeliveryForm = () => {
       formDataToSend.append('note', formData.note);
       formDataToSend.append('priorityLevel', formData.priorityLevel);
       formDataToSend.append('customer', currentUser._id);
-      formDataToSend.append('status', 'Pending');
+      formDataToSend.append('status', STATUS_OPTIONS.find(opt => opt.label === 'Pending').value);
       formDataToSend.append('deliveryTimeEstimate', 
         calculateDeliveryTimeEstimate(formData.distanceInKm, formData.priorityLevel)
       );
@@ -111,7 +112,7 @@ const CreateDeliveryForm = () => {
       }
 
       // Send the request with proper headers for file upload
-      const response = await axios.post('/api/delivery/create', formDataToSend, {
+      const response = await axios.post(DELIVERY_API_ROUTES.CREATE, formDataToSend, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }

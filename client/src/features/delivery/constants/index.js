@@ -14,3 +14,12 @@ export const DELIVERY_MESSAGES = {
   noDeliveries: 'No delivery requests found.',
   error: GLOBAL_MESSAGES.GENERIC_ERROR,
 };
+
+export const DELIVERY_API_ROUTES = {
+  CREATE: '/api/delivery/create',
+  PENDING: '/api/delivery/pending',
+  ACCEPT: '/api/delivery/accept',
+  STATUS: '/api/delivery/status',
+  MY: '/api/delivery/my',
+  CUSTOMER: '/api/delivery/customer',
+};
