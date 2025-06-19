@@ -46,19 +46,18 @@ const DeliveryCard = ({ delivery, isDriverView = false, onAccept, onUpdateStatus
   const isInTransit = delivery.status === 'In-Transit';
 
   return (
-    <div className={`delivery-card bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 ${
-      isExpanded ? 'max-h-[2000px]' : 'max-h-[500px]'
-    }`}>
+    <div className={
+      `delivery-card bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 flex flex-col h-full min-h-[420px]`
+    }>
       {/* Main Card Content */}
-      <div className="p-4 md:p-6">
+      <div className="flex flex-col flex-grow p-4 md:p-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-          <h3 className="text-lg md:text-xl font-semibold text-gray-800 break-words">
+          <h3 className="text-lg md:text-xl font-semibold text-gray-800 break-words truncate max-w-full">
             {delivery.packageName || 'Package'} #{delivery._id.substring(0, 8)}
           </h3>
           <StatusBadge status={delivery.status} />
         </div>
-        
         {/* Image - Always visible */}
         <div 
           className="relative w-full h-48 rounded-lg overflow-hidden mb-4 cursor-pointer hover:opacity-90 transition-opacity"
@@ -81,48 +80,46 @@ const DeliveryCard = ({ delivery, isDriverView = false, onAccept, onUpdateStatus
             )}
           </div>
         </div>
-        
         {/* Main Details - Always visible */}
-        <div className="space-y-3">
+        <div className="space-y-3 flex-grow">
           {/* Pickup Address (truncated) */}
           <div className="flex items-start gap-2">
             <MapPin className="flex-shrink-0 h-4 w-4 text-green-600 mt-0.5" />
             <div className="flex-1 min-w-0">
               <p className="text-xs font-medium text-gray-700">Pickup</p>
-              <p className="text-sm text-gray-600 truncate">
+              <p className="text-sm text-gray-600 truncate max-w-full">
                 {delivery.pickupAddress}
               </p>
             </div>
           </div>
-          
           {/* Dropoff Address (truncated) */}
           <div className="flex items-start gap-2">
             <MapPin className="flex-shrink-0 h-4 w-4 text-red-600 mt-0.5" />
             <div className="flex-1 min-w-0">
               <p className="text-xs font-medium text-gray-700">Dropoff</p>
-              <p className="text-sm text-gray-600 truncate">
+              <p className="text-sm text-gray-600 truncate max-w-full">
                 {delivery.dropoffAddress}
               </p>
             </div>
           </div>
-          
           {/* Basic Info Row */}
-          <div className="grid grid-cols-2 gap-2 pt-1">
+          <div className="flex items-center justify-between gap-4 pt-1">
             <div className="flex items-center gap-1">
               <Truck className="h-4 w-4 text-gray-500" />
               <span className="text-sm text-gray-600">
-                {delivery.distanceInKm} km
+                {delivery.distanceInKm != null ? Number(delivery.distanceInKm).toFixed(2) : 0} km
               </span>
             </div>
             <div className="flex items-center gap-1">
               <Tag className="h-4 w-4 text-gray-500" />
-              <span className="text-sm text-gray-600">
+              <span className="text-sm text-gray-600 font-semibold">
                 ₹{delivery.priceEstimate}
               </span>
             </div>
           </div>
         </div>
-        
+        {/* Spacer to push button to bottom */}
+        <div className="flex-grow" />
         {/* Action Buttons for Driver View (always visible) */}
         {isDriverView && (
           <div className="mt-4 space-y-2">
@@ -134,7 +131,6 @@ const DeliveryCard = ({ delivery, isDriverView = false, onAccept, onUpdateStatus
                 <CheckCircle className="h-4 w-4" /> Accept
               </button>
             )}
-
             {isAccepted && onUpdateStatus && (
               <button
                 onClick={() => setShowConfirmModal(true)}
@@ -149,35 +145,11 @@ const DeliveryCard = ({ delivery, isDriverView = false, onAccept, onUpdateStatus
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    Updating...
+                    In-Transit
                   </>
                 ) : (
                   <>
                     <TruckIcon className="h-4 w-4" /> In-Transit
-                  </>
-                )}
-              </button>
-            )}
-
-            {isInTransit && onUpdateStatus && (
-              <button
-                onClick={() => onUpdateStatus(delivery._id, 'Delivered')}
-                disabled={updateLoading}
-                className={`w-full flex items-center justify-center gap-2 py-2 px-4 rounded-lg text-sm font-medium text-white transition-colors ${
-                  updateLoading ? 'bg-green-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'
-                }`}
-              >
-                {updateLoading ? (
-                  <>
-                    <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Marking...
-                  </>
-                ) : (
-                  <>
-                    <PackageCheck className="h-4 w-4" /> Delivered
                   </>
                 )}
               </button>

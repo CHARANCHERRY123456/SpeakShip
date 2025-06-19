@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import DeliveryCard from './DeliveryCard';
+import DeliveryGrid from '../../delivery/components/DeliveryGrid';
 
 export default function PendingDeliveriesList({ deliveries, onAccept }) {
   const [acceptingId, setAcceptingId] = useState(null);
 
-  if (!deliveries.length) return <div>No pending deliveries.</div>;
-
   return (
-    <div className="pending-deliveries-list">
-      {deliveries.map((delivery) => (
+    <DeliveryGrid
+      deliveries={deliveries}
+      renderCard={(delivery) => (
         <DeliveryCard
           key={delivery._id}
           delivery={delivery}
@@ -19,7 +19,7 @@ export default function PendingDeliveriesList({ deliveries, onAccept }) {
           }}
           accepting={acceptingId === delivery._id}
         />
-      ))}
-    </div>
+      )}
+    />
   );
 }

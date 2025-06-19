@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import DeliveryCard from '../components/DeliveryCard';
+import DeliveryGrid from '../components/DeliveryGrid';
 import useDeliveryApi from '../hooks/useDeliveryApi';
 import { useAuth } from '../../../contexts/AuthContext';
 
@@ -83,8 +84,9 @@ export default function DriverDeliveryView() {
         <div className="text-center py-8 text-gray-600">No delivery requests found.</div>
       ) : (
         <>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {deliveries.map(delivery => (
+        <DeliveryGrid
+          deliveries={deliveries}
+          renderCard={(delivery) => (
             <DeliveryCard
               key={delivery._id}
               delivery={delivery}
@@ -94,8 +96,8 @@ export default function DriverDeliveryView() {
               onUpdateStatus={handleUpdateDeliveryStatus}
               updateLoading={isUpdatingStatus}
             />
-          ))}
-        </div>
+          )}
+        />
         {/* Pagination Controls */}
         <div className="flex justify-center items-center gap-2 mt-8">
           <button onClick={() => handlePageChange(page - 1)} disabled={page === 1} className="px-3 py-2 rounded bg-gray-200 text-gray-700 disabled:opacity-50">Prev</button>
