@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
 import Navbar from './components/Navbar';
-import OrdersPage from './features/orders/pages';
+import CustomerOrdersPage from './features/orders/pages/CustomerOrders';
 import TrackPage from './features/track/pages';
 import FeedbackPage from './features/feedback/pages';
 import VoicePage from './features/voice/pages';
@@ -45,7 +45,7 @@ function AuthRoutes() {
   return (
     <main className="max-w-5xl mx-auto w-full px-4 py-8">
       <Routes>
-        <Route path="/orders" element={<OrdersPage />} />
+        <Route path="/orders" element={<CustomerOrdersPage />} />
         <Route path="/orders/driver" element={
           <ProtectedRoute allowedRoles={['driver']}>
             <DriverOrdersPage />

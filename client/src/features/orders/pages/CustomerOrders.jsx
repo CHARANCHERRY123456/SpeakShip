@@ -2,7 +2,7 @@
 import CreateDeliveryForm from '../../delivery/components/CreateDeliveryForm';
 import { useAuth } from '../../../contexts/AuthContext';
 
-const OrdersPage = () => {
+const CustomerOrdersPage = () => {
   const { currentUser } = useAuth();
 
   return (
@@ -22,4 +22,4 @@ const OrdersPage = () => {
   );
 };
 
-export default OrdersPage;
+export default CustomerOrdersPage;
