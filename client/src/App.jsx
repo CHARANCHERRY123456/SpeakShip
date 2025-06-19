@@ -6,6 +6,7 @@ import OrdersPage from './features/orders/pages';
 import TrackPage from './features/track/pages';
 import FeedbackPage from './features/feedback/pages';
 import VoicePage from './features/voice/pages';
+import { Toaster } from 'react-hot-toast';
 import LoginPage from './features/auth/pages';
 import Home from './features/home/components/home';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -18,13 +19,14 @@ import { useNavigate } from 'react-router-dom'; // <--- Add this line
 function App() {
   return (
     <div className="min-h-screen bg-gray-50">
-      <AuthProvider>
-        <Router>
-          <Navbar />
-          <AuthRoutes />
-        </Router>
-      </AuthProvider>
-    </div>
+        <Toaster position="top-right" reverseOrder={false} />
+        <AuthProvider>
+          <Router>
+            <Navbar />
+            <AuthRoutes />
+          </Router>
+        </AuthProvider>
+      </div>
   );
 }
 
