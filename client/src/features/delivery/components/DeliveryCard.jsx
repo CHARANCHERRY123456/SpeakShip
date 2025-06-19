@@ -5,7 +5,7 @@ import {
   Tag, PackageCheck, Truck as TruckIcon, ChevronDown, ChevronUp 
 } from 'lucide-react';
 import { API_BASE_URL } from '../../../constants/config';
-import './DeliveryCard.css'; // Import the CSS file
+import './DeliveryCard.css';
 
 const StatusBadge = ({ status }) => {
   const statusStyles = {
@@ -74,20 +74,20 @@ const DeliveryCard = ({ delivery, isDriverView = false, onAccept, onUpdateStatus
           />
         </div>
         
-        {/* Basic Info Preview */}
+        {/* Basic Info Preview - Only pickup, dropoff and priority */}
         <div className="space-y-3">
           <div className="flex items-start gap-3">
             <MapPin className="flex-shrink-0 h-5 w-5 text-gray-500 mt-0.5" />
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-gray-700">Pickup:</p>
-              <p className="text-sm text-gray-600 truncate">{delivery.pickupAddress}</p>
+              <p className="text-sm text-gray-600">{delivery.pickupAddress}</p>
             </div>
           </div>
           <div className="flex items-start gap-3">
             <MapPin className="flex-shrink-0 h-5 w-5 text-gray-500 mt-0.5" />
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-gray-700">Dropoff:</p>
-              <p className="text-sm text-gray-600 truncate">{delivery.dropoffAddress}</p>
+              <p className="text-sm text-gray-600">{delivery.dropoffAddress}</p>
             </div>
           </div>
           {delivery.priorityLevel && (
@@ -120,11 +120,11 @@ const DeliveryCard = ({ delivery, isDriverView = false, onAccept, onUpdateStatus
         </button>
       </div>
 
-      {/* Expanded Content */}
+      {/* Expanded Content - All other details */}
       {isExpanded && (
-        <div className="px-4 pb-4 md:px-5 md:pb-5">
+        <div className="px-4 pb-4 md:px-5 md:pb-5 border-t border-gray-100">
           {/* Customer Details */}
-          <div className="mb-6">
+          <div className="mb-6 pt-4">
             <h4 className="flex items-center gap-2 text-base font-semibold text-gray-800 mb-3">
               <User className="h-5 w-5 text-gray-600" /> Customer Details
             </h4>
@@ -141,32 +141,6 @@ const DeliveryCard = ({ delivery, isDriverView = false, onAccept, onUpdateStatus
             </div>
           </div>
 
-          {/* Full Address Details */}
-          <div className="mb-6">
-            <h4 className="flex items-center gap-2 text-base font-semibold text-gray-800 mb-3">
-              <MapPin className="h-5 w-5 text-gray-600" /> Address Details
-            </h4>
-            <div className="space-y-3 pl-7">
-              <div>
-                <p className="text-sm font-medium text-gray-700 mb-1">Pickup Address</p>
-                <p className="text-sm text-gray-600">{delivery.pickupAddress}</p>
-              </div>
-              <div>
-                <p className="text-sm font-medium text-gray-700 mb-1">Dropoff Address</p>
-                <p className="text-sm text-gray-600">{delivery.dropoffAddress}</p>
-              </div>
-              {delivery.note && (
-                <div className="flex items-start gap-2 pt-2">
-                  <Notebook className="h-4 w-4 text-gray-500 mt-0.5 flex-shrink-0" /> 
-                  <div>
-                    <p className="text-sm font-medium text-gray-700 mb-1">Special Note</p>
-                    <p className="text-sm text-gray-600">{delivery.note}</p>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-
           {/* Delivery Info */}
           <div className="mb-6">
             <h4 className="flex items-center gap-2 text-base font-semibold text-gray-800 mb-3">
@@ -180,10 +154,6 @@ const DeliveryCard = ({ delivery, isDriverView = false, onAccept, onUpdateStatus
               <div>
                 <p className="text-sm font-medium text-gray-700 mb-1">Price Estimate</p>
                 <p className="text-sm text-gray-600">₹{delivery.priceEstimate}</p>
-              </div>
-              <div>
-                <p className="text-sm font-medium text-gray-700 mb-1">Priority</p>
-                <p className="text-sm text-gray-600 capitalize">{delivery.priorityLevel.toLowerCase()}</p>
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-700 mb-1">Est. Time</p>
@@ -215,6 +185,18 @@ const DeliveryCard = ({ delivery, isDriverView = false, onAccept, onUpdateStatus
                   <Calendar className="h-4 w-4 text-gray-500" /> 
                   Accepted at: {delivery.acceptedAt ? new Date(delivery.acceptedAt).toLocaleString() : 'N/A'}
                 </p>
+              </div>
+            </div>
+          )}
+
+          {/* Special Note - Only shown if exists */}
+          {delivery.note && (
+            <div className="mb-6">
+              <h4 className="flex items-center gap-2 text-base font-semibold text-gray-800 mb-3">
+                <Notebook className="h-5 w-5 text-gray-600" /> Special Note
+              </h4>
+              <div className="pl-7">
+                <p className="text-sm text-gray-600">{delivery.note}</p>
               </div>
             </div>
           )}
