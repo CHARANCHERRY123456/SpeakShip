@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+// src/features/delivery/components/CreateDeliveryForm.jsx
+import React, { useState, useEffect } from 'react';
 import { MapPin, Package, Clock, DollarSign, Upload, X, Check, ArrowRight, ArrowLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from '../../../api/axios.js';
@@ -6,6 +7,77 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
 import { toast } from 'react-hot-toast';
 import { STATUS_OPTIONS, DELIVERY_API_ROUTES } from '../constants';
+
+// MOVED OUTSIDE: Enhanced Input Component - now receives 'name' prop
+// Defining this component outside ensures it is not redefined on every render of CreateDeliveryForm,
+// which helps in preventing input focus loss.
+const EnhancedInput = ({ label, type = "text", name, value, onChange, placeholder, required = false, icon: Icon }) => (
+  <motion.div 
+    className="group"
+    whileHover={{ scale: 1.01 }}
+    transition={{ type: "spring", stiffness: 300, damping: 30 }}
+  >
+    <label htmlFor={name} className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
+      {label} {required && <span className="text-red-500">*</span>}
+    </label>
+    <div className="relative">
+      {Icon && (
+        <Icon className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+      )}
+      <input
+        id={name} // Use name as id for accessibility
+        type={type}
+        name={name} // Crucial for handleChange
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        required={required}
+        className={`w-full ${Icon ? 'pl-12' : 'pl-4'} pr-4 py-4 border-2 border-gray-200 dark:border-gray-600 rounded-xl 
+                    focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 
+                    dark:bg-gray-800 dark:text-white transition-all duration-300
+                    hover:border-gray-300 dark:hover:border-gray-500
+                    group-hover:shadow-lg`}
+      />
+    </div>
+  </motion.div>
+);
+
+// MOVED OUTSIDE: Priority Level Card Component
+const PriorityCard = ({ level, title, description, multiplier, isSelected, onClick }) => (
+  <motion.div
+    whileHover={{ scale: 1.02, y: -2 }}
+    whileTap={{ scale: 0.98 }}
+    onClick={onClick} // This onClick will be passed from parent
+    className={`relative p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 ${
+      isSelected 
+        ? 'border-blue-500 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 shadow-lg'
+        : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 bg-white dark:bg-gray-800'
+    }`}
+  >
+    {isSelected && (
+      <motion.div
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        className="absolute -top-2 -right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center"
+      >
+        <Check className="w-4 h-4 text-white" />
+      </motion.div>
+    )}
+    <div className="flex justify-between items-start mb-2">
+      <h4 className={`font-bold text-lg ${isSelected ? 'text-blue-700 dark:text-blue-300' : 'text-gray-800 dark:text-gray-200'}`}>
+        {title}
+      </h4>
+      <span className={`text-sm font-semibold px-2 py-1 rounded-full ${
+        isSelected ? 'bg-blue-100 text-blue-700 dark:bg-blue-800 dark:text-blue-200' : 'bg-gray-100 text-gray-600 dark:bg-gray-600 dark:text-gray-300'
+      }`}>
+        {multiplier}
+      </span>
+    </div>
+    <p className={`text-sm ${isSelected ? 'text-blue-600 dark:text-blue-400' : 'text-gray-600 dark:text-gray-400'}`}>
+      {description}
+    </p>
+  </motion.div>
+);
 
 
 const CreateDeliveryForm = () => {
@@ -22,7 +94,8 @@ const CreateDeliveryForm = () => {
     pickupAddress: '',
     dropoffAddress: '',
     note: '',
-    photoUrl: 'https://housing.com/news/wp-content/uploads/2023/10/Top-10-courier-companies-in-India-ft.jpg',
+    photoFile: null, // Stores the actual File object for upload
+    photoPreviewUrl: 'https://housing.com/news/wp-content/uploads/2023/10/Top-10-courier-companies-in-India-ft.jpg', // Stores URL for display/initial value
     priorityLevel: 'Normal',
     deliveryTimeEstimate: null,
     priceEstimate: 0,
@@ -36,18 +109,32 @@ const CreateDeliveryForm = () => {
     { number: 4, title: 'Review & Confirm', icon: Check, color: 'from-orange-500 to-red-500' }
   ];
 
-  // Helper functions
-  const handleLocationSearch = async (address, type) => {
-    const mockDistance = Math.random() * 20 + 5; // 5-25 km
-    const mockPrice = calculatePrice(mockDistance, formData.priorityLevel);
-
+  // Generic handleChange function for all text inputs
+  const handleChange = (e) => {
+    const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [`${type}Address`]: address,
-      distanceInKm: mockDistance,
-      priceEstimate: mockPrice
+      [name]: value
     }));
   };
+
+  // Helper functions for location search and price/time calculation
+  const handleLocationSearch = (address, type) => {
+    const updatedFormData = {
+      ...formData,
+      [`${type}Address`]: address
+    };
+  
+    if (updatedFormData.pickupAddress && updatedFormData.dropoffAddress) {
+      const mockDistance = Math.random() * 20 + 5; // 5-25 km
+      const mockPrice = calculatePrice(mockDistance, updatedFormData.priorityLevel);
+      updatedFormData.distanceInKm = mockDistance;
+      updatedFormData.priceEstimate = mockPrice;
+    }
+  
+    setFormData(updatedFormData);
+  };
+  
 
   const calculatePrice = (distance, priority) => {
     const basePrice = 5 + (distance * 0.5);
@@ -83,10 +170,9 @@ const CreateDeliveryForm = () => {
     setLoading(true);
     
     try {
-      // Create FormData object to handle file upload
       const formDataToSend = new FormData();
       
-      // Append all form data fields
+      // Manually append all non-image related fields from formData
       formDataToSend.append('name', formData.name);
       formDataToSend.append('email', formData.email);
       formDataToSend.append('phone', formData.phone);
@@ -98,23 +184,28 @@ const CreateDeliveryForm = () => {
       formDataToSend.append('customer', currentUser._id);
       formDataToSend.append('status', STATUS_OPTIONS.find(opt => opt.label === 'Pending').value);
       formDataToSend.append('deliveryTimeEstimate', 
-        calculateDeliveryTimeEstimate(formData.distanceInKm, formData.priorityLevel)
+        calculateDeliveryTimeEstimate(formData.distanceInKm, formData.priorityLevel).toISOString()
       );
       formDataToSend.append('priceEstimate', formData.priceEstimate);
       formDataToSend.append('distanceInKm', formData.distanceInKm);
 
-      // Handle photo upload if it's a File object (not a URL string)
-      if (formData.photoUrl instanceof File) {
-        formDataToSend.append('photo', formData.photoUrl);
-      } else if (formData.photoUrl) {
-        // If it's a URL string, just send it as is
-        formDataToSend.append('photoUrl', formData.photoUrl);
+      // --- CRITICAL FIX FOR PHOTO HANDLING ---
+      if (formData.photoFile) {
+        // If a new file was selected by the user, append the actual file
+        formDataToSend.append('photo', formData.photoFile); // 'photo' matches backend multer field name
+      } else if (formData.photoPreviewUrl && formData.photoPreviewUrl !== 'https://housing.com/news/wp-content/uploads/2023/10/Top-10-courier-companies-in-India-ft.jpg') {
+        // If no new file was selected, but photoPreviewUrl is NOT the default placeholder
+        // (meaning it's a custom URL from a prior state or could be if this was an edit form), send it as photoUrl.
+        formDataToSend.append('photoUrl', formData.photoPreviewUrl);
       }
+      // If photoFile is null AND photoPreviewUrl is the default placeholder, then no photo field is appended.
+      // This assumes the backend handles the absence of photoUrl as optional or with its own default.
+      // --- END CRITICAL FIX ---
 
-      // Send the request with proper headers for file upload
+
       const response = await axios.post(DELIVERY_API_ROUTES.CREATE, formDataToSend, {
         headers: {
-          'Content-Type': 'multipart/form-data'
+          'Content-Type': 'multipart/form-data' // Required for sending FormData with files
         }
       });
       toast.success('Delivery request created successfully!');
@@ -128,14 +219,16 @@ const CreateDeliveryForm = () => {
         pickupAddress: '',
         dropoffAddress: '',
         note: '',
-        photoUrl: 'https://housing.com/news/wp-content/uploads/2023/10/Top-10-courier-companies-in-India-ft.jpg',
+        photoFile: null,
+        photoPreviewUrl: 'https://housing.com/news/wp-content/uploads/2023/10/Top-10-courier-companies-in-India-ft.jpg', // Reset to default placeholder
         priorityLevel: 'Normal',
         deliveryTimeEstimate: null,
         priceEstimate: 0,
         distanceInKm: 0
       });
 
-      navigate('/orders');
+      // Navigate to customer delivery page after creation
+      navigate('/delivery/customer');
     } catch (error) {
       console.error('Delivery creation error:', error);
       toast.error(error.response?.data?.message || 'Failed to create delivery. Please try again.');
@@ -144,72 +237,6 @@ const CreateDeliveryForm = () => {
     }
   };
 
-  // Enhanced Input Component
-  const EnhancedInput = ({ label, type = "text", value, onChange, placeholder, required = false, icon: Icon }) => (
-    <motion.div 
-      className="group"
-      whileHover={{ scale: 1.01 }}
-      transition={{ type: "spring", stiffness: 300, damping: 30 }}
-    >
-      <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
-        {label} {required && <span className="text-red-500">*</span>}
-      </label>
-      <div className="relative">
-        {Icon && (
-          <Icon className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-        )}
-        <input
-          type={type}
-          value={value}
-          onChange={onChange}
-          placeholder={placeholder}
-          required={required}
-          className={`w-full ${Icon ? 'pl-12' : 'pl-4'} pr-4 py-4 border-2 border-gray-200 dark:border-gray-600 rounded-xl 
-                     focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 
-                     dark:bg-gray-800 dark:text-white transition-all duration-300
-                     hover:border-gray-300 dark:hover:border-gray-500
-                     group-hover:shadow-lg`}
-        />
-      </div>
-    </motion.div>
-  );
-
-  // Priority Level Card Component
-  const PriorityCard = ({ level, title, description, multiplier, isSelected, onClick }) => (
-    <motion.div
-      whileHover={{ scale: 1.02, y: -2 }}
-      whileTap={{ scale: 0.98 }}
-      onClick={onClick}
-      className={`relative p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 ${
-        isSelected 
-          ? 'border-blue-500 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 shadow-lg'
-          : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 bg-white dark:bg-gray-800'
-      }`}
-    >
-      {isSelected && (
-        <motion.div
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          className="absolute -top-2 -right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center"
-        >
-          <Check className="w-4 h-4 text-white" />
-        </motion.div>
-      )}
-      <div className="flex justify-between items-start mb-2">
-        <h4 className={`font-bold text-lg ${isSelected ? 'text-blue-700 dark:text-blue-300' : 'text-gray-800 dark:text-gray-200'}`}>
-          {title}
-        </h4>
-        <span className={`text-sm font-semibold px-2 py-1 rounded-full ${
-          isSelected ? 'bg-blue-100 text-blue-700 dark:bg-blue-800 dark:text-blue-200' : 'bg-gray-100 text-gray-600 dark:bg-gray-600 dark:text-gray-300'
-        }`}>
-          {multiplier}
-        </span>
-      </div>
-      <p className={`text-sm ${isSelected ? 'text-blue-600 dark:text-blue-400' : 'text-gray-600 dark:text-gray-400'}`}>
-        {description}
-      </p>
-    </motion.div>
-  );
 
   // Step 1: Customer & Package Details
   const renderCustomerAndPackageDetails = () => (
@@ -234,17 +261,19 @@ const CreateDeliveryForm = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <EnhancedInput
             label="Your Name"
+            name="name"
             value={formData.name}
-            onChange={(e) => setFormData({...formData, name: e.target.value})}
+            onChange={handleChange} // Using generic handleChange
             placeholder="Enter your full name"
             required
           />
           
           <EnhancedInput
             label="Your Email"
+            name="email"
             type="email"
             value={formData.email}
-            onChange={(e) => setFormData({...formData, email: e.target.value})}
+            onChange={handleChange} // Using generic handleChange
             placeholder="Enter your email address"
             required
           />
@@ -253,9 +282,10 @@ const CreateDeliveryForm = () => {
         <div className="mb-6">
           <EnhancedInput
             label="Phone Number"
+            name="phone"
             type="tel"
             value={formData.phone}
-            onChange={(e) => setFormData({...formData, phone: e.target.value})}
+            onChange={handleChange} // Using generic handleChange
             placeholder="Enter your phone number"
           />
         </div>
@@ -263,8 +293,9 @@ const CreateDeliveryForm = () => {
         <div className="mb-6">
           <EnhancedInput
             label="Package Name"
+            name="packageName"
             value={formData.packageName}
-            onChange={(e) => setFormData({...formData, packageName: e.target.value})}
+            onChange={handleChange} // Using generic handleChange
             placeholder="What are you sending?"
             required
             icon={Package}
@@ -280,23 +311,24 @@ const CreateDeliveryForm = () => {
             <motion.div 
               className="relative group"
               whileHover={{ scale: 1.05 }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
             >
               <img 
-                src={formData.photoUrl} 
+                src={formData.photoPreviewUrl || 'https://placehold.co/100x100?text=No+Image'} // Use photoPreviewUrl for display
                 alt="Package preview" 
                 className="w-24 h-24 rounded-2xl object-cover border-4 border-white shadow-lg"
               />
-              {formData.photoUrl && (
+              {formData.photoFile || (formData.photoPreviewUrl && formData.photoPreviewUrl !== 'https://housing.com/news/wp-content/uploads/2023/10/Top-10-courier-companies-in-India-ft.jpg') ? (
                 <motion.button
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                   type="button"
-                  onClick={() => setFormData({...formData, photoUrl: ''})}
+                  onClick={() => setFormData(prev => ({...prev, photoFile: null, photoPreviewUrl: 'https://housing.com/news/wp-content/uploads/2023/10/Top-10-courier-companies-in-India-ft.jpg'}))} // Reset both
                   className="absolute -top-2 -right-2 w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center shadow-lg transition-colors"
                 >
                   <X className="w-4 h-4" />
                 </motion.button>
-              )}
+              ) : null}
             </motion.div>
             
             <div className="flex-1">
@@ -307,20 +339,24 @@ const CreateDeliveryForm = () => {
               >
                 <Upload className="w-8 h-1 text-gray-400 group-hover:text-blue-500 mb-2 transition-colors" />
                 <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400">
-                  {formData.photoUrl ? 'Change Photo' : 'Upload Photo'}
+                  {formData.photoFile || (formData.photoPreviewUrl && formData.photoPreviewUrl !== 'https://housing.com/news/wp-content/uploads/2023/10/Top-10-courier-companies-in-India-ft.jpg') ? 'Change Photo' : 'Upload Photo'}
                 </span>
                 <span className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   PNG, JPG up to 10MB
                 </span>
                 <input 
                   type="file" 
+                  name="photo" // Use 'photo' as name, matches backend field
                   className="hidden" 
                   accept="image/*"
                   onChange={(e) => {
                     const file = e.target.files[0];
                     if (file) {
-                      const imageUrl = URL.createObjectURL(file);
-                      setFormData({...formData, photoUrl: imageUrl});
+                      setFormData(prev => ({
+                        ...prev,
+                        photoFile: file,
+                        photoPreviewUrl: URL.createObjectURL(file) // Create URL for preview
+                      }));
                     }
                   }}
                 />
@@ -342,8 +378,10 @@ const CreateDeliveryForm = () => {
               multiplier="Base Price"
               isSelected={formData.priorityLevel === 'Normal'}
               onClick={() => {
-                const newPrice = calculatePrice(formData.distanceInKm, 'Normal');
-                setFormData({...formData, priorityLevel: 'Normal', priceEstimate: newPrice});
+                setFormData(prev => {
+                    const newPrice = calculatePrice(prev.distanceInKm, 'Normal');
+                    return {...prev, priorityLevel: 'Normal', priceEstimate: newPrice};
+                });
               }}
             />
             <PriorityCard
@@ -353,8 +391,10 @@ const CreateDeliveryForm = () => {
               multiplier="+50%"
               isSelected={formData.priorityLevel === 'Urgent'}
               onClick={() => {
-                const newPrice = calculatePrice(formData.distanceInKm, 'Urgent');
-                setFormData({...formData, priorityLevel: 'Urgent', priceEstimate: newPrice});
+                setFormData(prev => {
+                    const newPrice = calculatePrice(prev.distanceInKm, 'Urgent');
+                    return {...prev, priorityLevel: 'Urgent', priceEstimate: newPrice};
+                });
               }}
             />
             <PriorityCard
@@ -364,8 +404,10 @@ const CreateDeliveryForm = () => {
               multiplier="+100%"
               isSelected={formData.priorityLevel === 'Overnight'}
               onClick={() => {
-                const newPrice = calculatePrice(formData.distanceInKm, 'Overnight');
-                setFormData({...formData, priorityLevel: 'Overnight', priceEstimate: newPrice});
+                setFormData(prev => {
+                    const newPrice = calculatePrice(prev.distanceInKm, 'Overnight');
+                    return {...prev, priorityLevel: 'Overnight', priceEstimate: newPrice};
+                });
               }}
             />
           </div>
@@ -399,8 +441,9 @@ const CreateDeliveryForm = () => {
         <div className="mb-6">
           <EnhancedInput
             label="Pickup Address"
+            name="pickupAddress"
             value={formData.pickupAddress}
-            onChange={(e) => handleLocationSearch(e.target.value, 'pickup')}
+            onChange={(e) => handleLocationSearch(e.target.value, 'pickup')} // Using specific handler for location
             placeholder="Enter pickup address"
             required
             icon={MapPin}
@@ -408,18 +451,20 @@ const CreateDeliveryForm = () => {
         </div>
 
         <motion.div>
-          <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
+          <label htmlFor="note" className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
             Special Instructions
           </label>
           <motion.textarea
+            id="note" // Add id for accessibility
             whileHover={{ scale: 1.01 }}
+            name="note"
             value={formData.note}
-            onChange={(e) => setFormData({...formData, note: e.target.value})}
+            onChange={handleChange} // Using generic handleChange
             rows={4}
             className="w-full px-4 py-4 border-2 border-gray-200 dark:border-gray-600 rounded-xl 
-                       focus:ring-4 focus:ring-green-500/20 focus:border-green-500 
-                       dark:bg-gray-800 dark:text-white transition-all duration-300
-                       hover:border-gray-300 dark:hover:border-gray-500 resize-none"
+                        focus:ring-4 focus:ring-green-500/20 focus:border-green-500 
+                        dark:bg-gray-800 dark:text-white transition-all duration-300
+                        hover:border-gray-300 dark:hover:border-gray-500 resize-none"
             placeholder="Building details, floor number, contact person, etc..."
           />
         </motion.div>
@@ -452,8 +497,9 @@ const CreateDeliveryForm = () => {
         <div className="mb-8">
           <EnhancedInput
             label="Dropoff Address"
+            name="dropoffAddress"
             value={formData.dropoffAddress}
-            onChange={(e) => handleLocationSearch(e.target.value, 'dropoff')}
+            onChange={(e) => handleLocationSearch(e.target.value, 'dropoff')} // Using specific handler for location
             placeholder="Enter delivery address"
             required
             icon={MapPin}
@@ -562,7 +608,7 @@ const CreateDeliveryForm = () => {
                 <span className="font-medium">Priority:</span> {formData.priorityLevel}
               </p>
               <div className="flex items-center mt-3">
-                <img src={formData.photoUrl} alt="Package" className="w-12 h-12 rounded-lg object-cover" />
+                <img src={formData.photoPreviewUrl || 'https://placehold.co/100x100?text=No+Image'} alt="Package" className="w-12 h-12 rounded-lg object-cover" /> {/* Use photoPreviewUrl for display */}
               </div>
             </div>
           </motion.div>
@@ -648,8 +694,34 @@ const CreateDeliveryForm = () => {
     </motion.div>
   );
 
-  // Render current step
-  const renderStep = () => {
+  // Form Navigation
+  const goToNextStep = () => {
+    // Basic validation before proceeding
+    if (currentStep === 1) {
+      if (!formData.name || !formData.email || !formData.packageName) {
+        toast.error('Please fill in all required Customer & Package details.');
+        return;
+      }
+    } else if (currentStep === 2) {
+      if (!formData.pickupAddress) {
+        toast.error('Please enter the Pickup Address.');
+        return;
+      }
+    } else if (currentStep === 3) {
+      if (!formData.dropoffAddress) {
+        toast.error('Please enter the Dropoff Address.');
+        return;
+      }
+    }
+    setCurrentStep((prev) => Math.min(prev + 1, steps.length));
+  };
+
+  const goToPreviousStep = () => {
+    setCurrentStep((prev) => Math.max(prev - 1, 1));
+  };
+
+  // Render current step content (renamed from renderStepContent for clarity)
+  const renderCurrentStepContent = () => {
     switch (currentStep) {
       case 1: return renderCustomerAndPackageDetails();
       case 2: return renderPickupInformation();
@@ -660,127 +732,94 @@ const CreateDeliveryForm = () => {
   };
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-      >
-        {/* Enhanced Progress Steps */}
-        <div className="mb-12">
-          <div className="flex items-center justify-between relative">
-            {/* Progress Line */}
-            <div className="absolute top-5 left-5 right-5 h-1 bg-gray-200 dark:bg-gray-700 rounded-full">
-              <motion.div 
-                className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"
-                initial={{ width: "0%" }}
-                animate={{ width: `${((currentStep - 1) / (steps.length - 1)) * 100}%` }}
-                transition={{ duration: 0.5, ease: "easeInOut" }}
-              />
-            </div>
-            
-            {steps.map((step, index) => (
-              <motion.div
-                key={step.number}
-                className="relative z-10 flex flex-col items-center"
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ delay: index * 0.1 }}
-              >
-                <motion.div
-                  className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 ${
-                    currentStep >= step.number
-                      ? `bg-gradient-to-br ${step.color} shadow-lg`
-                      : 'bg-gray-200 dark:bg-gray-700'
+    <div className="max-w-4xl mx-auto p-6 bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700">
+      <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white text-center mb-8">
+        Create New Delivery Request
+      </h2>
+
+      {/* Progress Tracker */}
+      <div className="mb-10 relative">
+        <div className="flex justify-between items-center relative z-10">
+          {steps.map((step) => (
+            <div key={step.number} className="flex flex-col items-center flex-1 relative">
+              <div 
+                className={`w-12 h-12 rounded-full flex items-center justify-center 
+                  font-bold text-white text-lg transition-all duration-300 ease-in-out
+                  ${currentStep >= step.number 
+                    ? `bg-gradient-to-br ${step.color} shadow-lg` 
+                    : 'bg-gray-300 dark:bg-gray-600'
                   }`}
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <step.icon className={`w-6 h-6 ${
-                    currentStep >= step.number ? 'text-white' : 'text-gray-500'
-                  }`} />
-                </motion.div>
-                <div className="mt-3 text-center hidden md:block">
-                  <p className={`text-xs font-bold ${
-                    currentStep >= step.number
-                      ? 'text-gray-900 dark:text-white'
-                      : 'text-gray-500'
-                  }`}>
-                    Step {step.number}
-                  </p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400 mt-1 max-w-20">
-                    {step.title}
-                  </p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-
-        {/* Form Content */}
-        <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-          <div className="p-8 md:p-12">
-            <AnimatePresence mode="wait">
-              {renderStep()}
-            </AnimatePresence>
-
-            {/* Enhanced Navigation Buttons */}
-            <div className="flex justify-between items-center mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
-              <motion.button
-                whileHover={{ scale: 1.05, x: -5 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setCurrentStep(Math.max(1, currentStep - 1))}
-                disabled={currentStep === 1}
-                className="flex items-center space-x-2 px-6 py-3 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
               >
-                <ArrowLeft className="w-4 h-4" />
-                <span className="font-semibold">Previous</span>
-              </motion.button>
-
-              {currentStep < steps.length ? (
-                <motion.button
-                  whileHover={{ scale: 1.05, x: 5 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => setCurrentStep(Math.min(steps.length, currentStep + 1))}
-                  disabled={
-                    (currentStep === 1 && !formData.packageName) ||
-                    (currentStep === 2 && !formData.pickupAddress) ||
-                    (currentStep === 3 && !formData.dropoffAddress)
-                  }
-                  className="flex items-center space-x-2 px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 shadow-lg"
-                >
-                  <span className="font-semibold">Next Step</span>
-                  <ArrowRight className="w-4 h-4" />
-                </motion.button>
-              ) : (
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={handleSubmit}
-                  disabled={loading}
-                  className="flex items-center space-x-3 px-8 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-xl disabled:opacity-50 font-semibold transition-all duration-300 shadow-lg"
-                >
-                  {loading ? (
-                    <>
-                      <motion.div 
-                        animate={{ rotate: 360 }}
-                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                        className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
-                      />
-                      <span>Creating Order...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Check className="w-5 h-5" />
-                      <span>Confirm Order</span>
-                    </>
-                  )}
-                </motion.button>
-              )}
+                {currentStep > step.number ? <Check className="w-6 h-6" /> : step.number}
+              </div>
+              <p className={`mt-2 text-center text-sm md:text-base font-semibold whitespace-nowrap transition-colors duration-300
+                ${currentStep >= step.number ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'}`}>
+                {step.title}
+              </p>
             </div>
-          </div>
+          ))}
         </div>
-      </motion.div>
+        {/* Progress Line */}
+        <div className="absolute top-6 left-0 right-0 h-1 bg-gray-200 dark:bg-gray-700 z-0">
+          <motion.div
+            className="h-full bg-sky-500 rounded-full"
+            initial={{ width: 0 }}
+            animate={{ width: `${((currentStep - 1) / (steps.length - 1)) * 100}%` }}
+            transition={{ duration: 0.5, ease: "easeInOut" }}
+          />
+        </div>
+      </div>
+
+      <form onSubmit={handleSubmit}>
+        <AnimatePresence mode="wait">
+          {renderCurrentStepContent()}
+        </AnimatePresence>
+
+        {/* Form Navigation Buttons */}
+        <div className="flex justify-between mt-10 pt-6 border-t border-gray-200 dark:border-gray-700">
+          {currentStep > 1 && (
+            <motion.button
+              whileHover={{ x: -5 }}
+              whileTap={{ scale: 0.95 }}
+              type="button"
+              onClick={goToPreviousStep}
+              className="flex items-center px-6 py-3 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white font-semibold transition-colors hover:bg-gray-300 dark:hover:bg-gray-600"
+            >
+              <ArrowLeft className="w-5 h-5 mr-2" /> Previous
+            </motion.button>
+          )}
+
+          {currentStep < steps.length ? (
+            <motion.button
+              whileHover={{ x: 5 }}
+              whileTap={{ scale: 0.95 }}
+              type="button"
+              onClick={goToNextStep}
+              className={`flex items-center px-6 py-3 rounded-full bg-sky-600 text-white font-semibold transition-colors hover:bg-sky-700 ${currentStep === 1 && 'ml-auto'}`}
+            >
+              Next <ArrowRight className="w-5 h-5 ml-2" />
+            </motion.button>
+          ) : (
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              type="submit"
+              disabled={loading}
+              className={`flex items-center px-8 py-3 rounded-full bg-green-600 text-white font-bold text-lg transition-colors hover:bg-green-700 ${loading ? 'opacity-70 cursor-not-allowed' : ''} ml-auto`}
+            >
+              {loading ? (
+                <svg className="animate-spin h-5 w-5 mr-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              ) : (
+                <Check className="w-6 h-6 mr-3" />
+              )}
+              Confirm Order
+            </motion.button>
+          )}
+        </div>
+      </form>
     </div>
   );
 };
