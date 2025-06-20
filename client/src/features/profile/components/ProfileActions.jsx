@@ -1,4 +1,3 @@
-// src/features/profile/components/ProfileActions.jsx
 import React from 'react';
 
 const ProfileActions = ({ onLogout }) => {

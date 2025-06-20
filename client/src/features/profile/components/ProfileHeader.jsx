@@ -1,8 +1,7 @@
-// src/features/profile/components/ProfileHeader.jsx
 import React from 'react';
 import { User, Edit3, Settings } from 'lucide-react';
 
-const ProfileHeader = ({ user, onEditToggle }) => {
+const ProfileHeader = ({ user, onEditToggle, onSettingsClick }) => {
   const getInitials = (name) => {
     if (!name) return 'U';
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
@@ -66,10 +65,15 @@ const ProfileHeader = ({ user, onEditToggle }) => {
             <button
               onClick={onEditToggle}
               className="p-2 sm:p-3 bg-white/20 backdrop-blur-sm rounded-xl hover:bg-white/30 transition-all duration-200 group"
+              aria-label="Edit profile"
             >
               <Edit3 className="w-4 h-4 sm:w-5 sm:h-5 group-hover:scale-110 transition-transform" />
             </button>
-            <button className="p-2 sm:p-3 bg-white/20 backdrop-blur-sm rounded-xl hover:bg-white/30 transition-all duration-200 group">
+            <button 
+              onClick={onSettingsClick}
+              className="p-2 sm:p-3 bg-white/20 backdrop-blur-sm rounded-xl hover:bg-white/30 transition-all duration-200 group"
+              aria-label="Settings"
+            >
               <Settings className="w-4 h-4 sm:w-5 sm:h-5 group-hover:scale-110 transition-transform" />
             </button>
           </div>

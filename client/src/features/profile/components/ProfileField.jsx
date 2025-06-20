@@ -1,4 +1,3 @@
-// src/features/profile/components/ProfileField.jsx
 import React from 'react';
 import { User, Mail, Phone, Tag, Key } from 'lucide-react';
 
