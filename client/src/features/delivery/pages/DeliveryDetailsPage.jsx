@@ -48,8 +48,18 @@ const DeliveryDetailsPage = () => {
   const handleReviewSubmit = async ({ rating, comment }) => {
     setReviewLoading(true);
     try {
-      // Always include driverId for feedback
-      await submitReview({ deliveryId: id, rating, comment, driverId: delivery.driver?._id || delivery.driver });
+      let driverId = null;
+      if (delivery.driver && typeof delivery.driver === 'object' && delivery.driver._id) {
+        driverId = delivery.driver._id;
+      } else if (typeof delivery.driver === 'string') {
+        driverId = delivery.driver;
+      }
+      if (!driverId) {
+        toast.error('Driver ID is missing. Cannot submit review.');
+        setReviewLoading(false);
+        return;
+      }
+      await submitReview({ deliveryId: id, rating, comment, driverId });
       toast.success('Review submitted!');
       const [reviewsData, myRev] = await Promise.all([
         getReviewsForDelivery(id),
@@ -94,11 +104,19 @@ const DeliveryDetailsPage = () => {
   const shouldShowOtp = isCustomer && delivery.status === 'In-Transit' && delivery.deliveryOtp;
 
   return (
-    <div className={`${COLORS.APP_BG} min-h-screen py-6 px-2 md:px-0`}> {/* App background */}
+    <div className={`${COLORS.APP_BG} min-h-screen py-6 px-2 md:px-0`}>
       <div className={`max-w-3xl mx-auto`}>
         {/* Main Card */}
         <div className={STYLES.CARD}>
-          <h2 className={`${STYLES.SECTION_HEADING} ${COLORS.ACCENT}`}>Delivery Details</h2>
+          {/* Delivery Name, ID, and Status at the top */}
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-4">
+            <div className="flex flex-col gap-1 flex-1 min-w-0">
+              <h1 className="text-2xl font-bold text-[#212121] truncate" title={delivery.packageName}>{delivery.packageName}</h1>
+              <span className="text-xs text-[#616161] truncate" title={id}>ID: {id}</span>
+            </div>
+            <span className={`ml-0 md:ml-4 ${delivery.status === 'Delivered' ? COLORS.ACCENT_SECONDARY : delivery.status === 'Pending' ? COLORS.ACCENT_PENDING : COLORS.ACCENT} font-semibold text-base px-3 py-1 rounded-full bg-[#F4F6F8] border ${COLORS.BORDER} truncate`} title={delivery.status}>{delivery.status}</span>
+          </div>
+          {/* Main Content */}
           <div className="flex flex-col md:flex-row gap-8 mb-6">
             {/* Left: Package Photo & Info */}
             <div className="w-full md:w-1/2 flex flex-col gap-4">
@@ -109,8 +127,8 @@ const DeliveryDetailsPage = () => {
                   <ImageIcon className="w-12 h-12 text-[#1976D2]" />
                 )}
               </div>
+              {/* Info section (no delivery name here) */}
               <div className="flex flex-col gap-2 mt-2">
-                <div className="text-xl font-bold text-[#212121]">{delivery.packageName}</div>
                 <div className="flex items-center gap-2">
                   <Tag className="h-5 w-5 text-[#1976D2]" />
                   <span className={STYLES.LABEL}>Cost</span>
@@ -123,11 +141,9 @@ const DeliveryDetailsPage = () => {
                 </div>
                 <div className="flex items-center gap-2">
                   <span className={STYLES.LABEL}>Status</span>
-                  <span className={delivery.status === 'Delivered' ? STYLES.STATUS_DELIVERED : delivery.status === 'Pending' ? STYLES.STATUS_PENDING : STYLES.VALUE}>
-                    {delivery.status}
-                  </span>
+                  <span className={`truncate max-w-[120px] ${delivery.status === 'Delivered' ? COLORS.ACCENT_SECONDARY : delivery.status === 'Pending' ? COLORS.ACCENT_PENDING : COLORS.ACCENT} font-semibold`} title={delivery.status}>{delivery.status}</span>
                 </div>
-                {delivery.note && <div className="flex items-center gap-2"><span className={STYLES.LABEL}>Note</span><span className={STYLES.VALUE}>{delivery.note}</span></div>}
+                {delivery.note && <div className="flex items-center gap-2"><span className={STYLES.LABEL}>Note</span><span className={`truncate max-w-[180px] ${STYLES.VALUE}`} title={delivery.note}>{delivery.note}</span></div>}
               </div>
             </div>
             {/* Right: Customer & Addresses */}

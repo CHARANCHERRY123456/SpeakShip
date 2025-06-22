@@ -87,8 +87,8 @@ const DeliveryCard = ({ delivery, isDriverView = false, onAccept, onUpdateStatus
 
     return (
         <div className={`delivery-card bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden transition-all duration-300 flex flex-col h-full`}
-            onClick={() => navigate(`/delivery/${delivery._id}`)}
-            style={{ cursor: 'pointer' }}
+            // Removed onClick from card container
+            style={{ cursor: 'default' }}
         >
             {/* Main Card Content */}
             <div className="flex flex-col flex-grow p-4 md:p-6">
@@ -99,11 +99,10 @@ const DeliveryCard = ({ delivery, isDriverView = false, onAccept, onUpdateStatus
                     </h3>
                     <StatusBadge status={delivery.status} />
                 </div>
-                
-                {/* Image - Always visible, now triggers modal */}
+                {/* Image - Only image is clickable for details */}
                 <div 
                     className="relative w-full h-48 rounded-lg overflow-hidden mb-4 cursor-pointer hover:opacity-90 transition-opacity"
-                    onClick={toggleDetailsModal} // Changed to toggleDetailsModal
+                    onClick={() => navigate(`/delivery/${delivery._id}`)}
                 >
                     <img
                         src={fullPhotoUrl}
@@ -115,8 +114,7 @@ const DeliveryCard = ({ delivery, isDriverView = false, onAccept, onUpdateStatus
                         }}
                     />
                     <div className="absolute bottom-2 right-2 bg-black bg-opacity-50 rounded-full p-1">
-                        {/* Always show ChevronDown for visual cue that it's expandable */}
-                        <ChevronDown className="h-5 w-5 text-white" /> 
+                        <ChevronDown className="h-5 w-5 text-white" />
                     </div>
                 </div>
 

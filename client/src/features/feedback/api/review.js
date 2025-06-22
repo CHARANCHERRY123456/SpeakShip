@@ -1,8 +1,9 @@
 // src/features/feedback/api/review.js
 import axios from '../../../api/axios';
 
-export async function submitReview({ deliveryId, rating, comment }) {
-  const res = await axios.post('/api/feedback', { deliveryId, rating, comment });
+// Accepts driverId as optional, but always sends it if present
+export async function submitReview({ deliveryId, rating, comment, driverId }) {
+  const res = await axios.post('/api/feedback', { deliveryId, rating, comment, driverId });
   return res.data;
 }
 
