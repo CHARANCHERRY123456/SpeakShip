@@ -14,3 +14,7 @@ export const AUTH_MESSAGES = {
   LOGOUT_SUCCESS: 'Logout successful.',
   UNAUTHORIZED: 'Unauthorized access.',
 };
+
+export const WELCOME_EMAIL_SUBJECT = "Welcome to SpeakShip!";
+export const WELCOME_EMAIL_TEMPLATE_PATH =
+  "./server/src/features/auth/templates/welcomeEmail.html";

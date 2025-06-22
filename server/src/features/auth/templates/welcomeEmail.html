@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Welcome to SpeakShip!</title>
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f7fafc; color: #222; }
+    .container { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px #e2e8f0; max-width: 480px; margin: 40px auto; padding: 32px; }
+    .logo { text-align: center; margin-bottom: 24px; }
+    .logo img { width: 80px; }
+    .headline { color: #2563eb; font-size: 1.5rem; font-weight: bold; margin-bottom: 12px; text-align: center; }
+    .message { font-size: 1.1rem; margin-bottom: 18px; text-align: center; }
+    .cta { display: block; width: fit-content; margin: 24px auto 0; background: linear-gradient(90deg, #2563eb, #06b6d4); color: #fff; padding: 12px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; box-shadow: 0 2px 6px #e0e7ef; transition: background 0.2s; }
+    .cta:hover { background: linear-gradient(90deg, #06b6d4, #2563eb); }
+    .footer { margin-top: 32px; font-size: 0.95rem; color: #64748b; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">
+      <img src="https://cdn-icons-png.flaticon.com/512/2920/2920277.png" alt="SpeakShip Logo" />
+    </div>
+    <div class="headline">Welcome to SpeakShip, {{name}}! 🎉</div>
+    <div class="message">
+      We're thrilled to have you on board.<br>
+      <b>SpeakShip</b> makes sending and tracking deliveries easy, fast, and secure.<br>
+      <br>
+      <span style="color:#2563eb; font-weight:500;">Here's what you can do next:</span>
+      <ul style="text-align:left; margin: 16px auto 0; max-width: 350px;">
+        <li>🚚 <b>Create</b> a new delivery request in seconds</li>
+        <li>📦 <b>Track</b> your packages in real-time</li>
+        <li>💬 <b>Get instant support</b> whenever you need</li>
+      </ul>
+    </div>
+    <a href="https://speak-ship.vercel.app/" class="cta">Get Started</a>
+    <div class="footer">
+      If you have any questions, just reply to this email.<br>
+      Happy shipping!<br>
+      <b>The SpeakShip Team</b>
+    </div>
+  </div>
+</body>
+</html>

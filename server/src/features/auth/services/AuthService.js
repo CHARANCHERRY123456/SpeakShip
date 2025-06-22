@@ -3,10 +3,17 @@ import jwt from 'jsonwebtoken';
 import CustomerRepository from '../repository/CustomerRepository.js';
 import DriverRepository from '../repository/DriverRepository.js';
 import AdminRepository from '../repository/AdminRepository.js';
-import { USER_ROLES, AUTH_MESSAGES } from '../constants.js';
+import { USER_ROLES, AUTH_MESSAGES, WELCOME_EMAIL_SUBJECT } from '../constants.js';
+import fs from 'fs/promises';
+import path, { dirname } from 'path';
+import { fileURLToPath } from 'url';
+import sendMail from '../../../utils/mailer.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
 const JWT_EXPIRES_IN = '7d';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 class AuthService {
   async registerCustomer(data) {
@@ -14,7 +21,23 @@ class AuthService {
     const existing = await CustomerRepository.findByUsername(data.username) || await CustomerRepository.findByEmail(data.email);
     if (existing) throw new Error(AUTH_MESSAGES.CUSTOMER_EXISTS);
     data.password = await bcrypt.hash(data.password, 10);
-    return CustomerRepository.create(data);
+    const customer = await CustomerRepository.create(data);
+
+    // Send welcome email (non-blocking, but log errors)
+    try {
+      const templatePath = path.join(__dirname, '../templates/welcomeEmail.html');
+      let html = await fs.readFile(templatePath, 'utf-8');
+      html = html.replace(/{{name}}/g, customer.name || 'Valued User');
+      await sendMail({
+        to: customer.email,
+        subject: WELCOME_EMAIL_SUBJECT,
+        html
+      });
+    } catch (mailErr) {
+      console.error('Failed to send welcome email:', mailErr);
+    }
+
+    return customer;
   }
   
   async registerDriver(data) {
