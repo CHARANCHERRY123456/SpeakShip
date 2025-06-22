@@ -7,7 +7,7 @@ import ReviewForm from '../../feedback/components/ReviewForm';
 import ReviewDisplay from '../../feedback/components/ReviewDisplay';
 import { useAuth } from '../../../contexts/AuthContext';
 import { toast } from 'react-hot-toast';
-import { Mail, Phone, User, Truck, Tag, Calendar, Image as ImageIcon, MapPin } from 'lucide-react';
+import { Mail, Phone, User, Truck, Tag, Calendar, Image as ImageIcon, MapPin, CheckCircle } from 'lucide-react';
 import { COLORS, STYLES } from '../../../constants/colorConstants';
 
 const DeliveryDetailsPage = () => {
@@ -172,13 +172,42 @@ const DeliveryDetailsPage = () => {
               )}
             </div>
           </div>
-          {/* Timeline */}
+          {/* Timeline - Modern Vertical Stepper */}
           <div className="mt-6">
             <div className={`${STYLES.SECTION_HEADING} text-[#1976D2]`}><Calendar className="h-5 w-5" />Timeline</div>
-            <div className="flex flex-col md:flex-row gap-6 text-sm">
-              <div><span className={STYLES.LABEL}>Created</span><br /><span className={STYLES.VALUE}>{delivery.createdAt ? new Date(delivery.createdAt).toLocaleString() : 'N/A'}</span></div>
-              <div><span className={STYLES.LABEL}>Last Updated</span><br /><span className={STYLES.VALUE}>{delivery.updatedAt ? new Date(delivery.updatedAt).toLocaleString() : 'N/A'}</span></div>
-              {delivery.deliveryTimeEstimate && <div><span className={STYLES.LABEL}>Est. Delivery</span><br /><span className={STYLES.VALUE}>{new Date(delivery.deliveryTimeEstimate).toLocaleString()}</span></div>}
+            <div className="flex flex-col md:flex-row md:items-start gap-8">
+              {/* Vertical Stepper */}
+              <ol className="relative border-l-2 border-[#E0E0E0] ml-3 md:ml-0 md:w-1/2">
+                {/* Created */}
+                <li className="mb-8 ml-6 flex flex-col">
+                  <span className="absolute -left-3 flex items-center justify-center w-6 h-6 rounded-full bg-[#1976D2] text-white"><Calendar className="h-4 w-4" /></span>
+                  <span className="font-semibold text-[#1976D2]">Created</span>
+                  <span className="text-xs text-[#616161]">{delivery.createdAt ? new Date(delivery.createdAt).toLocaleString() : 'N/A'}</span>
+                </li>
+                {/* In-Transit (if applicable) */}
+                {delivery.status === 'In-Transit' || delivery.status === 'Delivered' ? (
+                  <li className="mb-8 ml-6 flex flex-col">
+                    <span className="absolute -left-3 flex items-center justify-center w-6 h-6 rounded-full bg-[#FF9100] text-white"><Truck className="h-4 w-4" /></span>
+                    <span className="font-semibold text-[#FF9100]">In-Transit</span>
+                    <span className="text-xs text-[#616161]">{delivery.updatedAt ? new Date(delivery.updatedAt).toLocaleString() : 'N/A'}</span>
+                  </li>
+                ) : null}
+                {/* Delivered (if applicable) */}
+                {delivery.status === 'Delivered' && (
+                  <li className="ml-6 flex flex-col">
+                    <span className="absolute -left-3 flex items-center justify-center w-6 h-6 rounded-full bg-[#00C853] text-white"><CheckCircle className="h-4 w-4" /></span>
+                    <span className="font-semibold text-[#00C853]">Delivered</span>
+                    <span className="text-xs text-[#616161]">{delivery.updatedAt ? new Date(delivery.updatedAt).toLocaleString() : 'N/A'}</span>
+                  </li>
+                )}
+              </ol>
+              {/* Estimated Delivery (if available) */}
+              {delivery.deliveryTimeEstimate && (
+                <div className="md:w-1/2 flex flex-col gap-2 mt-4 md:mt-0">
+                  <span className={STYLES.LABEL}>Est. Delivery</span>
+                  <span className={STYLES.VALUE}>{new Date(delivery.deliveryTimeEstimate).toLocaleString()}</span>
+                </div>
+              )}
             </div>
           </div>
           {/* Divider */}
