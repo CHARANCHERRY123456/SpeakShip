@@ -94,6 +94,17 @@ const DeliveryController = {
       console.error("Backend Error in DeliveryController.listForCustomer:", err);
       res.status(500).json({ error: err.message });
     }
+  },
+
+  async verifyDeliveryOtp(req, res) {
+    try {
+      const { id } = req.params;
+      const { otp } = req.body;
+      const delivery = await DeliveryService.verifyDeliveryOtp(id, otp);
+      res.json(delivery);
+    } catch (err) {
+      res.status(400).json({ error: err.message || 'OTP verification failed.' });
+    }
   }
 };
 

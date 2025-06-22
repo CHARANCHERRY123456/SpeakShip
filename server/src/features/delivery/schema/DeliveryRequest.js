@@ -82,6 +82,10 @@ const DeliveryRequestSchema = new mongoose.Schema(
       type: String,
       enum: ['Normal', 'Urgent', 'Overnight'],
       default: 'Normal'
+    },
+    deliveryOtp: {
+      type: String,
+      default: null
     }
   },
   {timestamps: true}

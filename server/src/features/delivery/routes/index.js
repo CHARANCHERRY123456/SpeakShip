@@ -23,4 +23,7 @@ router.get('/customer', authenticate(['customer']), DeliveryController.listForCu
 // NEW ROUTE: Update delivery status (driver)
 router.patch('/status/:id', authenticate(['driver']), DeliveryController.updateStatus);
 
+// OTP verification (customer)
+router.post('/verify-otp/:id', authenticate(['customer']), DeliveryController.verifyDeliveryOtp);
+
 export default router;

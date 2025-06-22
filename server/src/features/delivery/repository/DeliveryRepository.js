@@ -1,5 +1,6 @@
 import DeliveryRequest from '../schema/DeliveryRequest.js';
 import { buildDeliveryFilters } from '../utils/deliveryFilters.js';
+import Driver from '../../auth/schema/Driver.js';
 
 const DeliveryRepository = {
   async create(data) {
@@ -67,6 +68,26 @@ const DeliveryRepository = {
       DeliveryRequest.countDocuments(filter)
     ]);
     return { results, total };
+  },
+
+  async setDeliveryOtp(id, otp) {
+    return DeliveryRequest.findByIdAndUpdate(
+      id,
+      { deliveryOtp: otp },
+      { new: true }
+    );
+  },
+
+  async markDeliveredAndClearOtp(id) {
+    return DeliveryRequest.findByIdAndUpdate(
+      id,
+      { status: 'Delivered', deliveryOtp: null, updatedAt: Date.now() },
+      { new: true }
+    );
+  },
+
+  async findDriverById(driverId) {
+    return Driver.findById(driverId);
   }
 };
 
