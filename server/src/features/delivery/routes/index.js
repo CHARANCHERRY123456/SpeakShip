@@ -27,4 +27,7 @@ router.patch('/status/:id', authenticate(['driver', 'customer']), DeliveryContro
 // OTP verification (customer)
 router.post('/verify-otp/:id', authenticate(['customer']), DeliveryController.verifyDeliveryOtp);
 
+// Get a delivery by ID (customer or driver)
+router.get('/:id', authenticate(['customer', 'driver']), DeliveryController.getById);
+
 export default router;

@@ -10,8 +10,8 @@ import { cancelDelivery, verifyDeliveryOtp } from '../api/index';
 import { toast } from 'react-hot-toast';
 import StatusBadge from './StatusBadge';
 import DeliveryDetailsModal from './DeliveryDetailsModal';
-import ReviewModal from './ReviewModal';
 import OtpModal from './OtpModal';
+import { useNavigate } from 'react-router-dom';
 
 const DeliveryCard = ({ delivery, isDriverView = false, onAccept, onUpdateStatus, updateLoading = false, isAccepting = false, onCancel }) => {
     const [showConfirmTransitModal, setShowConfirmTransitModal] = useState(false);
@@ -21,7 +21,7 @@ const DeliveryCard = ({ delivery, isDriverView = false, onAccept, onUpdateStatus
     const [otpInput, setOtpInput] = useState('');
     const [otpLoading, setOtpLoading] = useState(false);
     const [otpError, setOtpError] = useState('');
-    const [showReviewModal, setShowReviewModal] = useState(false);
+    const navigate = useNavigate();
 
     const defaultPlaceholder = 'https://housing.com/news/wp-content/uploads/2023/10/Top-10-courier-companies-in-India-ft.jpg';
     const fullPhotoUrl = delivery.photoUrl ? (delivery.photoUrl.startsWith('http') ? delivery.photoUrl : `${API_BASE_URL}${delivery.photoUrl}`) : defaultPlaceholder;
@@ -81,12 +81,15 @@ const DeliveryCard = ({ delivery, isDriverView = false, onAccept, onUpdateStatus
     // Show cancel button for customer if Pending or Accepted
     const showCancel = !isDriverView && (isPending || isAccepted);
     // Show review button for customer if Delivered
-    const showReview = !isDriverView && isDelivered;
+    // const showReview = !isDriverView && isDelivered;
     // Show OTP modal for customer if delivery is In-Transit and deliveryOtp exists
     const shouldShowOtpEntry = !isDriverView && isInTransit && delivery.deliveryOtp;
 
     return (
-        <div className={`delivery-card bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden transition-all duration-300 flex flex-col h-full`}>
+        <div className={`delivery-card bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden transition-all duration-300 flex flex-col h-full`}
+            onClick={() => navigate(`/delivery/${delivery._id}`)}
+            style={{ cursor: 'pointer' }}
+        >
             {/* Main Card Content */}
             <div className="flex flex-col flex-grow p-4 md:p-6">
                 {/* Header */}
@@ -323,11 +326,6 @@ const DeliveryCard = ({ delivery, isDriverView = false, onAccept, onUpdateStatus
             {/* Full Details Modal */}
             {showDetailsModal && (
                 <DeliveryDetailsModal delivery={delivery} onClose={toggleDetailsModal} />
-            )}
-
-            {/* Review Modal (UI only, no backend) */}
-            {showReview && (
-                <ReviewModal show={showReviewModal} onClose={() => setShowReviewModal(false)} />
             )}
 
             {/* OTP Entry Modal for Customer */}

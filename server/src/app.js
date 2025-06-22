@@ -2,6 +2,7 @@ import express from "express";
 import connectDB from  "./config/db.js";
 import authRoutes from './features/auth/routes/index.js';
 import deliveryRoutes from './features/delivery/routes/index.js';
+import feedbackRoutes from './features/feedback/routes.js';
 import cors from 'cors';
 import passport from './features/auth/services/GoogleStrategy.js';
 import path from 'path';
@@ -30,6 +31,7 @@ app.get("/", (req, res) => {
 });
 app.use('/api/auth', authRoutes);
 app.use('/api/delivery', deliveryRoutes);
+app.use('/api/feedback', feedbackRoutes);
 
 
 export default app;

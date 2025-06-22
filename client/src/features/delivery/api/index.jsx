@@ -100,3 +100,13 @@ export async function verifyDeliveryOtp(deliveryId, otp) {
     const response = await axios.post(`/api/delivery/verify-otp/${deliveryId}`, { otp });
     return response.data;
 }
+
+/**
+ * Fetch a single delivery by its ID.
+ * @param {string} deliveryId - The ID of the delivery to fetch.
+ * @returns {Promise<Object>} - The delivery object.
+ */
+export async function getDeliveryById(deliveryId) {
+    const response = await axios.get(`/api/delivery/${deliveryId}`);
+    return response.data;
+}
