@@ -139,10 +139,6 @@ const DeliveryDetailsPage = () => {
                   <span className={STYLES.LABEL}>Distance</span>
                   <span className={STYLES.VALUE}>{delivery.distanceInKm ? Number(delivery.distanceInKm).toFixed(2) : 'N/A'} km</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className={STYLES.LABEL}>Status</span>
-                  <span className={`truncate max-w-[120px] ${delivery.status === 'Delivered' ? COLORS.ACCENT_SECONDARY : delivery.status === 'Pending' ? COLORS.ACCENT_PENDING : COLORS.ACCENT} font-semibold`} title={delivery.status}>{delivery.status}</span>
-                </div>
                 {delivery.note && <div className="flex items-center gap-2"><span className={STYLES.LABEL}>Note</span><span className={`truncate max-w-[180px] ${STYLES.VALUE}`} title={delivery.note}>{delivery.note}</span></div>}
               </div>
             </div>
