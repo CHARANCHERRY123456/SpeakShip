@@ -20,8 +20,9 @@ router.get('/my', authenticate(['driver']), DeliveryController.listForDriver);
 // List deliveries for customer
 router.get('/customer', authenticate(['customer']), DeliveryController.listForCustomer);
 
-// NEW ROUTE: Update delivery status (driver)
-router.patch('/status/:id', authenticate(['driver']), DeliveryController.updateStatus);
+// NEW ROUTE: Update delivery status (driver or customer)
+router.patch('/status/:id', authenticate(['driver', 'customer']), DeliveryController.updateStatus);
+
 
 // OTP verification (customer)
 router.post('/verify-otp/:id', authenticate(['customer']), DeliveryController.verifyDeliveryOtp);

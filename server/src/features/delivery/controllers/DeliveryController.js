@@ -1,4 +1,5 @@
 import DeliveryService from '../services/DeliveryService.js';
+import { DELIVERY_STATUS } from '../constants.js';
 
 const DeliveryController = {
   async createRequest(req, res) {
@@ -47,19 +48,40 @@ const DeliveryController = {
 
   async updateStatus(req, res) {
     try {
-      const driverId = req.user.id;
+      const userId = req.user.id;
+      const userRole = req.user.role;
       const { id } = req.params;
       const { status: newStatus } = req.body;
-      const driverIdString = driverId.toString();
       const delivery = await DeliveryService.findById(id);
       if (!delivery) {
         return res.status(404).json({ error: 'Delivery request not found.' });
       }
-      if (!delivery.driver || delivery.driver._id.toString() !== driverIdString) {
-        return res.status(403).json({ error: 'Not authorized to update this delivery.' });
+      // Allow drivers to update status for their assigned deliveries
+      if (userRole === 'driver') {
+        if (!delivery.driver || delivery.driver._id.toString() !== userId.toString()) {
+          return res.status(403).json({ error: 'Not authorized to update this delivery.' });
+        }
+        const updatedDelivery = await DeliveryService.updateDeliveryStatus(id, newStatus);
+        return res.json(updatedDelivery);
       }
-      const updatedDelivery = await DeliveryService.updateDeliveryStatus(id, newStatus);
-      res.json(updatedDelivery);
+      // Allow customers to cancel their own deliveries if Pending or Accepted
+      if (userRole === 'customer') {
+        // delivery.customer may be a populated object, so compare _id
+        const deliveryCustomerId = delivery.customer?._id?.toString?.() || delivery.customer?.toString?.() || delivery.customer;
+        if (newStatus !== DELIVERY_STATUS[4]) { // 'Cancelled'
+          return res.status(403).json({ error: 'Customers can only cancel deliveries.' });
+        }
+        if (deliveryCustomerId !== userId.toString()) {
+          return res.status(403).json({ error: 'Not authorized to cancel this delivery.' });
+        }
+        if (![DELIVERY_STATUS[0], DELIVERY_STATUS[1]].includes(delivery.status)) { // 'Pending', 'Accepted'
+          return res.status(403).json({ error: 'Cannot cancel after delivery is in progress.' });
+        }
+        const updatedDelivery = await DeliveryService.updateDeliveryStatus(id, newStatus);
+        return res.json(updatedDelivery);
+      }
+      // All other roles forbidden
+      return res.status(403).json({ error: 'Not authorized.' });
     } catch (err) {
       console.error("Backend Error in DeliveryController.updateStatus:", err);
       res.status(400).json({ error: err.message || 'Bad Request: Unknown error during status update.' });

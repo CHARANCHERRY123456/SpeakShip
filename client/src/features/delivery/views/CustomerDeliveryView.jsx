@@ -33,6 +33,11 @@ const CustomerDeliveryView = () => {
     };
     const handlePageChange = newPage => setPage(newPage);
 
+    // Remove cancelled delivery from UI after cancel
+    const handleCancel = () => {
+        getMyDeliveries(); // Refresh list after cancel
+    };
+
     useEffect(() => {
         if (isAuthenticated && currentUser?.role === 'customer') {
             getMyDeliveries();
@@ -97,7 +102,7 @@ const CustomerDeliveryView = () => {
                 <>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {deliveries.map(delivery => (
-                            <DeliveryCard key={delivery._id} delivery={delivery} />
+                            <DeliveryCard key={delivery._id} delivery={delivery} onCancel={handleCancel} />
                         ))}
                     </div>
                     

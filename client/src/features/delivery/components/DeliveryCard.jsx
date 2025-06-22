@@ -6,6 +6,8 @@ import {
     Tag, PackageCheck, Truck as TruckIcon, ChevronDown, ChevronUp, X // Added X for close button
 } from 'lucide-react';
 import { API_BASE_URL } from '../../../constants/config';
+import { cancelDelivery } from '../api/index';
+import { toast } from 'react-hot-toast';
 // Assuming DeliveryCard.css exists and handles min-height for consistent card sizing
 // import './DeliveryCard.css'; 
 
@@ -225,11 +227,13 @@ const DeliveryDetailsModal = ({ delivery, onClose }) => {
 };
 
 
-const DeliveryCard = ({ delivery, isDriverView = false, onAccept, onUpdateStatus, updateLoading = false, isAccepting = false }) => {
+const DeliveryCard = ({ delivery, isDriverView = false, onAccept, onUpdateStatus, updateLoading = false, isAccepting = false, onCancel }) => {
     // Removed isExpanded as it's replaced by showDetailsModal
     const [showConfirmTransitModal, setShowConfirmTransitModal] = useState(false);
     const [showConfirmDeliveredModal, setShowConfirmDeliveredModal] = useState(false);
     const [showDetailsModal, setShowDetailsModal] = useState(false); // New state for the full details modal
+    const [cancelLoading, setCancelLoading] = useState(false);
+    const [showReviewModal, setShowReviewModal] = useState(false);
 
     const defaultPlaceholder = 'https://housing.com/news/wp-content/uploads/2023/10/Top-10-courier-companies-in-India-ft.jpg';
     const fullPhotoUrl = delivery.photoUrl ? (delivery.photoUrl.startsWith('http') ? delivery.photoUrl : `${API_BASE_URL}${delivery.photoUrl}`) : defaultPlaceholder;
@@ -251,10 +255,28 @@ const DeliveryCard = ({ delivery, isDriverView = false, onAccept, onUpdateStatus
         }
     };
 
+    const handleCancel = async () => {
+        setCancelLoading(true);
+        try {
+            await cancelDelivery(delivery._id);
+            toast.success('Delivery cancelled successfully.');
+            if (onCancel) onCancel(delivery._id);
+        } catch (err) {
+            toast.error(err.response?.data?.error || 'Failed to cancel delivery.');
+        } finally {
+            setCancelLoading(false);
+        }
+    };
+
     const isPending = delivery.status === 'Pending';
     const isAccepted = delivery.status === 'Accepted';
     const isInTransit = delivery.status === 'In-Transit';
     const isDelivered = delivery.status === 'Delivered';
+
+    // Show cancel button for customer if Pending or Accepted
+    const showCancel = !isDriverView && (isPending || isAccepted);
+    // Show review button for customer if Delivered
+    const showReview = !isDriverView && isDelivered;
 
     return (
         <div className={`delivery-card bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden transition-all duration-300 flex flex-col h-full`}>
@@ -415,6 +437,28 @@ const DeliveryCard = ({ delivery, isDriverView = false, onAccept, onUpdateStatus
                         )}
                     </div>
                 )}
+                {/* Customer Cancel Button (if allowed) */}
+                {showCancel && (
+                    <button
+                        onClick={handleCancel}
+                        disabled={cancelLoading}
+                        className={`w-full flex items-center justify-center gap-2 py-2 px-4 rounded-lg text-sm font-medium text-white transition-colors mt-2 ${cancelLoading ? 'bg-red-400 cursor-not-allowed' : 'bg-red-600 hover:bg-red-700'}`}
+                    >
+                        {cancelLoading ? (
+                            <>
+                                <svg className="animate-spin h-4 w-4 text-white mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Cancelling...
+                            </>
+                        ) : (
+                            <>
+                                <X className="h-4 w-4" /> Cancel Delivery
+                            </>
+                        )}
+                    </button>
+                )}
             </div>
 
             {/* Confirmation Modal for In-Transit */}
@@ -480,6 +524,32 @@ const DeliveryCard = ({ delivery, isDriverView = false, onAccept, onUpdateStatus
             {/* Full Details Modal */}
             {showDetailsModal && (
                 <DeliveryDetailsModal delivery={delivery} onClose={toggleDetailsModal} />
+            )}
+
+            {/* Review Modal (UI only, no backend) */}
+            {showReviewModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full p-6">
+                        <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-3">Leave a Review for Your Driver</h3>
+                        <form onSubmit={e => { e.preventDefault(); setShowReviewModal(false); toast.info('Review submitted (UI only, not saved).'); }}>
+                            <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Rating</label>
+                            <select className="w-full mb-4 p-2 border rounded-lg" required>
+                                <option value="">Select rating</option>
+                                <option value="5">5 - Excellent</option>
+                                <option value="4">4 - Good</option>
+                                <option value="3">3 - Average</option>
+                                <option value="2">2 - Poor</option>
+                                <option value="1">1 - Terrible</option>
+                            </select>
+                            <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Feedback</label>
+                            <textarea className="w-full mb-4 p-2 border rounded-lg" rows={3} placeholder="Write your feedback..." required></textarea>
+                            <div className="flex gap-2 justify-end">
+                                <button type="button" onClick={() => setShowReviewModal(false)} className="px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300">Cancel</button>
+                                <button type="submit" className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700">Submit</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             )}
         </div>
     );

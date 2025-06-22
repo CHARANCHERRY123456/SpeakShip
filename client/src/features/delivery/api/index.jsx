@@ -1,5 +1,5 @@
 // src/features/delivery/api/index.jsx
-import axios from '../../../api/axios';
+import axios from '../../../api/axios'; // Use the pre-configured axios instance
 import { API_BASE_URL } from '../../../constants/config';
 import { DELIVERY_API_ROUTES } from '../constants';
 
@@ -9,13 +9,8 @@ import { DELIVERY_API_ROUTES } from '../constants';
  * @returns {Promise<Object>} - The created delivery request object.
  */
 export async function createDeliveryRequest(formData) {
-    const token = localStorage.getItem('authToken'); // Get the authentication token
-    // Axios automatically sets 'Content-Type': 'multipart/form-data' when a FormData object is passed.
-    const response = await axios.post(DELIVERY_API_ROUTES.CREATE, formData, {
-        headers: {
-            Authorization: `Bearer ${token}` // Attach the authorization token
-        }
-    });
+    // No need to manually set token, axios instance handles it
+    const response = await axios.post(DELIVERY_API_ROUTES.CREATE, formData);
     return response.data;
 }
 
@@ -25,17 +20,12 @@ export async function createDeliveryRequest(formData) {
  * @returns {Promise<Object>} - { results, total }
  */
 export async function fetchPendingDeliveries({ page = 1, search = '', status = '' } = {}) {
-    const token = localStorage.getItem('authToken');
     const params = new URLSearchParams();
     params.append('page', page);
     params.append('limit', 10);
     if (search) params.append('search', search);
     if (status) params.append('status', status);
-    const response = await axios.get(`${DELIVERY_API_ROUTES.PENDING}?${params.toString()}`, {
-        headers: {
-            Authorization: `Bearer ${token}`
-        }
-    });
+    const response = await axios.get(`${DELIVERY_API_ROUTES.PENDING}?${params.toString()}`);
     return response.data;
 }
 
@@ -45,16 +35,10 @@ export async function fetchPendingDeliveries({ page = 1, search = '', status = '
  * @returns {Promise<Object>} - The updated delivery request object.
  */
 export async function acceptDeliveryRequest(deliveryId) {
-    const token = localStorage.getItem('authToken');
-    const response = await axios.post(`${DELIVERY_API_ROUTES.ACCEPT}/${deliveryId}`, {}, {
-        headers: {
-            Authorization: `Bearer ${token}`
-        }
-    });
+    const response = await axios.post(`${DELIVERY_API_ROUTES.ACCEPT}/${deliveryId}`);
     return response.data;
 }
 
-// NEW FUNCTION: Update delivery status
 /**
  * Updates the status of a specific delivery request.
  * @param {string} deliveryId - The ID of the delivery request to update.
@@ -62,15 +46,19 @@ export async function acceptDeliveryRequest(deliveryId) {
  * @returns {Promise<Object>} - The updated delivery request object.
  */
 export async function updateDeliveryStatus(deliveryId, newStatus) {
-    const token = localStorage.getItem('authToken');
-    const response = await axios.patch(`/api/delivery/status/${deliveryId}`, { status: newStatus }, {
-        headers: {
-            Authorization: `Bearer ${token}`
-        }
-    });
+    const response = await axios.patch(`/api/delivery/status/${deliveryId}`, { status: newStatus });
     return response.data;
 }
 
+/**
+ * Cancel a delivery (customer only, allowed for Pending/Accepted)
+ * @param {string} deliveryId - The ID of the delivery request to cancel.
+ * @returns {Promise<Object>} - The updated delivery request object.
+ */
+export async function cancelDelivery(deliveryId) {
+    const response = await axios.patch(`/api/delivery/status/${deliveryId}`, { status: 'Cancelled' });
+    return response.data;
+}
 
 /**
  * Fetches all deliveries assigned to the current driver with pagination and filtering.
@@ -78,17 +66,12 @@ export async function updateDeliveryStatus(deliveryId, newStatus) {
  * @returns {Promise<Object>} - { results, total }
  */
 export async function fetchDriverDeliveries({ page = 1, search = '', status = '' } = {}) {
-    const token = localStorage.getItem('authToken');
     const params = new URLSearchParams();
     params.append('page', page);
     params.append('limit', 10);
     if (search) params.append('search', search);
     if (status) params.append('status', status);
-    const response = await axios.get(`/api/delivery/my?${params.toString()}`, {
-        headers: {
-            Authorization: `Bearer ${token}`
-        }
-    });
+    const response = await axios.get(`/api/delivery/my?${params.toString()}`);
     return response.data;
 }
 
@@ -98,16 +81,11 @@ export async function fetchDriverDeliveries({ page = 1, search = '', status = ''
  * @returns {Promise<Object>} - { results, total }
  */
 export async function fetchCustomerDeliveries({ page = 1, search = '', status = '' } = {}) {
-    const token = localStorage.getItem('authToken');
     const params = new URLSearchParams();
     params.append('page', page);
     params.append('limit', 10);
     if (search) params.append('search', search);
     if (status) params.append('status', status);
-    const response = await axios.get(`/api/delivery/customer?${params.toString()}`, {
-        headers: {
-            Authorization: `Bearer ${token}`
-        }
-    });
+    const response = await axios.get(`/api/delivery/customer?${params.toString()}`);
     return response.data;
 }
