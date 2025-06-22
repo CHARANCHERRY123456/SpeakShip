@@ -89,3 +89,14 @@ export async function fetchCustomerDeliveries({ page = 1, search = '', status = 
     const response = await axios.get(`/api/delivery/customer?${params.toString()}`);
     return response.data;
 }
+
+/**
+ * Verifies the delivery OTP for a specific delivery.
+ * @param {string} deliveryId - The ID of the delivery request.
+ * @param {string} otp - The OTP entered by the customer.
+ * @returns {Promise<Object>} - The updated delivery request object.
+ */
+export async function verifyDeliveryOtp(deliveryId, otp) {
+    const response = await axios.post(`/api/delivery/verify-otp/${deliveryId}`, { otp });
+    return response.data;
+}
