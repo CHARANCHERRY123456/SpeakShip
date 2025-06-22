@@ -87,8 +87,12 @@ export const AuthProvider = ({ children }) => {
       } else {
         throw new Error("Invalid role specified for registration.");
       }
-      return { success: true, message: responseData.message || "Registration successful." };
+      // return { success: true, message: responseData.message || "Registration successful." };
 
+      // After successful registration, automatically log in the user
+      // Use the same credentials for login
+      await login({ username, password, role });
+      return { success: true, message: responseData.message || "Registration successful and logged in." };
     } catch (error) {
       console.error("Registration failed:", error.response?.data?.error || error.message);
       throw new Error(error.response?.data?.error || "Registration failed. Please try again.");
