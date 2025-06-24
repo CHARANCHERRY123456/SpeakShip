@@ -192,7 +192,7 @@ const CreateDeliveryForm = () => {
       // --- CRITICAL FIX FOR PHOTO HANDLING ---
       if (formData.photoFile) {
         // If a new file was selected by the user, append the actual file
-        formDataToSend.append('photoUrl', formData.photoFile); // 'photo' matches backend multer field name
+        formDataToSend.append('photo', formData.photoFile); // 'photo' matches backend multer field name
       } else if (formData.photoPreviewUrl && formData.photoPreviewUrl !== 'https://housing.com/news/wp-content/uploads/2023/10/Top-10-courier-companies-in-India-ft.jpg') {
         // If no new file was selected, but photoPreviewUrl is NOT the default placeholder
         // (meaning it's a custom URL from a prior state or could be if this was an edit form), send it as photoUrl.
