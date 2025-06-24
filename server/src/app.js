@@ -8,6 +8,7 @@ import passport from './features/auth/services/GoogleStrategy.js';
 import path from 'path';
 import morgan from 'morgan';
 
+
 const app = express();
 
 // Connect to DB
@@ -32,6 +33,7 @@ app.get("/", (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/delivery', deliveryRoutes);
 app.use('/api/feedback', feedbackRoutes);
+
 
 
 export default app;
