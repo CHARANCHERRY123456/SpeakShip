@@ -1,4 +1,5 @@
 import React from 'react';
+import LoadingButton from '../../../components/LoadingButton';
 
 const OtpModal = ({ show, otpInput, setOtpInput, otpLoading, otpError, onClose, onSubmit, delivery }) => {
   if (!show) return null;
@@ -46,13 +47,15 @@ const OtpModal = ({ show, otpInput, setOtpInput, otpLoading, otpError, onClose, 
               Cancel
             </button>
 
-            <button
+            <LoadingButton
               type="submit"
-              disabled={otpLoading || otpInput.length !== 6}
+              loading={otpLoading}
+              loadingText="Verifying..."
               className="px-5 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white font-medium transition-colors disabled:opacity-60"
+              disabled={otpInput.length !== 6}
             >
-              {otpLoading ? 'Verifying...' : 'Verify & Complete'}
-            </button>
+              Verify & Complete
+            </LoadingButton>
           </div>
         </form>
       </div>

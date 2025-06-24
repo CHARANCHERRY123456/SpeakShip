@@ -1,6 +1,7 @@
 // src/features/delivery/components/DeliveryCardModals.jsx
 import React from 'react';
 import DeliveryDetailsModal from './DeliveryDetailsModal';
+import LoadingButton from '../../../components/LoadingButton';
 
 const DeliveryCardModals = ({
   showConfirmTransitModal,
@@ -23,17 +24,19 @@ const DeliveryCardModals = ({
             <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-3">Confirm Parcel Pickup</h3>
             <p className="text-sm text-gray-600 dark:text-gray-300 mb-6">Have you physically picked up the parcel for this delivery?</p>
             <div className="flex flex-col sm:flex-row gap-3">
-              <button
+              <LoadingButton
                 onClick={handleConfirmTransit}
-                disabled={updateLoading}
-                className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium text-white transition-colors ${updateLoading ? 'bg-purple-400 cursor-not-allowed' : 'bg-purple-600 hover:bg-purple-700'}`}
+                loading={updateLoading}
+                loadingText="Confirming..."
+                className="flex-1 py-2 px-4 rounded-lg text-sm font-medium text-white transition-colors"
+                style={{ backgroundColor: updateLoading ? '#a78bfa' : '#7c3aed' }}
               >
-                {updateLoading ? 'Confirming...' : 'Yes, Picked Up'}
-              </button>
+                Yes, Picked Up
+              </LoadingButton>
               <button
                 onClick={() => setShowConfirmTransitModal(false)}
                 disabled={updateLoading}
-                className={`flex-1 py-2 px-4 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors ${updateLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
+                className="flex-1 py-2 px-4 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors"
               >
                 Cancel
               </button>
@@ -48,17 +51,19 @@ const DeliveryCardModals = ({
             <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-3">Confirm Delivery Completion</h3>
             <p className="text-sm text-gray-600 dark:text-gray-300 mb-6">Are you sure you want to mark this delivery as 'Delivered'?</p>
             <div className="flex flex-col sm:flex-row gap-3">
-              <button
+              <LoadingButton
                 onClick={handleConfirmDelivered}
-                disabled={updateLoading}
-                className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium text-white transition-colors ${updateLoading ? 'bg-green-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'}`}
+                loading={updateLoading}
+                loadingText="Completing..."
+                className="flex-1 py-2 px-4 rounded-lg text-sm font-medium text-white transition-colors"
+                style={{ backgroundColor: updateLoading ? '#6ee7b7' : '#059669' }}
               >
-                {updateLoading ? 'Completing...' : 'Yes, Mark Delivered'}
-              </button>
+                Yes, Mark Delivered
+              </LoadingButton>
               <button
                 onClick={() => setShowConfirmDeliveredModal(false)}
                 disabled={updateLoading}
-                className={`flex-1 py-2 px-4 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors ${updateLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
+                className="flex-1 py-2 px-4 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors"
               >
                 Cancel
               </button>
