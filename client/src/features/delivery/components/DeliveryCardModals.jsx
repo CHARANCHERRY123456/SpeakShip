@@ -1,7 +1,6 @@
 // src/features/delivery/components/DeliveryCardModals.jsx
 import React from 'react';
 import DeliveryDetailsModal from './DeliveryDetailsModal';
-import OtpModal from './OtpModal';
 
 const DeliveryCardModals = ({
   showConfirmTransitModal,
@@ -10,12 +9,6 @@ const DeliveryCardModals = ({
   setShowConfirmDeliveredModal,
   showDetailsModal,
   toggleDetailsModal,
-  shouldShowOtpEntry,
-  otpInput,
-  setOtpInput,
-  otpLoading,
-  otpError,
-  handleOtpVerify,
   updateLoading,
   handleConfirmTransit,
   handleConfirmDelivered,
@@ -78,17 +71,7 @@ const DeliveryCardModals = ({
         <DeliveryDetailsModal delivery={delivery} onClose={toggleDetailsModal} />
       )}
       {/* OTP Entry Modal for Customer */}
-      {shouldShowOtpEntry && (
-        <OtpModal
-          show={shouldShowOtpEntry}
-          otpInput={otpInput}
-          setOtpInput={setOtpInput}
-          otpLoading={otpLoading}
-          otpError={otpError}
-          onClose={() => setOtpInput('')}
-          onSubmit={handleOtpVerify}
-        />
-      )}
+      {/* Removed: OTP modal is now handled in DeliveryCard for driver flow */}
     </>
   );
 };
