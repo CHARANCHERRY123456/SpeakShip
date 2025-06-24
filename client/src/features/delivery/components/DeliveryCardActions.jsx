@@ -22,13 +22,13 @@ const DeliveryCardActions = ({
     <>
       {/* Action Buttons for Driver View (always visible at bottom if not delivered) */}
       {isDriverView && !isDelivered && (
-        <div className="mt-4 space-y-2">
+        <div className="mt-2 flex flex-col gap-2 w-full">
           {isPending && onAccept && (
             <LoadingButton
               onClick={() => onAccept(deliveryId)}
               loading={isAccepting}
               loadingText="Accepting..."
-              className="w-full flex items-center justify-center gap-2 py-2 px-4 bg-green-600 hover:bg-green-700 rounded-lg text-sm font-medium text-white transition-colors"
+              className="w-full flex items-center justify-center gap-2 py-2 px-4 bg-green-600 hover:bg-green-700 focus:ring-2 focus:ring-green-400 rounded-lg text-sm font-medium text-white transition-colors shadow-sm"
             >
               <CheckCircle className="h-4 w-4" /> Accept
             </LoadingButton>
@@ -38,7 +38,7 @@ const DeliveryCardActions = ({
               onClick={() => onUpdateStatus('In-Transit')}
               loading={updateLoading}
               loadingText="Updating..."
-              className={`w-full flex items-center justify-center gap-2 py-2 px-4 rounded-lg text-sm font-medium text-white transition-colors ${updateLoading ? 'opacity-70 cursor-not-allowed' : 'bg-purple-600 hover:bg-purple-700'}`}
+              className={`w-full flex items-center justify-center gap-2 py-2 px-4 rounded-lg text-sm font-medium text-white transition-colors shadow-sm ${updateLoading ? 'opacity-70 cursor-not-allowed' : 'bg-purple-600 hover:bg-purple-700 focus:ring-2 focus:ring-purple-400'}`}
             >
               <TruckIcon className="h-4 w-4" /> Mark as In-Transit
             </LoadingButton>
@@ -48,7 +48,7 @@ const DeliveryCardActions = ({
               onClick={() => onUpdateStatus('Delivered')}
               loading={updateLoading}
               loadingText="Delivering..."
-              className={`w-full flex items-center justify-center gap-2 py-2 px-4 rounded-lg text-sm font-medium text-white transition-colors ${updateLoading ? 'opacity-70 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'}`}
+              className={`w-full flex items-center justify-center gap-2 py-2 px-4 rounded-lg text-sm font-medium text-white transition-colors shadow-sm ${updateLoading ? 'opacity-70 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700 focus:ring-2 focus:ring-green-400'}`}
             >
               <PackageCheck className="h-4 w-4" /> Mark as Delivered
             </LoadingButton>

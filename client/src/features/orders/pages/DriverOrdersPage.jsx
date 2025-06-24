@@ -11,14 +11,14 @@ export default function DriverOrdersPage() {
   }, [refetch]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-sky-100 to-indigo-100 flex flex-col items-center py-12 px-2">
-      <div className="w-full max-w-2xl bg-white rounded-2xl shadow-2xl p-10 animate-fade-in-up transition-transform duration-300 hover:scale-[1.02]">
-        <h2 className="text-3xl font-extrabold mb-1 text-blue-900 flex items-center gap-2">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-sky-100 to-indigo-100 flex flex-col items-center py-8 px-2">
+      <div className="w-full max-w-6xl mx-auto bg-white rounded-2xl shadow-2xl p-4 sm:p-8 md:p-10 animate-fade-in-up transition-transform duration-300">
+        <h2 className="text-2xl sm:text-3xl font-extrabold mb-1 text-blue-900 flex items-center gap-2">
           <svg xmlns='http://www.w3.org/2000/svg' className='h-8 w-8 text-blue-500' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M9 17v-2a4 4 0 014-4h6m-6 0V7a4 4 0 00-4-4H5a4 4 0 00-4 4v10a4 4 0 004 4h6a4 4 0 004-4z' /></svg>
           Pending Deliveries
         </h2>
         <div className="border-b border-gray-200 my-3" />
-        <p className="text-gray-600 mb-8 text-lg">Accept and manage your assigned deliveries below.</p>
+        <p className="text-gray-600 mb-8 text-base sm:text-lg">Accept and manage your assigned deliveries below.</p>
         {loading ? (
           <div className="flex flex-col items-center justify-center min-h-[200px]">
             <LoadingSpinner />

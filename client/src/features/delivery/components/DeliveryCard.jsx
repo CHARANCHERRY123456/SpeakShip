@@ -92,13 +92,14 @@ const DeliveryCard = ({ delivery, isDriverView = false, onAccept, onUpdateStatus
     return (
         <div
             className={
-                `bg-white dark:bg-white rounded-2xl shadow-lg hover:shadow-xl transition-transform transform hover:scale-[1.01] flex flex-col h-full font-sans p-5 space-y-3`
+                `bg-white dark:bg-white rounded-2xl shadow-lg hover:shadow-xl transition-transform transform hover:scale-[1.01] flex flex-col h-full font-sans p-4 md:p-5 space-y-3 border border-gray-100 focus-within:ring-2 focus-within:ring-blue-300`
             }
-            style={{ cursor: 'default' }}
+            tabIndex={0}
+            style={{ cursor: 'default', minHeight: '100%' }}
         >
             {/* Header */}
-            <div className="flex items-center justify-between mb-2">
-                <h3 className="text-lg font-bold text-blue-700 dark:text-blue-400 truncate max-w-[70%] break-words">
+            <div className="flex items-center justify-between mb-1 gap-2">
+                <h3 className="text-base md:text-lg font-bold text-blue-700 dark:text-blue-400 truncate max-w-[70%] break-words">
                     {delivery.packageName || 'Package'} #{delivery._id.substring(0, 8)}
                 </h3>
                 {/* Status badge (delivered/cancelled) */}
@@ -114,18 +115,18 @@ const DeliveryCard = ({ delivery, isDriverView = false, onAccept, onUpdateStatus
                 )}
             </div>
             {/* Image section */}
-            <div className="rounded-xl overflow-hidden transition-transform duration-300 ease-in-out hover:scale-105 w-full">
+            <div className="rounded-xl overflow-hidden transition-transform duration-300 ease-in-out hover:scale-105 w-full aspect-[4/2] min-h-[120px] max-h-48 flex items-center justify-center bg-gray-50">
                 <DeliveryCardImage fullPhotoUrl={fullPhotoUrl} defaultPlaceholder={defaultPlaceholder} onClick={() => navigate(`/delivery/${delivery._id}`)} />
             </div>
             {/* Info (driver, price) */}
             <div className="mb-1 space-y-1 w-full">
                 {delivery.driver && typeof delivery.driver === 'object' && delivery.driver !== null && (
-                    <div className="flex flex-wrap items-center gap-2 text-sm">
+                    <div className="flex flex-wrap items-center gap-2 text-xs md:text-sm">
                         <span className="font-bold text-blue-700 dark:text-blue-400">Assigned to:</span>
                         <span className="text-blue-600 dark:text-blue-300 break-all max-w-full">{delivery.driver.name || delivery.driver.username || 'N/A'}</span>
                     </div>
                 )}
-                <div className="flex flex-wrap items-center gap-2 text-sm">
+                <div className="flex flex-wrap items-center gap-2 text-xs md:text-sm">
                     <span className="font-bold text-blue-700 dark:text-blue-400">Charge:</span>
                     <span className="text-gray-900 dark:text-gray-100 font-semibold break-all max-w-full">₹{delivery.priceEstimate}</span>
                 </div>
@@ -133,23 +134,23 @@ const DeliveryCard = ({ delivery, isDriverView = false, onAccept, onUpdateStatus
             {/* Main Details (pickup/dropoff/distance) */}
             <div className="space-y-2 w-full">
                 <div className="flex flex-wrap items-center gap-2 w-full">
-                    <MapPin className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
-                    <span className="text-sm font-medium text-blue-700 dark:text-blue-400">Pickup:</span>
-                    <span className="text-sm text-gray-900 dark:text-gray-900 break-words max-w-full flex-1">{delivery.pickupAddress}</span>
+                    <MapPin className="h-4 w-4 md:h-5 md:w-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+                    <span className="text-xs md:text-sm font-medium text-blue-700 dark:text-blue-400">Pickup:</span>
+                    <span className="text-xs md:text-sm text-gray-900 dark:text-gray-900 break-words max-w-full flex-1">{delivery.pickupAddress}</span>
                 </div>
                 <div className="flex flex-wrap items-center gap-2 w-full">
-                    <MapPin className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
-                    <span className="text-sm font-medium text-blue-700 dark:text-blue-400">Dropoff:</span>
-                    <span className="text-sm text-gray-900 dark:text-gray-900 break-words max-w-full flex-1">{delivery.dropoffAddress}</span>
+                    <MapPin className="h-4 w-4 md:h-5 md:w-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+                    <span className="text-xs md:text-sm font-medium text-blue-700 dark:text-blue-400">Dropoff:</span>
+                    <span className="text-xs md:text-sm text-gray-900 dark:text-gray-900 break-words max-w-full flex-1">{delivery.dropoffAddress}</span>
                 </div>
                 <div className="flex flex-wrap items-center gap-2 w-full">
-                    <Truck className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
-                    <span className="text-sm font-medium text-blue-700 dark:text-blue-400">Distance:</span>
-                    <span className="text-sm text-gray-900 dark:text-gray-900">{delivery.distanceInKm != null ? Number(delivery.distanceInKm).toFixed(2) : 0} km</span>
+                    <Truck className="h-4 w-4 md:h-5 md:w-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+                    <span className="text-xs md:text-sm font-medium text-blue-700 dark:text-blue-400">Distance:</span>
+                    <span className="text-xs md:text-sm text-gray-900 dark:text-gray-900">{delivery.distanceInKm != null ? Number(delivery.distanceInKm).toFixed(2) : 0} km</span>
                 </div>
             </div>
             {/* Actions (driver/customer) */}
-            <div className="pt-2">
+            <div className="flex-1 flex flex-col justify-end mt-2">
                 <DeliveryCardActions
                     isDriverView={isDriverView}
                     isDelivered={isDelivered}
