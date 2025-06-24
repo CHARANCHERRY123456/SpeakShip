@@ -1,42 +1,40 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
-import { loginCustomer, loginDriver, registerCustomer, registerDriver, loginAdmin } from '../features/auth/api'; // Import your API functions
+import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import { loginCustomer, loginDriver, registerCustomer, registerDriver, loginAdmin } from '../features/auth/api';
+import profileApi from '../features/profile/apis/profile';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  // Use 'currentUser' for the authenticated user object, regardless of role
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null); // Renamed 'customer' to 'currentUser'
-  const [loading, setLoading] = useState(true); // To manage initial loading state for auth check
+  const [currentUser, setCurrentUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Check for existing token/user in localStorage on app load
-  useEffect(() => {
-    const token = localStorage.getItem('authToken');
-    const storedUser = localStorage.getItem('user');
-
-    if (token && storedUser) {
-      try {
-        const parsedUser = JSON.parse(storedUser);
-        setIsAuthenticated(true);
-        setCurrentUser(parsedUser); // Use setCurrentUser
-        localStorage.setItem('isAuthenticated', 'true');
-      } catch (e) {
-        console.error("Failed to parse stored user data or invalid token:", e);
-        localStorage.removeItem('authToken'); // Clear invalid data
-        localStorage.removeItem('user');
-        setIsAuthenticated(false);
-        setCurrentUser(null);
-        localStorage.setItem('isAuthenticated', 'false');
-      }
-    } else {
-      setIsAuthenticated(false);
+  // Fetch user profile from backend
+  const fetchProfile = useCallback(async () => {
+    try {
+      setLoading(true);
+      const user = await profileApi.getProfile();
+      setCurrentUser(user);
+      setIsAuthenticated(true);
+    } catch {
       setCurrentUser(null);
-      localStorage.setItem('isAuthenticated', 'false');
+      setIsAuthenticated(false);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false); // Authentication check complete
   }, []);
 
-  // Generic login handler for customers, drivers, and admins
+  // On app load, if token exists, fetch profile from backend
+  useEffect(() => {
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      fetchProfile();
+    } else {
+      setLoading(false);
+    }
+  }, [fetchProfile]);
+
+  // After login, fetch profile from backend
   const login = async (credentials) => {
     const { username, password, role } = credentials;
     let responseData;
@@ -75,7 +73,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Generic register handler for customers and drivers
+  // After registration, fetch profile from backend
   const register = async (userData) => {
     const { username, name, email, password, phone, role } = userData;
     let responseData;
@@ -99,14 +97,15 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // On logout, clear user and token
   const logout = () => {
     localStorage.removeItem('authToken');
-    localStorage.removeItem('user');
-    localStorage.setItem('isAuthenticated', 'false');
+    setCurrentUser(null);
     setIsAuthenticated(false);
-    setCurrentUser(null); // Use setCurrentUser
-    console.log("Logged out successfully.");
   };
+
+  // Expose a method to refresh profile after profile update
+  const refreshProfile = fetchProfile;
 
   // Render children only after the initial authentication check is complete
   if (loading) {
@@ -116,10 +115,10 @@ export const AuthProvider = ({ children }) => {
   const token = localStorage.getItem('authToken');
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, currentUser, token, login, register, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, currentUser, token, login, register, logout, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => useContext(AuthContext);
+// Move useAuth to a separate file to avoid Fast Refresh issues

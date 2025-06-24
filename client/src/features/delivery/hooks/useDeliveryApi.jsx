@@ -4,7 +4,8 @@ import {
     fetchCustomerDeliveries,
     fetchDriverDeliveries,
     acceptDeliveryRequest,
-    updateDeliveryStatus // Make sure this is imported
+    updateDeliveryStatus, // Make sure this is imported
+    verifyDeliveryOtp // Import the verifyDeliveryOtp function
 } from '../api';
 import { useAuth } from '../../../contexts/AuthContext'; // To get current user role
 
@@ -101,6 +102,24 @@ const useDeliveryApi = (role) => {
         }
     }, [role, currentUser]);
 
+    // NEW FUNCTION: Handle verifying delivery OTP and updating status
+    const handleVerifyDeliveryOtp = useCallback(async (deliveryId, otp, status = 'Delivered') => {
+        setIsUpdatingStatus(true);
+        setError(null);
+        try {
+            const updatedDelivery = await verifyDeliveryOtp(deliveryId, otp, status);
+            setDeliveries(prev =>
+                prev.map(d => (d._id === updatedDelivery._id ? updatedDelivery : d))
+            );
+            return updatedDelivery;
+        } catch (err) {
+            setError(err.response?.data?.error || 'Failed to verify OTP.');
+            return null;
+        } finally {
+            setIsUpdatingStatus(false);
+        }
+    }, []);
+
 
     useEffect(() => {
         // Only fetch if authenticated and user role matches the hook's intended role
@@ -124,6 +143,7 @@ const useDeliveryApi = (role) => {
         handleAcceptDelivery,
         isUpdatingStatus,
         handleUpdateDeliveryStatus,
+        handleVerifyDeliveryOtp, // Expose new handler
         // Pagination/filter state setters
         page, setPage, search, setSearch, status, setStatus
     };

@@ -155,6 +155,35 @@ class DeliveryService {
   async listForCustomer(customerId, { page = 1, limit = 10, search = '', status = '' } = {}) {
     return DeliveryRepository.findByCustomer(customerId, { page, limit, search, status });
   }
+
+  // Only send OTP for mark as delivered, do not update status
+  async sendOtpForDelivery(id) {
+    const delivery = await DeliveryRepository.findById(id);
+    if (!delivery) {
+      throw new Error('Delivery request not found.');
+    }
+    if (delivery.status !== 'In-Transit') {
+      throw new Error('Can only send OTP from In-Transit status.');
+    }
+    const otp = generateOtp();
+    await DeliveryRepository.setDeliveryOtp(id, otp);
+    try {
+      const templatePath = path.join(__dirname, '../templates/orderOtp.html');
+      let html = await fs.readFile(templatePath, 'utf-8');
+      html = html.replace(/{{name}}/g, delivery.name || 'Customer');
+      html = html.replace(/{{packageName}}/g, delivery.packageName);
+      html = html.replace(/{{otp}}/g, otp);
+      await sendMail({
+        to: delivery.email,
+        subject: 'Your SpeakShip delivery OTP',
+        html
+      });
+    } catch (err) {
+      console.error('Failed to send OTP email:', err);
+    }
+    // Return delivery with OTP (not status update yet)
+    return await DeliveryRepository.findById(id);
+  }
 }
 
 export default new DeliveryService();

@@ -56,13 +56,23 @@ const DeliveryController = {
       if (!delivery) {
         return res.status(404).json({ error: 'Delivery request not found.' });
       }
-      // Allow drivers to update status for their assigned deliveries
+      // Only allow OTP flow for mark as Delivered
       if (userRole === 'driver') {
         if (!delivery.driver || delivery.driver._id.toString() !== userId.toString()) {
           return res.status(403).json({ error: 'Not authorized to update this delivery.' });
         }
-        const updatedDelivery = await DeliveryService.updateDeliveryStatus(id, newStatus);
-        return res.json(updatedDelivery);
+        if (newStatus === 'Delivered') {
+          // Only send OTP, do not mark as delivered yet
+          const updatedDelivery = await DeliveryService.sendOtpForDelivery(id);
+          return res.json({
+            message: 'OTP sent to customer. Please enter the OTP to complete delivery.',
+            delivery: updatedDelivery
+          });
+        } else {
+          // Allow other status transitions as before
+          const updatedDelivery = await DeliveryService.updateDeliveryStatus(id, newStatus);
+          return res.json(updatedDelivery);
+        }
       }
       // Allow customers to cancel their own deliveries if Pending or Accepted
       if (userRole === 'customer') {
@@ -121,7 +131,11 @@ const DeliveryController = {
   async verifyDeliveryOtp(req, res) {
     try {
       const { id } = req.params;
-      const { otp } = req.body;
+      const { otp, status } = req.body;
+      // Only allow status transition to Delivered via OTP
+      if (status !== 'Delivered') {
+        return res.status(400).json({ error: 'Invalid status transition. OTP can only be used to mark as Delivered.' });
+      }
       const delivery = await DeliveryService.verifyDeliveryOtp(id, otp);
       res.json(delivery);
     } catch (err) {

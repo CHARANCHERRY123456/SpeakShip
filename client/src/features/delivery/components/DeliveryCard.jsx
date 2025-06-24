@@ -11,7 +11,7 @@ import DeliveryCardInfo from './DeliveryCardInfo';
 import DeliveryCardActions from './DeliveryCardActions';
 import DeliveryCardModals from './DeliveryCardModals';
 
-const DeliveryCard = ({ delivery, isDriverView = false, onAccept, onUpdateStatus, updateLoading = false, isAccepting = false, onCancel }) => {
+const DeliveryCard = ({ delivery, isDriverView = false, onAccept, onUpdateStatus, updateLoading = false, isAccepting = false, onCancel, handleVerifyDeliveryOtp }) => {
     const [showConfirmTransitModal, setShowConfirmTransitModal] = useState(false);
     const [showConfirmDeliveredModal, setShowConfirmDeliveredModal] = useState(false);
     const [showDetailsModal, setShowDetailsModal] = useState(false);
@@ -19,6 +19,7 @@ const DeliveryCard = ({ delivery, isDriverView = false, onAccept, onUpdateStatus
     const [otpInput, setOtpInput] = useState('');
     const [otpLoading, setOtpLoading] = useState(false);
     const [otpError, setOtpError] = useState('');
+    const [showOtpModal, setShowOtpModal] = useState(false);
     const navigate = useNavigate();
 
     const defaultPlaceholder = 'https://housing.com/news/wp-content/uploads/2023/10/Top-10-courier-companies-in-India-ft.jpg';
@@ -33,10 +34,14 @@ const DeliveryCard = ({ delivery, isDriverView = false, onAccept, onUpdateStatus
         }
     };
 
-    const handleConfirmDelivered = () => {
+    const handleConfirmDelivered = async () => {
         setShowConfirmDeliveredModal(false);
         if (onUpdateStatus) {
-            onUpdateStatus(delivery._id, 'Delivered');
+            const result = await onUpdateStatus(delivery._id, 'Delivered');
+            // If backend confirms OTP sent, show OTP modal for driver
+            if (result && result.message && result.delivery && isDriverView) {
+                setShowOtpModal(true);
+            }
         }
     };
 
@@ -59,10 +64,15 @@ const DeliveryCard = ({ delivery, isDriverView = false, onAccept, onUpdateStatus
         setOtpLoading(true);
         setOtpError('');
         try {
-            await verifyDeliveryOtp(delivery._id, otpInput);
-            toast.success('Delivery confirmed! Thank you.');
-            setOtpInput('');
-            if (onCancel) onCancel(); // To refresh list
+            // Use the new handler if provided (from hook), else fallback
+            const result = handleVerifyDeliveryOtp
+                ? await handleVerifyDeliveryOtp(delivery._id, otpInput, 'Delivered')
+                : await verifyDeliveryOtp(delivery._id, otpInput, 'Delivered');
+            if (result) {
+                toast.success('Delivery confirmed! Thank you.');
+                setOtpInput('');
+                if (onCancel) onCancel(); // To refresh list
+            }
         } catch (err) {
             setOtpError(err.response?.data?.error || 'Invalid OTP. Please try again.');
         } finally {
@@ -76,7 +86,7 @@ const DeliveryCard = ({ delivery, isDriverView = false, onAccept, onUpdateStatus
     const isDelivered = delivery.status === 'Delivered';
 
     const showCancel = !isDriverView && (isPending || isAccepted);
-    const shouldShowOtpEntry = !isDriverView && isInTransit && delivery.deliveryOtp;
+    const shouldShowOtpEntry = (isDriverView && showOtpModal) || (!isDriverView && isInTransit && delivery.deliveryOtp);
 
     return (
         <div
@@ -176,6 +186,7 @@ const DeliveryCard = ({ delivery, isDriverView = false, onAccept, onUpdateStatus
                 handleConfirmTransit={handleConfirmTransit}
                 handleConfirmDelivered={handleConfirmDelivered}
                 delivery={delivery}
+                onCloseOtpModal={() => setShowOtpModal(false)}
             />
         </div>
     );

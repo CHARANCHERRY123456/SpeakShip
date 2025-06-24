@@ -19,7 +19,8 @@ const DeliveryCardModals = ({
   updateLoading,
   handleConfirmTransit,
   handleConfirmDelivered,
-  delivery
+  delivery,
+  onCloseOtpModal
 }) => {
   return (
     <>
@@ -77,7 +78,7 @@ const DeliveryCardModals = ({
       {showDetailsModal && (
         <DeliveryDetailsModal delivery={delivery} onClose={toggleDetailsModal} />
       )}
-      {/* OTP Entry Modal for Customer */}
+      {/* OTP Entry Modal for Driver or Customer */}
       {shouldShowOtpEntry && (
         <OtpModal
           show={shouldShowOtpEntry}
@@ -85,8 +86,9 @@ const DeliveryCardModals = ({
           setOtpInput={setOtpInput}
           otpLoading={otpLoading}
           otpError={otpError}
-          onClose={() => setOtpInput('')}
+          onClose={onCloseOtpModal || (() => setOtpInput(''))}
           onSubmit={handleOtpVerify}
+          packageName={delivery?.packageName}
         />
       )}
     </>
