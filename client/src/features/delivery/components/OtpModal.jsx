@@ -1,15 +1,13 @@
 import React from 'react';
 
-const OtpModal = ({ show, otpInput, setOtpInput, otpLoading, otpError, onClose, onSubmit, packageName }) => {
+const OtpModal = ({ show, otpInput, setOtpInput, otpLoading, otpError, onClose, onSubmit }) => {
   if (!show) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
       <div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-2xl shadow-2xl max-w-md w-full p-6 transition-all duration-300">
         <h3 className="text-xl font-bold mb-4 text-center">🔐 Enter Delivery OTP</h3>
-        {packageName && (
-          <p className="text-center text-sm text-gray-600 mb-2">Ask the customer for the OTP sent for <span className="font-semibold">{packageName}</span>.</p>
-        )}
+
         <form onSubmit={onSubmit} className="space-y-4">
           <input
             type="text"
@@ -23,7 +21,9 @@ const OtpModal = ({ show, otpInput, setOtpInput, otpLoading, otpError, onClose, 
             required
             disabled={otpLoading}
           />
+
           {otpError && <p className="text-red-500 text-sm">{otpError}</p>}
+
           <div className="flex justify-end gap-2">
             <button
               type="button"
@@ -32,6 +32,7 @@ const OtpModal = ({ show, otpInput, setOtpInput, otpLoading, otpError, onClose, 
             >
               Cancel
             </button>
+
             <button
               type="submit"
               disabled={otpLoading}
