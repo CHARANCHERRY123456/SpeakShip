@@ -192,7 +192,7 @@ const CreateDeliveryForm = () => {
       // --- CRITICAL FIX FOR PHOTO HANDLING ---
       if (formData.photoFile) {
         // If a new file was selected by the user, append the actual file
-        formDataToSend.append('photo', formData.photoFile); // 'photo' matches backend multer field name
+        formDataToSend.append('photoUrl', formData.photoFile); // 'photo' matches backend multer field name
       } else if (formData.photoPreviewUrl && formData.photoPreviewUrl !== 'https://housing.com/news/wp-content/uploads/2023/10/Top-10-courier-companies-in-India-ft.jpg') {
         // If no new file was selected, but photoPreviewUrl is NOT the default placeholder
         // (meaning it's a custom URL from a prior state or could be if this was an edit form), send it as photoUrl.
@@ -770,7 +770,16 @@ const CreateDeliveryForm = () => {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit}>
+      <form 
+        onSubmit={e => {
+          handleSubmit(e);
+        }}
+        onKeyDown={e => {
+          if (e.key === 'Enter' && currentStep !== steps.length) {
+            e.preventDefault();
+          }
+        }}
+      >
         <AnimatePresence mode="wait">
           {renderCurrentStepContent()}
         </AnimatePresence>
@@ -789,23 +798,31 @@ const CreateDeliveryForm = () => {
             </motion.button>
           )}
 
-          {currentStep < steps.length ? (
+          {/* Only show Next if not on last step */}
+          {currentStep < steps.length && (
             <motion.button
               whileHover={{ x: 5 }}
               whileTap={{ scale: 0.95 }}
               type="button"
               onClick={goToNextStep}
-              className={`flex items-center px-6 py-3 rounded-full bg-sky-600 text-white font-semibold transition-colors hover:bg-sky-700 ${currentStep === 1 && 'ml-auto'}`}
+              className={
+                `flex items-center px-6 py-3 rounded-full bg-sky-600 text-white font-semibold transition-colors hover:bg-sky-700${currentStep === 1 ? ' ml-auto' : ''}`
+              }
             >
               Next <ArrowRight className="w-5 h-5 ml-2" />
             </motion.button>
-          ) : (
+          )}
+
+          {/* Only show Confirm Order if on last step */}
+          {currentStep === steps.length && (
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               type="submit"
               disabled={loading}
-              className={`flex items-center px-8 py-3 rounded-full bg-green-600 text-white font-bold text-lg transition-colors hover:bg-green-700 ${loading ? 'opacity-70 cursor-not-allowed' : ''} ml-auto`}
+              className={
+                `flex items-center px-8 py-3 rounded-full bg-green-600 text-white font-bold text-lg transition-colors hover:bg-green-700${loading ? ' opacity-70 cursor-not-allowed' : ''} ml-auto`
+              }
             >
               {loading ? (
                 <svg className="animate-spin h-5 w-5 mr-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
