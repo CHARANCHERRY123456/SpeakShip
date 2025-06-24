@@ -11,6 +11,7 @@ import DeliveryCardInfo from './DeliveryCardInfo';
 import DeliveryCardActions from './DeliveryCardActions';
 import DeliveryCardModals from './DeliveryCardModals';
 import OtpModal from './OtpModal';
+import StatusBadge from './StatusBadge'; // Make sure this import exists
 
 const DeliveryCard = ({ delivery, isDriverView = false, onAccept, onUpdateStatus, updateLoading = false, isAccepting = false, onCancel }) => {
     const [showConfirmTransitModal, setShowConfirmTransitModal] = useState(false);
@@ -73,7 +74,7 @@ const DeliveryCard = ({ delivery, isDriverView = false, onAccept, onUpdateStatus
             toast.success('Delivery confirmed! Thank you.');
             setOtpInput('');
             setShowOtpModal(false);
-            if (onCancel) onCancel();
+            if (onCancel) onCancel(); // Assuming onCancel might refresh the list or remove the item
         } catch (err) {
             setOtpError(err.response?.data?.error || 'Invalid OTP. Please try again.');
         } finally {
@@ -87,7 +88,7 @@ const DeliveryCard = ({ delivery, isDriverView = false, onAccept, onUpdateStatus
     const isDelivered = delivery.status === 'Delivered';
 
     const showCancel = !isDriverView && (isPending || isAccepted);
-    const shouldShowOtpEntry = !isDriverView && isInTransit && delivery.deliveryOtp;
+    const shouldShowOtpEntry = !isDriverView && isInTransit && delivery.deliveryOtp; // This seems to be a leftover for customer-side OTP, which is now handled by the driver flow.
 
     return (
         <div
@@ -102,17 +103,8 @@ const DeliveryCard = ({ delivery, isDriverView = false, onAccept, onUpdateStatus
                 <h3 className="text-base md:text-lg font-bold text-blue-700 dark:text-blue-400 truncate max-w-[70%] break-words">
                     {delivery.packageName || 'Package'} #{delivery._id.substring(0, 8)}
                 </h3>
-                {/* Status badge (delivered/cancelled) */}
-                {delivery.status === 'Delivered' && (
-                    <span className="bg-green-100 text-green-800 dark:bg-green-800 dark:text-white text-xs px-3 py-1 rounded-full font-semibold uppercase">
-                        Delivered
-                    </span>
-                )}
-                {delivery.status === 'Cancelled' && (
-                    <span className="bg-red-100 text-red-800 dark:bg-red-800 dark:text-white text-xs px-3 py-1 rounded-full font-semibold uppercase">
-                        Cancelled
-                    </span>
-                )}
+                {/* Status badge: Now uses StatusBadge component for all statuses */}
+                <StatusBadge status={delivery.status} />
             </div>
             {/* Image section */}
             <div className="rounded-xl overflow-hidden transition-transform duration-300 ease-in-out hover:scale-105 w-full aspect-[4/2] min-h-[120px] max-h-48 flex items-center justify-center bg-gray-50">
@@ -178,8 +170,8 @@ const DeliveryCard = ({ delivery, isDriverView = false, onAccept, onUpdateStatus
                 setShowConfirmDeliveredModal={setShowConfirmDeliveredModal}
                 showDetailsModal={showDetailsModal}
                 toggleDetailsModal={toggleDetailsModal}
-                shouldShowOtpEntry={shouldShowOtpEntry}
-                otpInput={otpInput}
+                shouldShowOtpEntry={shouldShowOtpEntry} // This prop might be redundant now, as OTP is for driver flow
+                otpInput={otpInput} // These OTP related props can likely be removed from here too, as OtpModal handles it directly
                 setOtpInput={setOtpInput}
                 otpLoading={otpLoading}
                 otpError={otpError}
