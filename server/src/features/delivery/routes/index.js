@@ -24,8 +24,8 @@ router.get('/customer', authenticate(['customer']), DeliveryController.listForCu
 router.patch('/status/:id', authenticate(['driver', 'customer']), DeliveryController.updateStatus);
 
 
-// OTP verification (customer)
-router.post('/verify-otp/:id', authenticate(['customer']), DeliveryController.verifyDeliveryOtp);
+// OTP verification (customer or driver)
+router.post('/verify-otp/:id', authenticate(['customer', 'driver']), DeliveryController.verifyDeliveryOtp);
 
 // Get a delivery by ID (customer or driver)
 router.get('/:id', authenticate(['customer', 'driver']), DeliveryController.getById);

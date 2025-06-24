@@ -122,8 +122,28 @@ const DeliveryController = {
     try {
       const { id } = req.params;
       const { otp } = req.body;
-      const delivery = await DeliveryService.verifyDeliveryOtp(id, otp);
-      res.json(delivery);
+      const userId = req.user.id;
+      const userRole = req.user.role;
+      const delivery = await DeliveryService.findById(id);
+      if (!delivery) return res.status(404).json({ error: 'Delivery request not found.' });
+      if (userRole === 'customer') {
+        // Only allow if this customer owns the delivery
+        const deliveryCustomerId = delivery.customer?._id?.toString?.() || delivery.customer?.toString?.() || delivery.customer;
+        if (deliveryCustomerId !== userId.toString()) {
+          return res.status(403).json({ error: 'Not authorized to verify OTP for this delivery.' });
+        }
+      } else if (userRole === 'driver') {
+        // Only allow if this driver is assigned to the delivery
+        const deliveryDriverId = delivery.driver?._id?.toString?.() || delivery.driver?.toString?.() || delivery.driver;
+        if (deliveryDriverId !== userId.toString()) {
+          return res.status(403).json({ error: 'Not authorized to verify OTP for this delivery.' });
+        }
+      } else {
+        return res.status(403).json({ error: 'Not authorized.' });
+      }
+      // If authorized, verify OTP
+      const updatedDelivery = await DeliveryService.verifyDeliveryOtp(id, otp);
+      res.json(updatedDelivery);
     } catch (err) {
       res.status(400).json({ error: err.message || 'OTP verification failed.' });
     }

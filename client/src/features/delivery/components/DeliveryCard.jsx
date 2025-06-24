@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { MapPin, Truck } from 'lucide-react';
 import { API_BASE_URL } from '../../../constants/config';
-import { cancelDelivery, verifyDeliveryOtp } from '../api/index';
+import DeliveryService from '../api/index';
 import { toast } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import DeliveryCardHeader from './DeliveryCardHeader';
@@ -35,16 +35,26 @@ const DeliveryCard = ({ delivery, isDriverView = false, onAccept, onUpdateStatus
         }
     };
 
-    // Refactored: When driver clicks 'Deliver', show OTP modal
-    const handleConfirmDelivered = () => {
+    // Refactored: When driver clicks 'Deliver', first call backend to trigger OTP, then show OTP modal
+    const handleConfirmDelivered = async () => {
         setShowConfirmDeliveredModal(false);
-        setShowOtpModal(true); // Show OTP modal for driver
+        setOtpError('');
+        setOtpInput('');
+        setOtpLoading(true);
+        try {
+            await DeliveryService.updateDeliveryStatus(delivery._id, 'Delivered');
+            setShowOtpModal(true);
+        } catch (err) {
+            toast.error(err.response?.data?.error || 'Failed to trigger OTP. Please try again.');
+        } finally {
+            setOtpLoading(false);
+        }
     };
 
     const handleCancel = async () => {
         setCancelLoading(true);
         try {
-            await cancelDelivery(delivery._id);
+            await DeliveryService.cancelDelivery(delivery._id);
             toast.success('Delivery cancelled successfully.');
             if (onCancel) onCancel(delivery._id);
         } catch (err) {
@@ -54,17 +64,16 @@ const DeliveryCard = ({ delivery, isDriverView = false, onAccept, onUpdateStatus
         }
     };
 
-    // Robust OTP handler for driver
     const handleOtpVerify = async (e) => {
         e.preventDefault();
         setOtpLoading(true);
         setOtpError('');
         try {
-            await verifyDeliveryOtp(delivery._id, otpInput);
+            await DeliveryService.verifyDeliveryOtp(delivery._id, otpInput);
             toast.success('Delivery confirmed! Thank you.');
             setOtpInput('');
             setShowOtpModal(false);
-            if (onCancel) onCancel(); // To refresh list
+            if (onCancel) onCancel();
         } catch (err) {
             setOtpError(err.response?.data?.error || 'Invalid OTP. Please try again.');
         } finally {
@@ -189,6 +198,7 @@ const DeliveryCard = ({ delivery, isDriverView = false, onAccept, onUpdateStatus
                     otpError={otpError}
                     onClose={() => { setShowOtpModal(false); setOtpInput(''); setOtpError(''); }}
                     onSubmit={handleOtpVerify}
+                    delivery={delivery}
                 />
             )}
         </div>
