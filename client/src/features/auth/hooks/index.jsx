@@ -114,6 +114,7 @@ export function useAuthForm({
     try {
         if (isLogin) {
             await login({ username, password, role });
+            toast.success('Welcome back!');
         } else {
             // Ensure all required fields by backend are sent for registration
             await register({ username, name, email, password, phone, role });
