@@ -1,5 +1,5 @@
 // src/features/delivery/components/DeliveryCard.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MapPin, Truck } from 'lucide-react';
 import { API_BASE_URL } from '../../../constants/config';
 import DeliveryService from '../api/index';
@@ -11,7 +11,7 @@ import DeliveryCardInfo from './DeliveryCardInfo';
 import DeliveryCardActions from './DeliveryCardActions';
 import DeliveryCardModals from './DeliveryCardModals';
 import OtpModal from './OtpModal';
-import StatusBadge from './StatusBadge'; // Make sure this import exists
+import StatusBadge from './StatusBadge';
 
 const DeliveryCard = ({ delivery, isDriverView = false, onAccept, onUpdateStatus, updateLoading = false, isAccepting = false, onCancel }) => {
     const [showConfirmTransitModal, setShowConfirmTransitModal] = useState(false);
@@ -29,30 +29,46 @@ const DeliveryCard = ({ delivery, isDriverView = false, onAccept, onUpdateStatus
 
     const toggleDetailsModal = () => setShowDetailsModal(!showDetailsModal);
 
+    // --- AGGRESSIVE LOGGING FOR DEBUGGING ---
+    useEffect(() => {
+        console.log(`[DeliveryCard:${delivery._id.substring(0, 8)}] showOtpModal state changed to:`, showOtpModal);
+    }, [showOtpModal, delivery._id]);
+
+    useEffect(() => {
+        console.log(`[DeliveryCard:${delivery._id.substring(0, 8)}] showConfirmDeliveredModal state changed to:`, showConfirmDeliveredModal);
+    }, [showConfirmDeliveredModal, delivery._id]);
+    // --- END AGGRESSIVE LOGGING ---
+
     const handleConfirmTransit = () => {
+        console.log(`[DeliveryCard:${delivery._id.substring(0, 8)}] handleConfirmTransit called.`);
         setShowConfirmTransitModal(false);
         if (onUpdateStatus) {
             onUpdateStatus(delivery._id, 'In-Transit');
         }
     };
 
-    // Refactored: When driver clicks 'Deliver', first call backend to trigger OTP, then show OTP modal
     const handleConfirmDelivered = async () => {
+        console.log(`[DeliveryCard:${delivery._id.substring(0, 8)}] handleConfirmDelivered called. Closing confirm modal.`);
         setShowConfirmDeliveredModal(false);
         setOtpError('');
         setOtpInput('');
         setOtpLoading(true);
         try {
+            console.log(`[DeliveryCard:${delivery._id.substring(0, 8)}] Attempting to call DeliveryService.updateDeliveryStatus to trigger OTP.`);
             await DeliveryService.updateDeliveryStatus(delivery._id, 'Delivered');
-            setShowOtpModal(true);
+            console.log(`[DeliveryCard:${delivery._id.substring(0, 8)}] OTP trigger successful. Setting showOtpModal to true.`);
+            setShowOtpModal(true); // Show the dedicated full-screen OTP modal
         } catch (err) {
+            console.error(`[DeliveryCard:${delivery._id.substring(0, 8)}] OTP trigger failed:`, err.response?.data?.error || err.message);
             toast.error(err.response?.data?.error || 'Failed to trigger OTP. Please try again.');
         } finally {
             setOtpLoading(false);
+            console.log(`[DeliveryCard:${delivery._id.substring(0, 8)}] OTP loading set to false.`);
         }
     };
 
     const handleCancel = async () => {
+        console.log(`[DeliveryCard:${delivery._id.substring(0, 8)}] handleCancel called.`);
         setCancelLoading(true);
         try {
             await DeliveryService.cancelDelivery(delivery._id);
@@ -67,18 +83,25 @@ const DeliveryCard = ({ delivery, isDriverView = false, onAccept, onUpdateStatus
 
     const handleOtpVerify = async (e) => {
         e.preventDefault();
+        console.log(`[DeliveryCard:${delivery._id.substring(0, 8)}] handleOtpVerify called with OTP: ${otpInput}`);
         setOtpLoading(true);
         setOtpError('');
         try {
             await DeliveryService.verifyDeliveryOtp(delivery._id, otpInput);
             toast.success('Delivery confirmed! Thank you.');
             setOtpInput('');
-            setShowOtpModal(false);
-            if (onCancel) onCancel(); // Assuming onCancel might refresh the list or remove the item
+            console.log(`[DeliveryCard:${delivery._id.substring(0, 8)}] OTP verified. Setting showOtpModal to false.`);
+            setShowOtpModal(false); // Close the OTP modal
+            if (onUpdateStatus) {
+                console.log(`[DeliveryCard:${delivery._id.substring(0, 8)}] Updating status to 'Delivered' via onUpdateStatus.`);
+                onUpdateStatus(delivery._id, 'Delivered');
+            }
         } catch (err) {
+            console.error(`[DeliveryCard:${delivery._id.substring(0, 8)}] OTP verification failed:`, err.response?.data?.error || err.message);
             setOtpError(err.response?.data?.error || 'Invalid OTP. Please try again.');
         } finally {
             setOtpLoading(false);
+            console.log(`[DeliveryCard:${delivery._id.substring(0, 8)}] OTP verification loading set to false.`);
         }
     };
 
@@ -88,12 +111,12 @@ const DeliveryCard = ({ delivery, isDriverView = false, onAccept, onUpdateStatus
     const isDelivered = delivery.status === 'Delivered';
 
     const showCancel = !isDriverView && (isPending || isAccepted);
-    const shouldShowOtpEntry = !isDriverView && isInTransit && delivery.deliveryOtp; // This seems to be a leftover for customer-side OTP, which is now handled by the driver flow.
 
     return (
+        // Added 'relative' to the main card container for absolute positioning of OtpModal
         <div
             className={
-                `bg-white dark:bg-white rounded-2xl shadow-lg hover:shadow-xl transition-transform transform hover:scale-[1.01] flex flex-col h-full font-sans p-4 md:p-5 space-y-3 border border-gray-100 focus-within:ring-2 focus-within:ring-blue-300`
+                `relative bg-white dark:bg-white rounded-2xl shadow-lg hover:shadow-xl transition-transform transform hover:scale-[1.01] flex flex-col h-full font-sans p-4 md:p-5 space-y-3 border border-gray-100 focus-within:ring-2 focus-within:ring-blue-300`
             }
             tabIndex={0}
             style={{ cursor: 'default', minHeight: '100%' }}
@@ -103,7 +126,6 @@ const DeliveryCard = ({ delivery, isDriverView = false, onAccept, onUpdateStatus
                 <h3 className="text-base md:text-lg font-bold text-blue-700 dark:text-blue-400 truncate max-w-[70%] break-words">
                     {delivery.packageName || 'Package'} #{delivery._id.substring(0, 8)}
                 </h3>
-                {/* Status badge: Now uses StatusBadge component for all statuses */}
                 <StatusBadge status={delivery.status} />
             </div>
             {/* Image section */}
@@ -162,7 +184,7 @@ const DeliveryCard = ({ delivery, isDriverView = false, onAccept, onUpdateStatus
                     cancelLoading={cancelLoading}
                 />
             </div>
-            {/* Modals (confirm, details, OTP) */}
+            {/* Modals (confirm, details) */}
             <DeliveryCardModals
                 showConfirmTransitModal={showConfirmTransitModal}
                 setShowConfirmTransitModal={setShowConfirmTransitModal}
@@ -170,20 +192,15 @@ const DeliveryCard = ({ delivery, isDriverView = false, onAccept, onUpdateStatus
                 setShowConfirmDeliveredModal={setShowConfirmDeliveredModal}
                 showDetailsModal={showDetailsModal}
                 toggleDetailsModal={toggleDetailsModal}
-                shouldShowOtpEntry={shouldShowOtpEntry} // This prop might be redundant now, as OTP is for driver flow
-                otpInput={otpInput} // These OTP related props can likely be removed from here too, as OtpModal handles it directly
-                setOtpInput={setOtpInput}
-                otpLoading={otpLoading}
-                otpError={otpError}
-                handleOtpVerify={handleOtpVerify}
-                updateLoading={updateLoading}
                 handleConfirmTransit={handleConfirmTransit}
                 handleConfirmDelivered={handleConfirmDelivered}
                 delivery={delivery}
+                updateLoading={updateLoading}
             />
-            {/* OTP Modal for driver (new flow) */}
+            {/* OTP Modal rendered directly inside the card */}
             {showOtpModal && (
                 <OtpModal
+                    data-testid={`otp-modal-${delivery._id}`}
                     show={showOtpModal}
                     otpInput={otpInput}
                     setOtpInput={setOtpInput}
