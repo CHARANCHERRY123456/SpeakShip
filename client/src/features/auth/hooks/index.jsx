@@ -5,9 +5,9 @@ import {
   validateUsername, // Ensure these new validators are imported
   validateName,
   validatePhone,
-  // validateAddress // We won't use this for initial signup validity
 } from '../utils';
-import { useAuth } from '../../../contexts/AuthContext'; // Ensure this path is correct: ../../../contexts/AuthContext
+import { useAuth } from '../../../contexts/AuthContext';
+import { toast } from 'react-hot-toast';
 
 export function useAuthForm({
   defaultUsername = 'cherrycharan2380',
@@ -117,6 +117,7 @@ export function useAuthForm({
         } else {
             // Ensure all required fields by backend are sent for registration
             await register({ username, name, email, password, phone, role });
+            toast.success('Registration successful! You can now explore the website');
         }
         // Success state handled by AuthContext (isAuthenticated will update)
     } catch (err) {
