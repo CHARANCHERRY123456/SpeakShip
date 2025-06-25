@@ -19,8 +19,11 @@ const CustomerDeliveryView = () => {
         loading: myDeliveriesLoading,
         error: myDeliveriesError,
         getDeliveries: getMyDeliveries,
-        page, setPage, search, setSearch, status, setStatus
-    } = useDeliveryApi('customer');
+        page, setPage, search, setSearch, status, setStatus,
+        // Import these two from useDeliveryApi for customer view actions
+        handleUpdateDeliveryStatus, // This handles the 'Cancelled' status update
+        isUpdatingStatus            // Loading state for status updates (including cancel)
+    } = useDeliveryApi('customer'); // Ensure role is 'customer' here
 
     const [searchInput, setSearchInput] = useState(search);
 
@@ -30,16 +33,16 @@ const CustomerDeliveryView = () => {
         setSearch(searchInput);
         setPage(1);
     };
-    const handleStatusChange = e => { 
-        setStatus(e.target.value); 
-        setPage(1); 
+    const handleStatusChange = e => {
+        setStatus(e.target.value);
+        setPage(1);
     };
     const handlePageChange = newPage => setPage(newPage);
 
-    // Remove cancelled delivery from UI after cancel
-    const handleCancel = () => {
-        getMyDeliveries(); // Refresh list after cancel
-    };
+    // No specific `handleCancel` function needed here to re-fetch
+    // because `useDeliveryApi` already calls `getDeliveries()` internally
+    // after a successful `handleUpdateDeliveryStatus` (which handles cancel).
+    // The `DeliveryCard` will call `onUpdateStatus` directly.
 
     useEffect(() => {
         if (isAuthenticated && currentUser?.role === 'customer') {
@@ -65,10 +68,10 @@ const CustomerDeliveryView = () => {
             <h1 className="text-2xl font-bold text-gray-900 mb-6 text-center">
                 Your Delivery History
             </h1>
-            
+
             {/* Centered Search and Filter Bar */}
             <div className="flex flex-col sm:flex-row gap-3 mb-8 justify-center items-center">
-                <form 
+                <form
                     onSubmit={handleSearchSubmit}
                     className="relative w-full sm:w-auto sm:max-w-md"
                 >
@@ -83,7 +86,7 @@ const CustomerDeliveryView = () => {
                         className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-sky-500 focus:border-sky-500 text-gray-900 placeholder-gray-400 text-sm"
                     />
                 </form>
-                
+
                 <div className="w-full sm:w-auto">
                     <select
                         value={status}
@@ -110,14 +113,22 @@ const CustomerDeliveryView = () => {
                 <>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {deliveries.map(delivery => (
-                            <DeliveryCard key={delivery._id} delivery={delivery} onCancel={handleCancel} />
+                            <DeliveryCard
+                                key={delivery._id}
+                                delivery={delivery}
+                                // Pass the status update handler and its loading state
+                                // For customer view, only 'cancel' action will use this.
+                                onUpdateStatus={handleUpdateDeliveryStatus}
+                                updateLoading={isUpdatingStatus}
+                                // No other driver-specific props are needed here for customer view
+                            />
                         ))}
                     </div>
-                    
+
                     {/* Compact Pagination controls */}
                     <div className="flex justify-center items-center gap-2 mt-6">
-                        <button 
-                            onClick={() => handlePageChange(page - 1)} 
+                        <button
+                            onClick={() => handlePageChange(page - 1)}
                             disabled={page === 1}
                             className="p-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                         >
@@ -126,8 +137,8 @@ const CustomerDeliveryView = () => {
                         <span className="text-sm text-gray-700 px-3 py-1 bg-gray-100 rounded-lg">
                             Page {page} of {Math.ceil(total / 10) || 1}
                         </span>
-                        <button 
-                            onClick={() => handlePageChange(page + 1)} 
+                        <button
+                            onClick={() => handlePageChange(page + 1)}
                             disabled={page * 10 >= total}
                             className="p-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                         >
