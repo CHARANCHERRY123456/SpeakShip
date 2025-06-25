@@ -6,9 +6,12 @@ import { useAuth } from '../../../contexts/AuthContext';
 import LoadingSpinner from '../../../features/core/components/LoadingSpinner';
 import { STATUS_OPTIONS, DELIVERY_MESSAGES } from '../constants';
 import { Search, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-hot-toast';
 
 
 const CustomerDeliveryView = () => {
+    const navigate = useNavigate();
     const { isAuthenticated, currentUser } = useAuth();
     const {
         deliveries,
@@ -44,7 +47,12 @@ const CustomerDeliveryView = () => {
         }
     }, [isAuthenticated, currentUser, getMyDeliveries, page, search, status]);
 
-    if (!isAuthenticated || currentUser?.role !== 'customer') {
+    if (!isAuthenticated) {
+        toast.error('You must be logged in to view your orders.');
+        navigate('/login');
+        return null;
+    }
+    if (currentUser?.role !== 'customer') {
         return (
             <div className="text-center py-12 text-red-600 font-semibold text-lg">
                 {DELIVERY_MESSAGES.notCustomer}
