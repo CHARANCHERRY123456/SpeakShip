@@ -47,11 +47,11 @@ function AuthPage() {
     handleSignOut,
     isFormValid,
   } = useAuthForm({
-    defaultUsername: 'cherrycharan2380',
-    defaultName: 'C V CHARAN',
-    defaultEmail: 'cherryiiit1234@gmail.com',
-    defaultPhone: '8520811855',
-    defaultPassword: 'Cherry@123',
+    defaultUsername: '',
+    defaultName: '',
+    defaultEmail: '',
+    defaultPhone: '',
+    defaultPassword: '',
     defaultRole: 'customer',
   });
 
