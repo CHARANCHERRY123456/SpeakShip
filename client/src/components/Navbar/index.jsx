@@ -1,24 +1,33 @@
 import { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom"; // Import useNavigate
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { navLinks as baseNavLinks } from "../../constants/navLinks";
 import VoiceButton from "../VoiceButton";
 import MenuButton from "../MenuButton";
 import { useAuth } from "../../contexts/AuthContext";
+import { FaUser, FaBoxOpen, FaTruck, FaCommentDots, FaMicrophone, FaShippingFast, FaSignOutAlt } from "react-icons/fa"; // Importing icons
+
+const iconMap = {
+  "/orders": <FaBoxOpen className="mr-2" />,
+  "/track": <FaTruck className="mr-2" />,
+  "/feedback": <FaCommentDots className="mr-2" />,
+  "/voice": <FaMicrophone className="mr-2" />,
+  "/profile": <FaUser className="mr-2" />,
+  "/delivery/customer": <FaShippingFast className="mr-2" />,
+  "/delivery/driver": <FaShippingFast className="mr-2" />,
+  "logout": <FaSignOutAlt className="mr-2" />,
+};
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false); // New state for profile dropdown
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const location = useLocation();
-  const navigate = useNavigate(); // Initialize useNavigate
+  const navigate = useNavigate();
   const { isAuthenticated, currentUser, logout } = useAuth();
 
-  // Dynamically filter navLinks based on user role
   const filteredNavLinks = baseNavLinks.filter(link => {
-    // Always show non-delivery specific links (or handle specifically if needed)
     if (link.to === "/orders" || link.to === "/track" || link.to === "/feedback" || link.to === "/voice") {
       return true;
     }
-    // Conditionally show delivery links based on role
     if (isAuthenticated) {
       if (link.to === "/delivery/customer" && currentUser?.role === 'customer') {
         return true;
@@ -27,31 +36,25 @@ const Navbar = () => {
         return true;
       }
     }
-    // Hide /profile link from the main navbar if we want to access it via compact profile display
     if (link.to === "/profile") {
         return false;
     }
     return false;
   });
 
-  // Handle click on the compact profile display button (toggles dropdown)
   const handleProfileClick = () => {
     setProfileDropdownOpen(prev => !prev);
   };
 
-  // UPDATED: Handle navigation to the full profile page with toggle logic
   const handleViewProfile = () => {
-    setProfileDropdownOpen(false); // Close dropdown
+    setProfileDropdownOpen(false);
     if (location.pathname === '/profile') {
-      // If already on the profile page, navigate to home (or previous page)
-      navigate('/'); // You can change '/' to navigate(-1) to go back to the previous page
+      navigate('/');
     } else {
-      // If not on the profile page, navigate to it
       navigate('/profile');
     }
   };
 
-  // Custom handler for Orders navigation
   const handleOrdersClick = (e) => {
     e.preventDefault();
     if (!isAuthenticated) {
@@ -93,21 +96,23 @@ const Navbar = () => {
                   onClick={handleOrdersClick}
                   className={`flex items-center px-3 py-2 rounded-md text-base font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 ${location.pathname.startsWith('/orders') ? "bg-sky-100 text-sky-700" : "text-slate-700 hover:bg-sky-50 hover:text-sky-600"}`}
                 >
-                  {link.label}
+                  {iconMap[link.to]}{link.label}
                 </a>
               ) : (
                 <Link
                   to={link.to}
                   className={`flex items-center px-3 py-2 rounded-md text-base font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 ${location.pathname === link.to ? "bg-sky-100 text-sky-700" : "text-slate-700 hover:bg-sky-50 hover:text-sky-600"}`}
                 >
-                  {link.label}
+                  {iconMap[link.to]}{link.label}
                 </Link>
               )}
             </li>
           ))}
           <li>
             {isAuthenticated ? (
-              <button onClick={logout} className="px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-sky-50 hover:text-sky-600">Logout</button>
+              <button onClick={logout} className="px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-sky-50 hover:text-sky-600 flex items-center">
+                {iconMap["logout"]}Logout
+              </button>
             ) : (
               <Link to="/login" className="px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-sky-50 hover:text-sky-600">Login</Link>
             )}
@@ -116,21 +121,20 @@ const Navbar = () => {
           {isAuthenticated && currentUser && (
             <li className="relative">
               <button
-                onClick={handleProfileClick} // This toggles the small dropdown
+                onClick={handleProfileClick}
                 className="flex items-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 rounded-full p-1"
               >
                 <div className="w-10 h-10 bg-sky-500 text-white rounded-full flex items-center justify-center font-bold text-lg shadow-sm">
                   {getFirstLetter(currentUser.name || currentUser.username)}
                 </div>
-                <span className="text-slate-700 font-medium hidden lg:block">{currentUser.name || currentUser.username}</span>
               </button>
-              {profileDropdownOpen && ( // This is the small dropdown that appears
+              {profileDropdownOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2 z-50 border border-gray-200">
                   <button
-                    onClick={handleViewProfile} // This navigates to /profile or toggles away
+                    onClick={handleViewProfile}
                     className="block w-full text-left px-4 py-2 text-gray-800 hover:bg-gray-100 transition-colors"
                   >
-                    {location.pathname === '/profile' ? 'Close Profile' : 'View Full Profile'} {/* Dynamic text */}
+                    {location.pathname === '/profile' ? 'Close Profile' : 'View Full Profile'}
                   </button>
                 </div>
               )}
@@ -153,7 +157,7 @@ const Navbar = () => {
                 className={`flex items-center px-3 py-2 rounded-md text-base font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 ${location.pathname === link.to ? "bg-sky-100 text-sky-700" : "text-slate-700 hover:bg-sky-50 hover:text-sky-600"}`}
                 onClick={() => setMenuOpen(false)}
               >
-                {link.label}
+                {iconMap[link.to]}{link.label}
               </Link>
             </li>
           ))}
@@ -161,21 +165,21 @@ const Navbar = () => {
           {isAuthenticated && currentUser && (
             <li>
               <button
-                onClick={() => { handleViewProfile(); setMenuOpen(false); }} // This navigates/toggles and closes mobile menu
-                className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-sky-50 hover:text-sky-600 flex items-center gap-2"
+                onClick={() => { handleViewProfile(); setMenuOpen(false); }}
+                className="w-full text-left px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-sky-50 hover:text-sky-600 flex items-center gap-2"
               >
                 <div className="w-8 h-8 bg-sky-500 text-white rounded-full flex items-center justify-center font-bold text-sm">
                   {getFirstLetter(currentUser.name || currentUser.username)}
                 </div>
-                <span>
-                  {currentUser.name || currentUser.username} ({location.pathname === '/profile' ? 'Close Profile' : 'View Profile'}) {/* Dynamic text */}
-                </span>
+                {/* Name removed here */}
               </button>
             </li>
           )}
           <li>
             {isAuthenticated ? (
-              <button onClick={() => { logout(); setMenuOpen(false); }} className="px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-sky-50 hover:text-sky-600">Logout</button>
+              <button onClick={() => { logout(); setMenuOpen(false); }} className="px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-sky-50 hover:text-sky-600 flex items-center">
+                {iconMap["logout"]}Logout
+              </button>
             ) : (
               <Link to="/login" onClick={() => setMenuOpen(false)} className="px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-sky-50 hover:text-sky-600">Login</Link>
             )}
