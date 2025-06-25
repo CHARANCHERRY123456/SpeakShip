@@ -1,25 +1,9 @@
 import multer from 'multer';
-import path from 'path';
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/');
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, uniqueSuffix + path.extname(file.originalname));
-  }
-});
+// This file is deprecated. Multer/local uploads are no longer used after Cloudinary migration.
 
-const fileFilter = (req, file, cb) => {
-  // Accept only images
-  if (file.mimetype.startsWith('image/')) {
-    cb(null, true);
-  } else {
-    cb(new Error('Only image files are allowed!'), false);
-  }
-};
+const storage = multer.memoryStorage(); // Store file in memory for direct upload to Cloudinary
 
-const upload = multer({ storage, fileFilter });
+const upload = multer({ storage });
 
 export default upload;

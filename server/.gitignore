@@ -11,6 +11,8 @@ pnpm-debug.log*
 
 .vscode/
 
+uploads
+uploads/
 # Logs
 logs/
 *.log

@@ -24,8 +24,6 @@ app.use(express.json());
 app.use(morgan('dev'));
 app.use(passport.initialize());
 
-// Static files
-app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 // Routes
 app.get("/", (req, res) => {

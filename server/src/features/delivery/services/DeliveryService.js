@@ -3,9 +3,16 @@ import sendMail from '../../../utils/mailer.js';
 import fs from 'fs/promises';
 import path, { dirname } from 'path';
 import { fileURLToPath } from 'url';
+import cloudinary from 'cloudinary';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+cloudinary.v2.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 function generateOtp(length = 6) {
   return Math.floor(Math.pow(10, length - 1) + Math.random() * 9 * Math.pow(10, length - 1)).toString();
@@ -13,16 +20,49 @@ function generateOtp(length = 6) {
 
 class DeliveryService {
   async createRequest(data, customerId, file) {
+    let photoUrl = data.photoUrl;
+    if (file) {
+      // Upload to Cloudinary
+      try {
+        const uploadResult = await cloudinary.v2.uploader.upload_stream({
+          folder: 'speakship-deliveries',
+          resource_type: 'image',
+        }, (error, result) => {
+          if (error) throw error;
+          return result;
+        });
+        // Use a Promise to handle stream
+        const streamUpload = (fileBuffer) => {
+          return new Promise((resolve, reject) => {
+            const stream = cloudinary.v2.uploader.upload_stream(
+              { folder: 'speakship-deliveries', resource_type: 'image' },
+              (error, result) => {
+                if (result) resolve(result);
+                else reject(error);
+              }
+            );
+            stream.end(fileBuffer);
+          });
+        };
+        const result = await streamUpload(file.buffer);
+        photoUrl = result.secure_url;
+      } catch (err) {
+        console.error('Cloudinary upload failed:', err);
+        photoUrl = 'https://housing.com/news/wp-content/uploads/2023/10/Top-10-courier-companies-in-India-ft.jpg';
+      }
+    } else {
+      // No file, use default
+      photoUrl = 'https://housing.com/news/wp-content/uploads/2023/10/Top-10-courier-companies-in-India-ft.jpg';
+    }
     const deliveryData = {
       ...data,
       customer: customerId,
       status: 'Pending',
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
+      photoUrl,
     };
-    if (file) {
-      deliveryData.photoUrl = `/uploads/${file.filename}`;
-    }
+    // photoUrl is now always provided by frontend (Cloudinary or default)
     const delivery = await DeliveryRepository.create(deliveryData);
     // Send order creation email to customer
     try {

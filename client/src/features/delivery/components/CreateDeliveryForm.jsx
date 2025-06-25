@@ -168,49 +168,28 @@ const CreateDeliveryForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    
     try {
-      const formDataToSend = new FormData();
-      
-      // Manually append all non-image related fields from formData
-      formDataToSend.append('name', formData.name);
-      formDataToSend.append('email', formData.email);
-      formDataToSend.append('phone', formData.phone);
-      formDataToSend.append('packageName', formData.packageName);
-      formDataToSend.append('pickupAddress', formData.pickupAddress);
-      formDataToSend.append('dropoffAddress', formData.dropoffAddress);
-      formDataToSend.append('note', formData.note);
-      formDataToSend.append('priorityLevel', formData.priorityLevel);
-      formDataToSend.append('customer', currentUser._id);
-      formDataToSend.append('status', STATUS_OPTIONS.find(opt => opt.label === 'Pending').value);
-      formDataToSend.append('deliveryTimeEstimate', 
-        calculateDeliveryTimeEstimate(formData.distanceInKm, formData.priorityLevel).toISOString()
-      );
-      formDataToSend.append('priceEstimate', formData.priceEstimate);
-      formDataToSend.append('distanceInKm', formData.distanceInKm);
-
-      // --- CRITICAL FIX FOR PHOTO HANDLING ---
+      const data = new FormData();
+      data.append('name', formData.name);
+      data.append('email', formData.email);
+      data.append('phone', formData.phone);
+      data.append('packageName', formData.packageName);
+      data.append('pickupAddress', formData.pickupAddress);
+      data.append('dropoffAddress', formData.dropoffAddress);
+      data.append('note', formData.note);
+      data.append('priorityLevel', formData.priorityLevel);
+      data.append('customer', currentUser._id);
+      data.append('status', STATUS_OPTIONS.find(opt => opt.label === 'Pending').value);
+      data.append('deliveryTimeEstimate', calculateDeliveryTimeEstimate(formData.distanceInKm, formData.priorityLevel).toISOString());
+      data.append('priceEstimate', formData.priceEstimate);
+      data.append('distanceInKm', formData.distanceInKm);
       if (formData.photoFile) {
-        // If a new file was selected by the user, append the actual file
-        formDataToSend.append('photo', formData.photoFile); // 'photo' matches backend multer field name
-      } else if (formData.photoPreviewUrl && formData.photoPreviewUrl !== 'https://housing.com/news/wp-content/uploads/2023/10/Top-10-courier-companies-in-India-ft.jpg') {
-        // If no new file was selected, but photoPreviewUrl is NOT the default placeholder
-        // (meaning it's a custom URL from a prior state or could be if this was an edit form), send it as photoUrl.
-        formDataToSend.append('photoUrl', formData.photoPreviewUrl);
+        data.append('photo', formData.photoFile);
       }
-      // If photoFile is null AND photoPreviewUrl is the default placeholder, then no photo field is appended.
-      // This assumes the backend handles the absence of photoUrl as optional or with its own default.
-      // --- END CRITICAL FIX ---
-
-
-      const response = await axios.post(DELIVERY_API_ROUTES.CREATE, formDataToSend, {
-        headers: {
-          'Content-Type': 'multipart/form-data' // Required for sending FormData with files
-        }
+      await axios.post(DELIVERY_API_ROUTES.CREATE, data, {
+        headers: { 'Content-Type': 'multipart/form-data' }
       });
       toast.success('Delivery request created successfully!');
-      
-      // Reset form after successful submission
       setFormData({
         name: currentUser?.name || '',
         email: currentUser?.email || '',
@@ -220,18 +199,16 @@ const CreateDeliveryForm = () => {
         dropoffAddress: '',
         note: '',
         photoFile: null,
-        photoPreviewUrl: 'https://housing.com/news/wp-content/uploads/2023/10/Top-10-courier-companies-in-India-ft.jpg', // Reset to default placeholder
+        photoPreviewUrl: '',
         priorityLevel: 'Normal',
         deliveryTimeEstimate: null,
         priceEstimate: 0,
         distanceInKm: 0
       });
-
-      // Navigate to customer delivery page after creation
       navigate('/delivery/customer');
     } catch (error) {
       console.error('Delivery creation error:', error);
-      toast.error(error.response?.data?.message || 'Failed to create delivery. Please try again.');
+      toast.error(error.message || 'Failed to create delivery. Please try again.');
     } finally {
       setLoading(false);
     }

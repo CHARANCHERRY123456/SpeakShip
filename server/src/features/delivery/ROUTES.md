@@ -8,18 +8,20 @@ All endpoints are prefixed with `/api/delivery`.
 
 - **Endpoint:** `POST /api/delivery/create`
 - **Auth:** Bearer Token (customer)
-- **Content-Type:** `multipart/form-data`
-- **Description:** Create a new delivery request. Optionally upload a photo.
+- **Content-Type:** `application/json`
+- **Description:** Create a new delivery request. Optionally provide a photo URL (Cloudinary or default).
 - **Request Body Example:**
 
-```
-name: "John Doe"
-email: "john@example.com"
-phone: "9876543210"
-pickupAddress: "123 Main St, City"
-dropoffAddress: "456 Market St, City"
-note: "Handle with care"
-photo: (file upload, optional)
+```json
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "phone": "9876543210",
+  "pickupAddress": "123 Main St, City",
+  "dropoffAddress": "456 Market St, City",
+  "note": "Handle with care",
+  "photoUrl": "https://res.cloudinary.com/your-cloud-name/image/upload/v123456789/photo.jpg" // or default image URL
+}
 ```
 
 - **Response Example (201):**
@@ -32,7 +34,7 @@ photo: (file upload, optional)
   "pickupAddress": "123 Main St, City",
   "dropoffAddress": "456 Market St, City",
   "note": "Handle with care",
-  "photoUrl": "/uploads/photo.jpg",
+  "photoUrl": "https://res.cloudinary.com/your-cloud-name/image/upload/v123456789/photo.jpg",
   "status": "Pending",
   "customer": "664f1b...",
   "createdAt": "2025-06-10T10:00:00.000Z",

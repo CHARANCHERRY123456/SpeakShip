@@ -5,6 +5,7 @@ const DeliveryController = {
   async createRequest(req, res) {
     try {
       const customerId = req.user.id;
+      // Pass req.body and req.file to the service
       const delivery = await DeliveryService.createRequest(req.body, customerId, req.file);
       res.status(201).json(delivery);
     } catch (err) {
