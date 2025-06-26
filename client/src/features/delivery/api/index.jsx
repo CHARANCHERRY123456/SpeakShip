@@ -46,7 +46,7 @@ class DeliveryService {
   static async updateDeliveryStatus(deliveryId, newStatus) {
     const response = await axios.patch(`/api/delivery/status/${deliveryId}`, { status: newStatus });
     return response.data;
-  }
+}
 
   /**
    * Cancel a delivery (customer only, allowed for Pending/Accepted)

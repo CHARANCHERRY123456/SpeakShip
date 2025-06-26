@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import DeliveryCard from '../components/DeliveryCard';
 import DeliveryGrid from '../components/DeliveryGrid';
-import useDeliveryApi from '../hooks/useDeliveryApi';
+import useDeliveryApi from '../hooks/useDeliveryApi'; // Correct import path
 import { useAuth } from '../../../contexts/AuthContext';
 
 const STATUS_OPTIONS = [
@@ -19,13 +19,16 @@ export default function DriverDeliveryView() {
     total,
     loading: myDeliveriesLoading,
     error: myDeliveriesError,
-    getDeliveries: getMyAssignedDeliveries,
+    getDeliveries: getMyAssignedDeliveries, // Renamed for clarity, though `getDeliveries` works
     page, setPage, search, setSearch, status, setStatus,
     handleAcceptDelivery,
     isAccepting,
     handleUpdateDeliveryStatus,
-    isUpdatingStatus
-  } = useDeliveryApi('driver');
+    isUpdatingStatus,
+    handleInitiateDeliveryOtp, // NEW
+    handleVerifyDeliveryOtp,   // NEW
+    isVerifyingOtp             // NEW
+  } = useDeliveryApi('driver'); // Pass the role to the hook
 
   const [searchInput, setSearchInput] = useState(search);
 
@@ -37,7 +40,6 @@ export default function DriverDeliveryView() {
     setPage(1);
   };
   const handleStatusChange = e => { setStatus(e.target.value); setPage(1); };
-  // const handleLimitChange = e => { setLimit(Number(e.target.value)); setPage(1); };
   const handlePageChange = newPage => setPage(newPage);
 
   useEffect(() => {
@@ -91,10 +93,15 @@ export default function DriverDeliveryView() {
               key={delivery._id}
               delivery={delivery}
               isDriverView={true}
+              // Pass the handlers and loading states from useDeliveryApi
               onAccept={handleAcceptDelivery}
               isAccepting={isAccepting}
+              // handleUpdateDeliveryStatus is now overloaded to also initiate OTP
               onUpdateStatus={handleUpdateDeliveryStatus}
               updateLoading={isUpdatingStatus}
+              onInitiateDeliveryOtp={handleInitiateDeliveryOtp} // NEW PROP
+              onVerifyDeliveryOtp={handleVerifyDeliveryOtp}     // NEW PROP
+              isVerifyingOtp={isVerifyingOtp}                   // NEW PROP
             />
           )}
         />
