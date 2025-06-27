@@ -48,3 +48,15 @@ export function validatePhone(phone) {
   if (!phoneRegex.test(phone)) return 'Please enter a valid phone number (7-15 digits, digits only).';
   return '';
 }
+
+// --- NEW OTP VALIDATOR ---
+export function validateOtp(otp) {
+  if (!otp) {
+    return 'OTP is required.';
+  }
+  // OTP is typically a 6-digit number
+  if (!/^\d{6}$/.test(otp)) {
+    return 'OTP must be a 6-digit number.';
+  }
+  return '';
+}

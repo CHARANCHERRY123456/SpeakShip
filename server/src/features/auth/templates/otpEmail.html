@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Your SpeakShip OTP</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f7fafc; color: #222; }
+        .container { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px #e2e8f0; max-width: 480px; margin: 40px auto; padding: 32px; }
+        .logo { text-align: center; margin-bottom: 24px; }
+        .logo img { width: 80px; }
+        .headline { color: #2563eb; font-size: 1.5rem; font-weight: bold; margin-bottom: 12px; text-align: center; }
+        .message { font-size: 1.1rem; margin-bottom: 18px; text-align: center; }
+        .otp-code { font-size: 2rem; font-weight: bold; color: #06b6d4; text-align: center; margin: 24px 0; letter-spacing: 5px; }
+        .footer { margin-top: 32px; font-size: 0.95rem; color: #64748b; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <img src="https://cdn-icons-png.flaticon.com/512/2920/2920277.png" alt="SpeakShip Logo" />
+        </div>
+        <div class="headline">Your One-Time Password (OTP)</div>
+        <div class="message">
+            Hello,
+            <br><br>
+            Please use the following One-Time Password (OTP) to complete your registration as a <b>{{role}}</b> on SpeakShip. This OTP is valid for 5 minutes.
+            <br>
+        </div>
+        <div class="otp-code">{{otp}}</div>
+        <div class="message" style="font-size:0.95rem; color:#ef4444;">
+            If you did not request this, please ignore this email.
+        </div>
+        <div class="footer">
+            Thanks,<br>
+            <b>The SpeakShip Team</b>
+        </div>
+    </div>
+</body>
+</html>

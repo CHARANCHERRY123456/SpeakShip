@@ -1,49 +1,63 @@
-import axios from '../../../api/axios';
+// client/src/features/auth/api/index.jsx
 
-// API calls related to authentication (login, register, logout, etc.)
+import axios from '../../../api/axios'; // Ensure your axios instance path is correct
 
 // Function for Customer Login
-export async function loginCustomer(usernameOrEmail, password) { // Accepts username or email
-    const response = await axios.post('/api/auth/login/customer', { username: usernameOrEmail, password });
-    return response.data; // Should return { message, customer, token }
+export async function loginCustomer(username, password) {
+  const response = await axios.post('/api/auth/login/customer', { username, password });
+  return response.data;
 }
 
 // Function for Driver Login
-export async function loginDriver(usernameOrEmail, password) { // Accepts username or email
-    const response = await axios.post('/api/auth/login/driver', { username: usernameOrEmail, password });
-    return response.data; // Should return { message, driver, token }
+export async function loginDriver(username, password) {
+  const response = await axios.post('/api/auth/login/driver', { username, password });
+  return response.data;
 }
 
 // Function for Admin Login
-export async function loginAdmin(usernameOrEmail, password) { // Accepts username or email
-    const response = await axios.post('/api/auth/login/admin', { username: usernameOrEmail, password });
-    return response.data; // Should return { message, admin, token }
+export async function loginAdmin(username, password) {
+  const response = await axios.post('/api/auth/login/admin', { username, password });
+  return response.data;
 }
 
-// Function for Customer Registration
+// Function for Customer Registration (Backend will NOT send OTP here anymore)
 export async function registerCustomer(username, name, email, password, phone) {
-    // Ensure all required fields by CustomerSchema are sent
-    const response = await axios.post('/api/auth/signup/customer', { username, name, email, password, phone });
-    return response.data; // Should return { message, customer }
+  const response = await axios.post('/api/auth/signup/customer', { username, name, email, password, phone, isVerified: true }); // Pass isVerified:true
+  return response.data;
 }
 
-// Function for Driver Registration
+// Function for Driver Registration (Backend will NOT send OTP here anymore)
 export async function registerDriver(username, name, email, password, phone) {
-    // Ensure all required fields by DriverSchema are sent
-    const response = await axios.post('/api/auth/signup/driver', { username, name, email, password, phone });
-    return response.data; // Should return { message, driver }
+  const response = await axios.post('/api/auth/signup/driver', { username, name, email, password, phone, isVerified: true }); // Pass isVerified:true
+  return response.data;
 }
 
-// Logout (client-side deletion of token is usually enough for JWT,
-// but if you have backend logout logic, you'd call it here)
-// export async function logoutApi() {
-//   // Example: if backend needed a ping for logging purposes
-//   const response = await axios.post('/api/auth/logout');
-//   return response.data;
-// }
+// --- NEW API CALL: Send OTP for initial email verification ---
+export async function sendEmailOtpBackend(email, role) {
+    const response = await axios.post('/api/auth/send-otp', { email, role });
+    return response.data; // Should return { message: 'OTP sent to your email.' }
+}
 
-// Google SignIn - this part is fine conceptually, but requires backend implementation
-// before it will work end-to-end. We'll focus on username/password for now.
-export function googleSignIn() {
-    window.location.href = `${axios.defaults.baseURL}/api/auth/google`;
+// Function to verify email OTP (existing, but ensure it's correct)
+export async function verifyEmailOtp(email, otp, role) {
+  const response = await axios.post('http://localhost:3000/api/auth/verify-otp', { email, otp, role });
+  return response.data;
+}
+
+// Function to resend email OTP (existing, but ensure it's correct)
+export async function resendEmailOtp(email, role) {
+  const response = await axios.post('/api/auth/send-otp', { email, role });
+  return response.data;
+}
+
+// Function to handle Google login callback (existing)
+export async function googleLoginCallback(code, role) { // Role might be null if not explicitly selected
+  const response = await axios.get(`/api/auth/google/callback?code=${code}${role ? `&role=${role}` : ''}`);
+  return response.data;
+}
+
+// Function to fetch user details (existing)
+export async function getMe() {
+  const response = await axios.get('/api/auth/me');
+  return response.data;
 }
