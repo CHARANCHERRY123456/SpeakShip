@@ -61,6 +61,7 @@ class AuthController {
 
   googleAuth(req, res, next) {
     const role = req.query.role || 'customer';
+    console.log('[GoogleAuth] role from query:', req.query.role, '| using:', role);
     req.query.role = role;
     passport.authenticate('google', {
       scope: ['profile', 'email'],
@@ -74,11 +75,16 @@ class AuthController {
       try {
         const state = JSON.parse(req.query.state);
         if (state.role) role = state.role;
-      } catch {}
+        console.log('[GoogleCallback] Parsed state:', state);
+      } catch (e) {
+        console.error('[GoogleCallback] Failed to parse state:', req.query.state, e);
+      }
     }
     req.query.role = role;
+    console.log('[GoogleCallback] Final role for passport:', role);
     passport.authenticate('google', { failureRedirect: '/login', session: false }, async (err, user) => {
       if (err || !user) {
+        console.error('[GoogleCallback] OAuth failed:', err);
         return res.send('<script>window.opener && window.opener.postMessage({ error: "OAuth failed" }, "*"); window.close();</script>');
       }
       const jwt = (await import('jsonwebtoken')).default;

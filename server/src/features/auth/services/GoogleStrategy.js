@@ -10,59 +10,46 @@ passport.use(new GoogleStrategy({
   clientID: config.GOOGLE_CLIENT_ID,
   clientSecret: config.GOOGLE_CLIENT_SECRET,
   callbackURL: config.CALLBACK_URL,
-  passReqToCallback: true, // Allow access to req in verify callback
+  passReqToCallback: true,
 },
 async (req, accessToken, refreshToken, profile, done) => {
   try {
-    // Defensive: Check if profile.emails exists and has at least one email
     const email = profile.emails && profile.emails.length > 0 ? profile.emails[0].value : null;
     if (!email) {
       return done(new Error('No email found in Google profile'), null);
     }
-    // Get image, phone, address if available
     const image = profile.photos && profile.photos.length > 0 ? profile.photos[0].value : '';
     const phone = profile.phoneNumbers && profile.phoneNumbers.length > 0 ? profile.phoneNumbers[0].value : '';
     const address = profile.addresses && profile.addresses.length > 0 ? profile.addresses[0].formatted : '';
-    // Get role from req.body or req.query (frontend must send it)
     let role = null;
     if (req && req.body && req.body.role) {
       role = req.body.role;
     } else if (req && req.query && req.query.role) {
       role = req.query.role;
+    } else if (req && req.query && req.query.state) {
+      try {
+        const state = JSON.parse(req.query.state);
+        if (state.role) role = state.role;
+      } catch (e) {}
     }
     if (!role || !['customer', 'driver', 'admin'].includes(role)) {
       return done(new Error('Role is required and must be customer, driver, or admin.'), null);
     }
-    // Prevent admin registration via OAuth
     if (role === 'admin') {
       return done(new Error('Admin registration is not allowed via OAuth'), null);
     }
-    let user;
+    let user = null;
     if (role === 'customer') {
       user = await Customer.findOne({ email });
       if (!user) {
-        user = await Customer.create({
-          username: profile.id,
-          name: profile.displayName,
-          email,
-          image,
-          phone,
-          address,
-        });
+        return done(new Error('No account found for this Google email.'), null);
       }
       user = user ? user.toObject() : null;
       if (user) user.role = 'customer';
     } else if (role === 'driver') {
       user = await Driver.findOne({ email });
       if (!user) {
-        user = await Driver.create({
-          username: profile.id,
-          name: profile.displayName,
-          email,
-          image,
-          phone,
-          address,
-        });
+        return done(new Error('No account found for this Google email.'), null);
       }
       user = user ? user.toObject() : null;
       if (user) user.role = 'driver';
