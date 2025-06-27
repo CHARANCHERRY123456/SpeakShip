@@ -1,7 +1,15 @@
 import React from 'react';
 import ReviewCard from './ReviewCard';
+import LoadingSpinner from '../../core/components/LoadingSpinner';
 
-const ReviewList = ({ reviews }) => {
+const ReviewList = ({ reviews, isLoading }) => {
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[200px]">
+        <LoadingSpinner />
+      </div>
+    );
+  }
   if (!reviews || reviews.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[200px] text-center text-gray-500 dark:text-gray-400">
