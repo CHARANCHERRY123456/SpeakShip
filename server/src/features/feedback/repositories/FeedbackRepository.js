@@ -6,12 +6,12 @@ const FEEDBACK_POPULATE = [
   {
     path: 'driverId',
     select: 'name photoUrl role',
-    model: 'User'
+    model: 'Driver'
   },
   {
     path: 'customerId',
     select: 'name photoUrl role',
-    model: 'User'
+    model: 'Customer'
   }
 ];
 
