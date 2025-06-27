@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import axiosInstance from '../../../api/axios';
 import { useAuth } from '../../../contexts/AuthContext';
-import ButtonSpinner from '../../../components/ButtonSpinner';
+import LoadingSpinner from '../../core/components/LoadingSpinner';
 import ErrorMessage from '../../../components/ErrorMessage';
 import ReviewList from '../components/ReviewList';
 
@@ -48,7 +48,7 @@ const ReviewsPage = () => {
   if (authLoading || loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[calc(100vh-80px)] bg-gray-50 p-4">
-        <ButtonSpinner size={40} color="#0EA5E9" />
+        <LoadingSpinner />
         <p className="mt-4 text-lg text-gray-700">Loading your reviews...</p>
       </div>
     );
