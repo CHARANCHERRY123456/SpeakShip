@@ -8,7 +8,7 @@ import FeedbackPage from './features/feedback/pages';
 import VoicePage from './features/voice/pages';
 import { Toaster } from 'react-hot-toast';
 import LoginPage from './features/auth/pages';
-import Home from './features/home/components/home';
+import Home from './features/home/home';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import CustomerDeliveryPage from './features/delivery/pages/CustomerDeliveryPage';
 import DriverDeliveryPage from './features/delivery/pages/DriverDeliveryPage';
