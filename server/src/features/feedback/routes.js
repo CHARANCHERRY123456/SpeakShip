@@ -21,5 +21,7 @@ router.get('/delivery/:deliveryId/me', authenticate(['customer']), (req, res) =>
     params: { deliveryId: req.params.deliveryId, customerId: req.user.id }
   }, res);
 });
+// Get all reviews for a driver
+router.get('/driver/:driverId', authenticate(['driver', 'admin']), FeedbackController.getFeedbackForDriver);
 
 export default router;

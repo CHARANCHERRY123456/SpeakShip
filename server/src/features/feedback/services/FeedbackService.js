@@ -17,6 +17,9 @@ const FeedbackService = {
   },
   async getAllFeedback() {
     return FeedbackRepository.findAll();
+  },
+  async getFeedbackForDriver(driverId) {
+    return FeedbackRepository.findByDriver(driverId);
   }
 };
 

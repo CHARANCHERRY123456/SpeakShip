@@ -14,6 +14,9 @@ const FeedbackRepository = {
   },
   async findAll() {
     return Feedback.find({}).sort({ createdAt: -1 });
+  },
+  async findByDriver(driverId) {
+    return Feedback.find({ driverId }).sort({ createdAt: -1 });
   }
 };
 
