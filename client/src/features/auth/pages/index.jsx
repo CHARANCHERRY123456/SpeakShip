@@ -173,9 +173,12 @@ function AuthPage() {
             <span className="bg-white px-2 text-gray-500 font-inter">Or continue with</span>
           </div>
         </div>
-        <div className="grid grid-cols-1 gap-4">
-          <GoogleButton onClick={handleGoogleSignIn} />
-        </div>
+        {/* Only show Google login on login form */}
+        {isLogin && (
+          <div className="grid grid-cols-1 gap-4">
+            <GoogleButton onClick={handleGoogleSignIn} />
+          </div>
+        )}
       </div>
     </div>
   );

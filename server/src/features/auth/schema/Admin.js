@@ -25,7 +25,11 @@ const AdminSchema = new mongoose.Schema({
     type: String,
     enum: ['admin'],
     default: 'admin'
-  }
+  },
+  photoUrl: {
+    type: String,
+    default: 'https://i.pinimg.com/736x/cf/3f/5c/cf3f5c9f2d8362f9111cf7f7c93cf42f.jpg' 
+  },
 });
 
 const Admin = mongoose.model('Admin', AdminSchema);

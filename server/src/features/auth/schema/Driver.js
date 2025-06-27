@@ -29,6 +29,10 @@ const DriverSchema = new mongoose.Schema({
     type: String,
     match: /^\d{10}$/
   },
+  photoUrl : {
+    type : String,
+    default: 'https://th-i.thgim.com/public/entertainment/movies/opp827/article25525252.ece/alternates/FREE_1200/Taxiwala'
+  },
   location: {
     type: {
       type: String,

@@ -43,6 +43,10 @@ const CustomerSchema = new mongoose.Schema({
     required: false,
     default: ''
   },
+  photoUrl: {
+    type: String,
+    default: 'https://i.pinimg.com/736x/cf/3f/5c/cf3f5c9f2d8362f9111cf7f7c93cf42f.jpg' 
+  },
   orders: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Order'

@@ -4,7 +4,7 @@ import { navLinks as baseNavLinks } from "../../constants/navLinks";
 import VoiceButton from "../VoiceButton";
 import MenuButton from "../MenuButton";
 import { useAuth } from "../../contexts/AuthContext";
-import { FaUser, FaBoxOpen, FaTruck, FaCommentDots, FaMicrophone, FaShippingFast, FaSignOutAlt } from "react-icons/fa"; // Importing icons
+import { FaUser, FaBoxOpen, FaTruck, FaCommentDots, FaMicrophone, FaShippingFast, FaSignOutAlt, FaStar } from "react-icons/fa"; // Import FaStar
 
 const iconMap = {
   "/orders": <FaBoxOpen className="mr-2" />,
@@ -14,6 +14,7 @@ const iconMap = {
   "/profile": <FaUser className="mr-2" />,
   "/delivery/customer": <FaShippingFast className="mr-2" />,
   "/delivery/driver": <FaShippingFast className="mr-2" />,
+  "/reviews": <FaStar className="mr-2" />, // Add icon for reviews
   "logout": <FaSignOutAlt className="mr-2" />,
 };
 
@@ -25,10 +26,18 @@ const Navbar = () => {
   const { isAuthenticated, currentUser, logout } = useAuth();
 
   const filteredNavLinks = baseNavLinks.filter(link => {
+    // Always include these basic links
     if (link.to === "/orders" || link.to === "/track" || link.to === "/feedback" || link.to === "/voice") {
       return true;
     }
+
+    // Handle authenticated user specific links
     if (isAuthenticated) {
+      // Check for role-specific links
+      if (link.roles) {
+        return link.roles.includes(currentUser?.role);
+      }
+
       if (link.to === "/delivery/customer" && currentUser?.role === 'customer') {
         return true;
       }
@@ -36,6 +45,7 @@ const Navbar = () => {
         return true;
       }
     }
+    // Exclude profile link from this general filter if it's handled separately
     if (link.to === "/profile") {
         return false;
     }
@@ -171,7 +181,6 @@ const Navbar = () => {
                 <div className="w-8 h-8 bg-sky-500 text-white rounded-full flex items-center justify-center font-bold text-sm">
                   {getFirstLetter(currentUser.name || currentUser.username)}
                 </div>
-                {/* Name removed here */}
               </button>
             </li>
           )}

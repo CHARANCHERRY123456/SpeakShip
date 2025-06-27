@@ -17,7 +17,7 @@ import ProfilePage from './features/profile/pages/ProfilePage';
 import { useNavigate } from 'react-router-dom'; // <--- Add this line
 import DriverOrdersPage from './features/orders/pages/DriverOrdersPage';
 import DeliveryDetailsPage from './features/delivery/pages/DeliveryDetailsPage';
-
+import ReviewsPage from './features/feedback/pages/ReviewsPage';
 function App() {
   return (
     <div className="min-h-screen bg-gray-50">
@@ -73,7 +73,15 @@ function AuthRoutes() {
        </ProtectedRoute>
         } />
         <Route path="/" element={<Home/>}/>
-
+        {/* Add the ReviewsPage route, protected for drivers */}
+        <Route
+          path="/reviews"
+          element={
+            <ProtectedRoute allowedRoles={['driver', 'customer']}>
+              <ReviewsPage />
+            </ProtectedRoute>
+          }
+        />
         {/* Add more routes as needed */}
       </Routes>
     </main>
