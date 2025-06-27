@@ -1,13 +1,19 @@
 import express from 'express';
-import AuthController from '../controllers/AuthController.js';
+import AuthController, { sendOtp, verifyOtp } from '../controllers/AuthController.js'; // Import named exports
 
 const router = express.Router();
 
+// OTP related routes
+router.post('/send-otp', sendOtp);
+router.post('/verify-otp', verifyOtp);
+
 // Customer routes
+// These routes will now implicitly require OTP verification before client calls them
 router.post('/signup/customer', AuthController.registerCustomer);
 router.post('/login/customer', AuthController.loginCustomer);
 
 // Driver routes
+// These routes will now implicitly require OTP verification before client calls them
 router.post('/signup/driver', AuthController.registerDriver);
 router.post('/login/driver', AuthController.loginDriver);
 

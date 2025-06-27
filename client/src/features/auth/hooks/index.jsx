@@ -1,13 +1,16 @@
-import { useState } from 'react'; // No need for useEffect here anymore
+// client/src/features/auth/hooks/index.jsx
+import { useState, useEffect } from 'react';
 import {
   validateEmail,
   validatePassword,
-  validateUsername, // Ensure these new validators are imported
+  validateUsername,
   validateName,
   validatePhone,
-} from '../utils';
-import { useAuth } from '../../../contexts/AuthContext';
+  validateOtp // Make sure you have this validation function in your utils
+} from '../utils'; // Ensure these validation functions exist
+import { useAuth } from '../../../contexts/AuthContext'; // Ensure this path is correct
 import { toast } from 'react-hot-toast';
+import { verifyEmailOtp, resendEmailOtp, sendEmailOtpBackend } from '../api'; // NEW: sendEmailOtpBackend
 
 export function useAuthForm({
   defaultUsername = '',
@@ -18,251 +21,327 @@ export function useAuthForm({
   defaultRole = 'customer',
 } = {}) {
   const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState(defaultEmail);
-  const [password, setPassword] = useState(defaultPassword);
-  const [address, setAddress] = useState(''); // Keep for state, but not for initial signup validation
-  const [role, setRole] = useState(defaultRole); // No default role
-  const [showPassword, setShowPassword] = useState(false);
-  const [name, setName] = useState(defaultName);
-  const [username, setUsername] = useState(defaultUsername);
-  const [phone, setPhone] = useState(defaultPhone);
 
-  const [error, setError] = useState(null);
+  // Email verification step states
+  const [email, setEmail] = useState(defaultEmail);
   const [emailError, setEmailError] = useState('');
-  const [passwordError, setPasswordError] = useState('');
-  const [addressError, setAddressError] = useState(''); // This will likely remain empty for signup
-  const [nameError, setNameError] = useState('');
+  const [otp, setOtp] = useState('');
+  const [otpError, setOtpError] = useState('');
+  const [otpSent, setOtpSent] = useState(false); // True when OTP is sent
+  const [isEmailVerified, setIsEmailVerified] = useState(false); // True when email is successfully verified
+  const [otpResendTimer, setOtpResendTimer] = useState(0);
+  const [isSendingOtp, setIsSendingOtp] = useState(false); // For "Verify Email" button loader
+  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false); // For "Verify OTP" button loader
+
+  // Signup form states (after email verification)
+  const [username, setUsername] = useState(defaultUsername);
+  const [name, setName] = useState(defaultName);
+  const [password, setPassword] = useState(defaultPassword);
+  const [phone, setPhone] = useState(defaultPhone);
+  const [role, setRole] = useState(defaultRole);
+  const [showPassword, setShowPassword] = useState(false);
+
+  // General form errors
+  const [error, setError] = useState(null); // General error message for the form
   const [usernameError, setUsernameError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [nameError, setNameError] = useState('');
   const [phoneError, setPhoneError] = useState('');
 
-  const { isAuthenticated, user, login, register, logout } = useAuth();
+  const { isAuthenticated, user, login, register, logout, handleGoogleLogin } = useAuth(); // Assume handleGoogleLogin is from AuthContext
 
-  // --- Google OAuth Handler Integration ---
-  // Expose the correct Google handler for the form
-  const handleGoogleSignIn = () => {
-    if (!role || !['customer', 'driver', 'admin'].includes(role)) {
-      setError('Please select a valid role before logging in.');
-      return;
+  // Timer for OTP resend
+  useEffect(() => {
+    let timerInterval;
+    if (otpSent && otpResendTimer > 0) {
+      timerInterval = setInterval(() => {
+        setOtpResendTimer(prev => prev - 1);
+      }, 1000);
+    } else if (otpResendTimer === 0 && otpSent) {
+      clearInterval(timerInterval);
     }
-    handleGoogleLogin(role, null, (err) => setError(err));
+    return () => clearInterval(timerInterval);
+  }, [otpSent, otpResendTimer]);
+
+  const startOtpResendTimer = () => {
+    setOtpResendTimer(60); // 60 seconds countdown
+  };
+
+  const handleAuthSwitch = () => {
+    setIsLogin(prev => !prev);
+    // Clear all states when switching forms to ensure a clean slate
+    setEmail(defaultEmail);
+    setUsername(defaultUsername);
+    setName(defaultName);
+    setPassword(defaultPassword);
+    setPhone(defaultPhone);
+    setOtp('');
+    setOtpSent(false);
+    setIsEmailVerified(false);
+    setOtpResendTimer(0);
+    setError(null);
+    setEmailError('');
+    setUsernameError('');
+    setNameError('');
+    setPasswordError('');
+    setPhoneError('');
+    setOtpError('');
   };
 
   const handleEmailChange = (e) => {
     setEmail(e.target.value);
     setEmailError(validateEmail(e.target.value));
+    // If email changes after OTP was sent, reset verification state
+    if (otpSent || isEmailVerified) {
+      setOtpSent(false);
+      setIsEmailVerified(false);
+      setOtp('');
+      setOtpError('');
+      setOtpResendTimer(0);
+      setError(null);
+    }
   };
   const handlePasswordChange = (e) => {
     setPassword(e.target.value);
     setPasswordError(validatePassword(e.target.value));
   };
-  const handleAddressChange = (e) => {
-    setAddress(e.target.value);
-    // If address is NOT used for initial signup, you can simplify its error
-    setAddressError(''); // Or only validate if you decide to re-add it to initial signup requirements
-  };
   const handleRoleChange = (e) => setRole(e.target.value);
   const handleTogglePassword = () => setShowPassword((prev) => !prev);
   const handleNameChange = (e) => {
     setName(e.target.value);
-    setNameError(validateName(e.target.value)); // Add validation here
+    setNameError(validateName(e.target.value));
   };
   const handleUsernameChange = (e) => {
     setUsername(e.target.value);
-    // For login, allow username or email (just check not empty). For register, validate as username.
-    if (isLogin) {
-      setUsernameError(e.target.value ? '' : 'Username or Email is required.');
-    } else {
-      setUsernameError(validateUsername(e.target.value));
-    }
+    setUsernameError(validateUsername(e.target.value));
   };
   const handlePhoneChange = (e) => {
     setPhone(e.target.value);
-    setPhoneError(validatePhone(e.target.value)); // Add validation here
+    setPhoneError(validatePhone(e.target.value));
+  };
+  const handleOtpChange = (e) => {
+    setOtp(e.target.value);
+    // Validate OTP immediately as user types
+    if (e.target.value.length === 6) {
+      setOtpError(validateOtp(e.target.value));
+    } else {
+      setOtpError(''); // Clear error if not 6 digits yet
+    }
   };
 
+  // --- NEW: Handle Sending OTP for Email Verification ---
+  const handleSendOtp = async () => {
+    setError(null);
+    const currentEmailError = validateEmail(email);
+    setEmailError(currentEmailError);
+    if (currentEmailError) {
+      setError("Please enter a valid email address to send OTP.");
+      return;
+    }
+    if (!role || !['customer', 'driver'].includes(role)) { // Only customer/driver need OTP verification via this flow
+        setError('Please select a valid role (Customer or Driver) for verification.');
+        return;
+    }
+
+    setIsSendingOtp(true);
+    try {
+      // Calls the new backend endpoint to send OTP
+      const response = await sendEmailOtpBackend(email, role);
+      toast.success(response.message); // e.g., "OTP sent to your email."
+      setOtpSent(true);
+      startOtpResendTimer();
+    } catch (err) {
+      const errorMessage = err.response?.data?.error || 'Failed to send OTP. Please try again.';
+      setError(errorMessage);
+      toast.error(errorMessage);
+    } finally {
+      setIsSendingOtp(false);
+    }
+  };
+
+  // --- NEW: Handle Verifying OTP ---
+  const handleVerifyOtp = async () => {
+    setError(null);
+    const currentOtpError = validateOtp(otp);
+    setOtpError(currentOtpError);
+    if (currentOtpError) {
+      setError("Please enter a valid 6-digit OTP.");
+      return;
+    }
+
+    setIsVerifyingOtp(true);
+    try {
+      // Calls the backend endpoint to verify OTP
+      const response = await verifyEmailOtp(email, otp, role); // Make sure this API call exists
+      toast.success(response.message); // e.g., "Email successfully verified."
+      setIsEmailVerified(true);
+      setOtpSent(false); // Hide OTP input after success
+      setOtpResendTimer(0); // Stop timer
+      setOtp(''); // Clear OTP field
+    } catch (err) {
+      const errorMessage = err.response?.data?.error || 'OTP verification failed. Please try again.';
+      setError(errorMessage);
+      toast.error(errorMessage);
+    } finally {
+      setIsVerifyingOtp(false);
+    }
+  };
+
+  // --- NEW: Handle Resending OTP ---
+  const handleResendOtp = async () => {
+    setError(null);
+    setOtpError('');
+    if (otpResendTimer > 0) return; // Prevent resend if timer is active
+
+    setIsSendingOtp(true); // Re-use this for resend button loading
+    try {
+      // Calls the backend endpoint to resend OTP
+      const response = await resendEmailOtp(email, role); // Make sure this API call exists
+      toast.success(response.message); // "New OTP sent to your email."
+      startOtpResendTimer(); // Restart timer
+    } catch (err) {
+      const errorMessage = err.response?.data?.error || 'Failed to resend OTP.';
+      setError(errorMessage);
+      toast.error(errorMessage);
+    } finally {
+      setIsSendingOtp(false);
+    }
+  };
+
+
+  // Main form submission (for login or *after* email verification for signup)
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null); // Clear previous errors
+    setError(null);
 
-    // Trigger all relevant validations on submit
-    const currentUsernameError = validateUsername(username);
-    const currentPasswordError = validatePassword(password);
-    const currentEmailError = !isLogin ? validateEmail(email) : ''; // Email only for register
-    const currentNameError = !isLogin ? validateName(name) : ''; // Name only for register
-    const currentPhoneError = !isLogin ? validatePhone(phone) : ''; // Phone only for register
+    // If it's a login form
+    if (isLogin) {
+      const currentUsernameError = username ? '' : 'Username or Email is required.';
+      const currentPasswordError = validatePassword(password);
+      setUsernameError(currentUsernameError);
+      setPasswordError(currentPasswordError);
 
-    // Set errors to state
-    setUsernameError(currentUsernameError);
-    setPasswordError(currentPasswordError);
-    setEmailError(currentEmailError);
-    setNameError(currentNameError);
-    setPhoneError(currentPhoneError);
-    setAddressError(''); // Address is not required for initial signup, so clear any error
-
-    // Check if any errors exist
-    if (currentUsernameError || currentPasswordError || currentEmailError || currentNameError || currentPhoneError) {
-      setError("Please correct the form errors.");
-      return;
-    }
-
-    // In handleSubmit, add role validation
-    if (!role || !['customer', 'driver', 'admin'].includes(role)) {
-      setError('Please select a valid role.');
-      return;
-    }
-
-    try {
-        if (isLogin) {
-            await login({ username, password, role });
-            toast.success('Welcome back!');
-        } else {
-            // Ensure all required fields by backend are sent for registration
-            await register({ username, name, email, password, phone, role });
-            toast.success('Registration successful! You can now explore the website');
+      if (currentUsernameError || currentPasswordError) {
+        setError("Please correct the form errors.");
+        return;
+      }
+      try {
+        await login({ username, password, role });
+        toast.success('Welcome back!');
+      } catch (err) {
+        const errorMessage = err.response?.data?.error || err.message;
+        setError(errorMessage);
+        toast.error(errorMessage);
+        // If login failed due to unverified account, prompt for verification
+        if (err.response?.data?.requiresVerification && err.response?.data?.email) {
+            setEmail(err.response.data.email); // Set email for OTP step
+            setRole(err.response.data.role); // Set role from backend response if available
+            setIsLogin(false); // Switch to signup flow (verification part)
+            setOtpSent(false); // Ensure OTP input is shown if needed
+            setIsEmailVerified(false); // Make sure it's not marked as verified
+            setError("Your account is not verified. Please verify your email to log in.");
+            toast.info("Your account is not verified. Please verify your email to log in.");
         }
-        // Success state handled by AuthContext (isAuthenticated will update)
-    } catch (err) {
-        setError(err.message); // Error from AuthContext's login/register functions
-    }
-  };
-
-  // --- Google OAuth Popup Handler ---
-  const handleGoogleLogin = (role, onSuccess, onError) => {
-    if (!role || !['customer', 'driver', 'admin'].includes(role)) {
-      showResultModal(false, 'Please select a valid role before logging in.');
-      if (onError) onError('Please select a valid role before logging in.');
-      return;
-    }
-
-    const width = 500, height = 600;
-    const left = window.screenX + (window.outerWidth - width) / 2;
-    const top = window.screenY + (window.outerHeight - height) / 2;
-    const popup = window.open(
-      `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'}/api/auth/google?role=${role}`,
-      'GoogleLogin',
-      `width=${width},height=${height},left=${left},top=${top}`
-    );
-
-    function showResultModal(success, userOrMsg) {
-      // Remove any existing modal
-      const oldModal = document.getElementById('login-result-modal');
-      if (oldModal) oldModal.remove();
-      // Create modal
-      const modal = document.createElement('div');
-      modal.id = 'login-result-modal';
-      modal.style.position = 'fixed';
-      modal.style.top = '0';
-      modal.style.left = '0';
-      modal.style.width = '100vw';
-      modal.style.height = '100vh';
-      modal.style.background = 'rgba(0,0,0,0.3)';
-      modal.style.display = 'flex';
-      modal.style.alignItems = 'center';
-      modal.style.justifyContent = 'center';
-      modal.style.zIndex = '9999';
-      modal.innerHTML = success
-        ? `<div style='background:#fff;padding:2rem 2.5rem;border-radius:12px;box-shadow:0 4px 24px #0002;text-align:center;min-width:300px;'>
-            <h2 style='color:#16a34a;font-size:1.5rem;margin-bottom:0.5rem;'>Login Successful!</h2>
-            <div style='margin-bottom:1rem;'>Welcome, <b>${userOrMsg.name || userOrMsg.email || userOrMsg.username}</b><br/>Role: <b>${userOrMsg.role}</b></div>
-            <button id='close-login-modal' style='background:#16a34a;color:#fff;padding:0.5rem 1.5rem;border:none;border-radius:6px;font-size:1rem;cursor:pointer;'>OK</button>
-          </div>`
-        : `<div style='background:#fff;padding:2rem 2.5rem;border-radius:12px;box-shadow:0 4px 24px #0002;text-align:center;min-width:300px;'>
-            <h2 style='color:#dc2626;font-size:1.5rem;margin-bottom:0.5rem;'>Login Failed</h2>
-            <div style='margin-bottom:1rem;'>${userOrMsg}</div>
-            <button id='close-login-modal' style='background:#dc2626;color:#fff;padding:0.5rem 1.5rem;border:none;border-radius:6px;font-size:1rem;cursor:pointer;'>Close</button>
-          </div>`;
-      document.body.appendChild(modal);
-      document.getElementById('close-login-modal').onclick = () => {
-        modal.remove();
-        if (success) window.location.reload();
-      };
-    }
-
-    function receiveMessage(event) {
-      // Optionally check event.origin for security
-      if (event.data && event.data.token) {
-        localStorage.setItem('authToken', event.data.token);
-        // Fetch user profile from backend
-        fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'}/api/auth/me`, {
-          headers: { Authorization: `Bearer ${event.data.token}` }
-        })
-          .then(res => res.json())
-          .then(user => {
-            if (!user || !user.role) {
-              showResultModal(false, 'You are not logged in or not authorized.');
-              if (onError) onError('You are not logged in or not authorized.');
-              return;
-            }
-            localStorage.setItem('user', JSON.stringify(user));
-            showResultModal(true, user);
-            if (onSuccess) onSuccess(user);
-          })
-          .catch(() => {
-            showResultModal(false, 'Failed to fetch user profile.');
-            if (onError) onError('Failed to fetch user profile.');
-          });
-        window.removeEventListener('message', receiveMessage);
-        if (popup) popup.close();
-      } else if (event.data && event.data.error) {
-        showResultModal(false, event.data.error);
-        if (onError) onError(event.data.error);
-        window.removeEventListener('message', receiveMessage);
-        if (popup) popup.close();
       }
     }
-    window.addEventListener('message', receiveMessage);
+    // If it's a signup form AND email is verified
+    else if (!isLogin && isEmailVerified) {
+      const currentUsernameError = validateUsername(username);
+      const currentNameError = validateName(name);
+      const currentPasswordError = validatePassword(password);
+      const currentPhoneError = validatePhone(phone);
+
+      setUsernameError(currentUsernameError);
+      setNameError(currentNameError);
+      setPasswordError(currentPasswordError);
+      setPhoneError(currentPhoneError);
+
+      if (currentUsernameError || currentNameError || currentPasswordError || currentPhoneError) {
+        setError("Please correct the form errors.");
+        return;
+      }
+      try {
+        // Here, the backend register function should *not* send OTP, as email is already verified.
+        // It will receive isVerified: true from the frontend and save it.
+        await register({ username, name, email, password, phone, role });
+        toast.success('Registration successful! You can now log in.');
+        setIsLogin(true); // Go back to login form after successful registration
+        // Clear all fields for new login
+        setEmail(defaultEmail); setUsername(defaultUsername); setName(defaultName);
+        setPassword(defaultPassword); setPhone(defaultPhone); setOtp('');
+        setOtpSent(false); setIsEmailVerified(false); setOtpResendTimer(0);
+      } catch (err) {
+        const errorMessage = err.response?.data?.error || err.message;
+        setError(errorMessage);
+        toast.error(errorMessage);
+      }
+    } else {
+        // This case should ideally not be reached if the UI enforces steps
+        setError("Please complete the email verification first.");
+    }
   };
 
   const handleSignOut = () => {
     logout();
   };
 
-  // REFINED isFormValid LOGIC
-  const isFormValid = isLogin
-    ? ( // Login form: requires username or email and password, both valid
-        !usernameError && username &&
-        !passwordError && password
-      )
-    : ( // Registration form: requires username, name, email, password, phone, all valid
-        !usernameError && username &&
-        !nameError && name &&
-        !emailError && email &&
-        !passwordError && password &&
-        !phoneError && phone
-      );
+  // Determine if the main signup button should be enabled
+  const isSignupFormReady = !isLogin && isEmailVerified &&
+    !usernameError && username &&
+    !nameError && name &&
+    !passwordError && password &&
+    !phoneError && phone;
+
+  // Determine if the login form button should be enabled
+  const isLoginFormReady = isLogin &&
+    !usernameError && username &&
+    !passwordError && password;
+
+  const isFormValid = isLogin ? isLoginFormReady : isSignupFormReady; // Only enable signup if email is verified and other fields are valid
 
   return {
     isLogin,
-    setIsLogin,
+    setIsLogin: handleAuthSwitch, // Use the new handler to reset states properly
     email,
     password,
-    address,
     role,
     showPassword,
     error,
     isAuthenticated,
     userEmail: user?.email,
     userRole: user?.role,
-    emailError,
-    passwordError,
-    addressError, // Will mostly be empty now for signup
     name,
     username,
     phone,
     nameError,
     usernameError,
     phoneError,
+
+    // OTP and email verification states/handlers
+    otp,
+    otpError,
+    otpSent,
+    isEmailVerified,
+    otpResendTimer,
+    isSendingOtp, // Loading state for "Send OTP" and "Resend OTP"
+    isVerifyingOtp, // Loading state for "Verify OTP"
+
     handleEmailChange,
     handlePasswordChange,
-    handleAddressChange,
     handleRoleChange,
     handleTogglePassword,
     handleNameChange,
     handleUsernameChange,
     handlePhoneChange,
-    handleSubmit,
-    handleGoogleSignIn,
+    handleOtpChange, // For OTP input
+
+    handleSendOtp, // For "Verify Email" button
+    handleVerifyOtp, // For "Verify OTP" button
+    handleResendOtp, // For "Resend OTP" button
+
+    handleSubmit, // For final signup/login submit
+    handleGoogleSignIn: () => handleGoogleLogin(role, null, (err) => setError(err)), // Pass role to Google login
     handleSignOut,
-    isFormValid, // Now correctly reflects validity
+    isFormValid,
   };
 }
