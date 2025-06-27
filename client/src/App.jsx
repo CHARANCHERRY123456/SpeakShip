@@ -77,7 +77,7 @@ function AuthRoutes() {
         <Route
           path="/reviews"
           element={
-            <ProtectedRoute allowedRoles={['driver']}>
+            <ProtectedRoute allowedRoles={['driver', 'customer']}>
               <ReviewsPage />
             </ProtectedRoute>
           }
