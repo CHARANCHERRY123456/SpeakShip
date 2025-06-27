@@ -5,7 +5,7 @@ import FeaturesSection from './components/FeaturesSection';
 import HowItWorks from './components/HowItWorks';
 import StatsSection from './components/StatsSection';
 import Testimonials from './components/Testimonials';
-import CtaSection from './components/CtaSection';
+
 
 const HomePage = () => {
   return (
@@ -22,7 +22,7 @@ const HomePage = () => {
         <HowItWorks />
         <StatsSection />
         <Testimonials />
-        <CtaSection />
+      
       </main>
    
     </motion.div>
