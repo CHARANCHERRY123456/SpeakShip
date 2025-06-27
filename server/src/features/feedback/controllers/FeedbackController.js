@@ -54,6 +54,15 @@ const FeedbackController = {
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
+  },
+  getFeedbackForUser: async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const feedbacks = await FeedbackService.getFeedbackForUser(userId);
+      res.json(feedbacks);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
   }
 };
 
