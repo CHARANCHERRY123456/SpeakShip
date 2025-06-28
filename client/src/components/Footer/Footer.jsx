@@ -1,5 +1,32 @@
 import React from "react";
 
+// Heroicons SVGs for section titles
+const sectionIcons = {
+  Product: (
+    <svg className="inline-block w-6 h-6 mr-2 text-blue-300" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+      <path d="M12 6V3m0 3a9 9 0 1 0 9 9" />
+      <circle cx="12" cy="12" r="9" />
+    </svg>
+  ),
+  Platform: (
+    <svg className="inline-block w-6 h-6 mr-2 text-blue-300" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+      <path d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+    </svg>
+  ),
+  Support: (
+    <svg className="inline-block w-6 h-6 mr-2 text-blue-300" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+      <path d="M18 10c0-3.314-2.686-6-6-6S6 6.686 6 10c0 2.21 1.79 4 4 4h0c2.21 0 4-1.79 4-4z" />
+      <path d="M12 18h.01" />
+    </svg>
+  ),
+  Company: (
+    <svg className="inline-block w-6 h-6 mr-2 text-blue-300" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+      <path d="M3 21v-2a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v2" />
+      <circle cx="12" cy="7" r="4" />
+    </svg>
+  ),
+};
+
 const mascot =
   "https://cdn.dribbble.com/userupload/43435636/file/original-58ba2613383f6fa8e8e3f4e941e175c7.png?resize=400x0";
 
@@ -52,13 +79,16 @@ const footerLinks = [
 
 export default function Footer() {
   return (
-    <footer className="bg-gradient-to-r from-blue-700 to-blue-900 text-gray-100 pt-12 pb-6 px-4">
+    <footer className="bg-gradient-to-r from-blue-700 to-blue-900 text-gray-100 pt-12 pb-6 px-4 overflow-x-hidden">
       <div className="max-w-7xl mx-auto flex flex-col lg:flex-row lg:justify-between gap-12">
         {/* Left: Links */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 flex-1">
           {footerLinks.map((section) => (
             <div key={section.title}>
-              <h4 className="text-white font-bold text-lg md:text-2xl mb-4 tracking-wide">{section.title}</h4>
+              <h4 className="flex items-center text-white font-bold text-lg md:text-2xl mb-4 tracking-wide">
+                {sectionIcons[section.title]}
+                {section.title}
+              </h4>
               <ul className="space-y-2">
                 {section.links.map((link) => (
                   <li key={link}>
@@ -75,36 +105,37 @@ export default function Footer() {
           ))}
         </div>
         {/* Right: Mascot, Ship, Newsletter */}
-        <div className="flex flex-col items-center justify-between min-w-[220px]">
-          {/* Ship SVG with left-right animation */}
-          <div className="flex flex-col items-center mb-4">
-            <div className="relative flex items-center justify-center mb-2">
-              <span className="absolute w-28 h-28 rounded-full bg-white ring-4 ring-blue-400 drop-shadow-2xl"></span>
-              <svg
-                viewBox="0 0 80 80"
-                className="w-24 h-24 relative animate-ship-sail"
-                style={{ filter: "drop-shadow(0 8px 32px rgba(37,99,235,0.7))" }}
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                {/* Hull */}
-                <path
-                  d="M20 60 Q40 80 60 60 Z"
-                  fill="#2563eb"
-                  stroke="#1e40af"
-                  strokeWidth="2"
-                />
-                {/* Deck */}
-                <rect x="28" y="50" width="24" height="6" rx="2" fill="#3b82f6" />
-                {/* Mast */}
-                <rect x="39" y="26" width="2" height="24" fill="#1e293b" />
-                {/* Sail */}
-                <polygon points="40,28 40,48 60,48" fill="#60a5fa" />
-                {/* Flag */}
-                <polygon points="40,26 40,32 46,29" fill="#fbbf24" />
-                {/* Waves */}
-                <ellipse cx="40" cy="70" rx="18" ry="3" fill="#93c5fd" opacity="0.7" />
-              </svg>
+        <div className="flex flex-col items-center justify-between min-w-[220px] relative">
+          {/* Animated Ship */}
+          <div className="w-full h-40 mb-4 relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-full flex items-center">
+              <div className="relative ship-emoji-animate" style={{ width: 128 }}>
+                {/* White circle background */}
+                <div className="absolute left-0 right-0 top-0 bottom-0 m-auto w-32 h-32 rounded-full bg-white/90 z-0"></div>
+                {/* Cruise Ship SVG (emoji style) */}
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 72 72"
+                  className="w-32 h-32 relative z-10"
+                  style={{ filter: "drop-shadow(0 8px 32px rgba(37,99,235,0.7))" }}
+                >
+                  {/* Hull */}
+                  <path d="M10 52 Q36 70 62 52 L60 44 H12z" fill="#2563eb" stroke="#1e40af" strokeWidth="2" />
+                  {/* Deck */}
+                  <rect x="20" y="36" width="32" height="8" rx="2" fill="#93c5fd" />
+                  {/* Windows */}
+                  <circle cx="28" cy="40" r="1.5" fill="#fff" />
+                  <circle cx="36" cy="40" r="1.5" fill="#fff" />
+                  <circle cx="44" cy="40" r="1.5" fill="#fff" />
+                  {/* Cabin */}
+                  <rect x="30" y="28" width="12" height="8" rx="2" fill="#60a5fa" />
+                  {/* Chimneys */}
+                  <rect x="34" y="22" width="2" height="6" fill="#fbbf24" />
+                  <rect x="38" y="24" width="2" height="4" fill="#fbbf24" />
+                  {/* Waves */}
+                  <ellipse cx="36" cy="62" rx="22" ry="4" fill="#93c5fd" opacity="0.7" />
+                </svg>
+              </div>
             </div>
           </div>
           {/* Newsletter */}
@@ -152,6 +183,19 @@ export default function Footer() {
           </a>
         </div>
       </div>
+      {/* Ship animation keyframes */}
+      <style>{`
+        .ship-emoji-animate {
+          animation: ship-sail-emoji 8s linear infinite;
+        }
+        .ship-emoji-animate:hover {
+          animation-duration: 3s;
+        }
+        @keyframes ship-sail-emoji {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(100%); }
+        }
+      `}</style>
     </footer>
   );
 }
