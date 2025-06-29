@@ -1,4 +1,11 @@
-import { FaTruck, FaBoxOpen, FaStar, FaUser, FaSignOutAlt, FaChevronDown } from "react-icons/fa";
+import { 
+  FaTruck, 
+  FaBoxOpen, 
+  FaStar, 
+  FaUser, 
+  FaSignOutAlt, 
+  FaChevronDown 
+} from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../../contexts/AuthContext";
 import { useState, useEffect, useRef } from "react";
@@ -12,11 +19,11 @@ export const DriverNav = ({ onClose = () => {} }) => {
     return name ? name.charAt(0).toUpperCase() : '?';
   };
 
-  const toggleProfile = () => {
+  const toggleProfile = (e) => {
+    e.stopPropagation();
     setIsProfileOpen(!isProfileOpen);
   };
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -24,9 +31,9 @@ export const DriverNav = ({ onClose = () => {} }) => {
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("click", handleClickOutside);
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("click", handleClickOutside);
     };
   }, []);
 
@@ -55,7 +62,7 @@ export const DriverNav = ({ onClose = () => {} }) => {
         <FaStar className="mr-2" /> <span className="whitespace-nowrap">Reviews</span>
       </Link>
       
-      {/* Profile Dropdown - Matches CustomerNav style */}
+      {/* Profile Dropdown */}
       <div className="relative" ref={dropdownRef}>
         <button 
           onClick={toggleProfile}
@@ -69,11 +76,17 @@ export const DriverNav = ({ onClose = () => {} }) => {
           <span className="truncate max-w-[100px] sm:max-w-[150px]">
             {currentUser?.name || currentUser?.username}
           </span>
-          <FaChevronDown className={`ml-2 transition-transform flex-shrink-0 ${isProfileOpen ? 'transform rotate-180' : ''}`} />
+          <FaChevronDown className={`ml-2 transition-transform duration-200 flex-shrink-0 ${isProfileOpen ? 'rotate-180' : ''}`} />
         </button>
         
-        {/* Dropdown Menu */}
-        <div className={`${isProfileOpen ? 'block' : 'hidden'} absolute sm:right-0 mt-2 w-full sm:w-48 bg-white rounded-md shadow-lg z-50 border border-gray-200`}>
+        {/* Dropdown Menu - Visible on all screens */}
+        <div 
+          className={`
+            absolute left-0 right-0 mt-1 w-full sm:w-48
+            bg-white rounded-md shadow-lg z-[1000] border border-gray-200
+            ${isProfileOpen ? 'block' : 'hidden'}
+          `}
+        >
           <Link 
             to="/profile" 
             onClick={() => { onClose(); setIsProfileOpen(false); }}

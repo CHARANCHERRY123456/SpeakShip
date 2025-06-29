@@ -19,8 +19,9 @@ export const CustomerNav = ({ onClose = () => {} }) => {
     return name ? name.charAt(0).toUpperCase() : '?';
   };
 
-  const toggleProfile = () => {
-    setIsProfileOpen((prev) => !prev);
+  const toggleProfile = (e) => {
+    e.stopPropagation();
+    setIsProfileOpen(!isProfileOpen);
   };
 
   useEffect(() => {
@@ -30,9 +31,9 @@ export const CustomerNav = ({ onClose = () => {} }) => {
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("click", handleClickOutside);
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("click", handleClickOutside);
     };
   }, []);
 
@@ -63,8 +64,8 @@ export const CustomerNav = ({ onClose = () => {} }) => {
         <FaStar className="mr-2" /> <span className="whitespace-nowrap">Reviews</span>
       </Link>
 
-      {/* Profile Dropdown */}
-      <div className="relative w-full" ref={dropdownRef}>
+      {/* Profile Dropdown - Updated to match DriverNav */}
+      <div className="relative" ref={dropdownRef}>
         <button 
           onClick={toggleProfile}
           className="flex items-center px-3 py-2 hover:bg-sky-100 rounded-md text-white hover:text-sky-600 transition-colors w-full text-sm sm:text-base"
@@ -77,29 +78,31 @@ export const CustomerNav = ({ onClose = () => {} }) => {
           <span className="truncate max-w-[100px] sm:max-w-[150px]">
             {currentUser?.name || currentUser?.username}
           </span>
-          <FaChevronDown className={`ml-2 transition-transform flex-shrink-0 ${isProfileOpen ? 'rotate-180' : ''}`} />
+          <FaChevronDown className={`ml-2 transition-transform duration-200 flex-shrink-0 ${isProfileOpen ? 'rotate-180' : ''}`} />
         </button>
-
-        {/* Dropdown Menu */}
-        {isProfileOpen && (
-          <div 
-            className="absolute left-0 sm:right-0 mt-2 w-full sm:w-auto sm:min-w-[12rem] bg-white rounded-md shadow-lg z-50 border border-gray-200"
+        
+        {/* Dropdown Menu - Simplified and consistent with DriverNav */}
+        <div 
+          className={`
+            absolute left-0 right-0 mt-1 w-full sm:w-48
+            bg-white rounded-md shadow-lg z-[1000] border border-gray-200
+            ${isProfileOpen ? 'block' : 'hidden'}
+          `}
+        >
+          <Link 
+            to="/profile" 
+            onClick={() => { onClose(); setIsProfileOpen(false); }}
+            className="block px-4 py-2 text-gray-800 hover:bg-sky-50 hover:text-sky-600 flex items-center text-sm sm:text-base"
           >
-            <Link 
-              to="/profile" 
-              onClick={() => { onClose(); setIsProfileOpen(false); }}
-              className="block px-4 py-2 text-gray-800 hover:bg-sky-50 hover:text-sky-600 flex items-center text-sm sm:text-base"
-            >
-              <FaUser className="mr-2" /> View Profile
-            </Link>
-            <button 
-              onClick={() => { logout(); onClose(); setIsProfileOpen(false); }}
-              className="w-full text-left px-4 py-2 text-gray-800 hover:bg-red-50 hover:text-red-600 flex items-center text-sm sm:text-base"
-            >
-              <FaSignOutAlt className="mr-2" /> Logout
-            </button>
-          </div>
-        )}
+            <FaUser className="mr-2" /> View Profile
+          </Link>
+          <button 
+            onClick={() => { logout(); onClose(); setIsProfileOpen(false); }}
+            className="w-full text-left px-4 py-2 text-gray-800 hover:bg-red-50 hover:text-red-600 flex items-center text-sm sm:text-base"
+          >
+            <FaSignOutAlt className="mr-2" /> Logout
+          </button>
+        </div>
       </div>
     </>
   );
