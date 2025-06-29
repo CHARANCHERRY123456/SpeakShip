@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // You should set GEMINI_API_KEY in your environment variables
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
 export async function getGeminiPriceSuggestion({ pickupAddress, dropoffAddress, packageName, urgency }) {
   if (!GEMINI_API_KEY) throw new Error('Gemini API key not set');

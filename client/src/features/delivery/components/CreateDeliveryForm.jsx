@@ -1,5 +1,5 @@
 // src/features/delivery/components/CreateDeliveryForm.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MapPin, Package, Clock, DollarSign, Upload, X, Check, ArrowRight, ArrowLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from '../../../api/axios.js';
@@ -8,6 +8,7 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { toast } from 'react-hot-toast';
 import { STATUS_OPTIONS, DELIVERY_API_ROUTES } from '../constants';
 import MapAddressPicker from './MapAddressPicker';
+import { fetchGeminiPrice } from '../../../api/gemini';
 
 // MOVED OUTSIDE: Enhanced Input Component - now receives 'name' prop
 // Defining this component outside ensures it is not redefined on every render of CreateDeliveryForm,
@@ -106,12 +107,56 @@ const CreateDeliveryForm = () => {
   const [pickupPosition, setPickupPosition] = useState(null);
   const [dropoffPosition, setDropoffPosition] = useState(null);
 
+  const [geminiSuggestedPrice, setGeminiSuggestedPrice] = useState(null);
+  const [geminiPrompt, setGeminiPrompt] = useState('');
+  const [geminiRaw, setGeminiRaw] = useState('');
+  const [fetchingGemini, setFetchingGemini] = useState(false);
+
   const steps = [
     { number: 1, title: 'Customer & Package Details', icon: Package, color: 'from-blue-500 to-cyan-500' },
     { number: 2, title: 'Pickup Information', icon: MapPin, color: 'from-green-500 to-emerald-500' },
     { number: 3, title: 'Delivery Information', icon: MapPin, color: 'from-purple-500 to-pink-500' },
     { number: 4, title: 'Review & Confirm', icon: Check, color: 'from-orange-500 to-red-500' }
   ];
+
+  // Fetch Gemini price suggestion when relevant fields change
+  useEffect(() => {
+    async function getGeminiPrice() {
+      if (
+        formData.pickupAddress &&
+        formData.dropoffAddress &&
+        formData.packageName &&
+        formData.priorityLevel
+      ) {
+        setFetchingGemini(true);
+        try {
+          const result = await fetchGeminiPrice({
+            pickupAddress: formData.pickupAddress,
+            dropoffAddress: formData.dropoffAddress,
+            packageName: formData.packageName,
+            urgency: formData.priorityLevel,
+          });
+          setGeminiSuggestedPrice(result.suggestedPrice);
+          setGeminiPrompt(result.prompt);
+          setGeminiRaw(result.geminiRaw);
+          // If user hasn't overridden, update priceEstimate
+          setFormData(prev => ({
+            ...prev,
+            priceEstimate: prev.priceEstimate === 0 || prev.priceEstimate === prev.geminiSuggestedPrice ? result.suggestedPrice : prev.priceEstimate,
+            geminiSuggestedPrice: result.suggestedPrice,
+          }));
+        } catch (err) {
+          setGeminiSuggestedPrice(null);
+          setGeminiPrompt('');
+          setGeminiRaw('');
+        } finally {
+          setFetchingGemini(false);
+        }
+      }
+    }
+    getGeminiPrice();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formData.pickupAddress, formData.dropoffAddress, formData.packageName, formData.priorityLevel]);
 
   // Generic handleChange function for all text inputs
   const handleChange = (e) => {
