@@ -451,8 +451,8 @@ const CreateDeliveryForm = () => {
     </motion.div>
   );
 
-  // Step 3: Delivery Information
-  const renderDeliveryInformation = () => (
+  // Step 3: Urgency Selection
+  const renderUrgencySelection = () => (
     <motion.div 
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
@@ -462,68 +462,59 @@ const CreateDeliveryForm = () => {
     >
       <div className="text-center mb-8">
         <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-          <MapPin className="w-8 h-8 text-white" />
+          <Clock className="w-8 h-8 text-white" />
         </div>
         <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          Delivery Information
+          Select Delivery Urgency
         </h3>
         <p className="text-gray-600 dark:text-gray-400">
-          Where should we deliver your package?
+          Choose how fast you want your package delivered. This will affect the price.
         </p>
       </div>
-      
       <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-2xl p-8">
-        <div className="mb-8">
-          <EnhancedInput
-            label="Dropoff Address"
-            name="dropoffAddress"
-            value={formData.dropoffAddress}
-            onChange={(e) => handleLocationSearch(e.target.value, 'dropoff')} // Using specific handler for location
-            placeholder="Enter delivery address"
-            required
-            icon={MapPin}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <PriorityCard
+            level="Normal"
+            title="Standard"
+            description="Regular delivery speed"
+            multiplier="Base Price"
+            isSelected={formData.priorityLevel === 'Normal'}
+            onClick={() => {
+              const newPrice = calculatePrice(formData.distanceInKm, 'Normal');
+              setFormData(prev => ({ ...prev, priorityLevel: 'Normal', priceEstimate: newPrice }));
+            }}
+          />
+          <PriorityCard
+            level="Urgent"
+            title="Urgent"
+            description="Faster delivery"
+            multiplier="+50%"
+            isSelected={formData.priorityLevel === 'Urgent'}
+            onClick={() => {
+              const newPrice = calculatePrice(formData.distanceInKm, 'Urgent');
+              setFormData(prev => ({ ...prev, priorityLevel: 'Urgent', priceEstimate: newPrice }));
+            }}
+          />
+          <PriorityCard
+            level="Overnight"
+            title="Overnight"
+            description="Next day delivery"
+            multiplier="+100%"
+            isSelected={formData.priorityLevel === 'Overnight'}
+            onClick={() => {
+              const newPrice = calculatePrice(formData.distanceInKm, 'Overnight');
+              setFormData(prev => ({ ...prev, priorityLevel: 'Overnight', priceEstimate: newPrice }));
+            }}
           />
         </div>
-
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="bg-gradient-to-br from-blue-500 to-purple-600 p-8 rounded-2xl text-white"
-        >
-          <div className="flex items-center justify-between">
-            <div className="space-y-2">
-              <div className="flex items-center space-x-2">
-                <Clock className="w-5 h-5" />
-                <h4 className="text-xl font-bold">Delivery Estimates</h4>
-              </div>
-              <p className="text-blue-100">
-                Based on distance and priority level
-              </p>
-              <div className="flex items-center space-x-4 text-sm">
-                <span className="bg-white/20 px-3 py-1 rounded-full">
-                  📍 {formData.distanceInKm.toFixed(1)} km
-                </span>
-                <span className="bg-white/20 px-3 py-1 rounded-full">
-                  ⚡ {formData.priorityLevel}
-                </span>
-              </div>
-            </div>
-            <motion.div 
-              className="text-right"
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ type: "spring", stiffness: 300, delay: 0.3 }}
-            >
-              <div className="text-4xl font-bold mb-1">
-                ${formData.priceEstimate}
-              </div>
-              <div className="text-blue-100 text-sm">
-                Estimated Total
-              </div>
-            </motion.div>
+        <div className="mt-8 text-center">
+          <div className="text-2xl font-bold mb-2 text-gray-900 dark:text-white">
+            Estimated Price: <span className="text-blue-600 dark:text-blue-400">${formData.priceEstimate}</span>
           </div>
-        </motion.div>
+          <div className="text-gray-600 dark:text-gray-400 text-sm">
+            You can change urgency to see different prices.
+          </div>
+        </div>
       </div>
     </motion.div>
   );
@@ -704,7 +695,7 @@ const CreateDeliveryForm = () => {
     switch (currentStep) {
       case 1: return renderCustomerAndPackageDetails();
       case 2: return renderPickupAndDropoffMap();
-      case 3: return renderDeliveryInformation();
+      case 3: return renderUrgencySelection();
       case 4: return renderReviewAndConfirm();
       default: return null;
     }
