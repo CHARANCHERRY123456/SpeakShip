@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
 import { toast } from 'react-hot-toast';
 import { STATUS_OPTIONS, DELIVERY_API_ROUTES } from '../constants';
+import MapAddressPicker from './MapAddressPicker';
 
 // MOVED OUTSIDE: Enhanced Input Component - now receives 'name' prop
 // Defining this component outside ensures it is not redefined on every render of CreateDeliveryForm,
@@ -101,6 +102,9 @@ const CreateDeliveryForm = () => {
     priceEstimate: 0,
     distanceInKm: 0
   });
+
+  const [pickupPosition, setPickupPosition] = useState(null);
+  const [dropoffPosition, setDropoffPosition] = useState(null);
 
   const steps = [
     { number: 1, title: 'Customer & Package Details', icon: Package, color: 'from-blue-500 to-cyan-500' },
@@ -393,8 +397,8 @@ const CreateDeliveryForm = () => {
     </motion.div>
   );
 
-  // Step 2: Pickup Information
-  const renderPickupInformation = () => (
+  // Step 2: Pickup & Drop-off via Map
+  const renderPickupAndDropoffMap = () => (
     <motion.div 
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
@@ -407,44 +411,42 @@ const CreateDeliveryForm = () => {
           <MapPin className="w-8 h-8 text-white" />
         </div>
         <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          Pickup Information
+          Pickup & Drop-off Locations
         </h3>
         <p className="text-gray-600 dark:text-gray-400">
-          Where should we collect your package?
+          Select pickup and drop-off addresses using the map below.
         </p>
       </div>
-      
-      <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-2xl p-8">
-        <div className="mb-6">
+      <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-2xl p-4 md:p-8">
+        <MapAddressPicker
+          pickupPosition={pickupPosition}
+          setPickupPosition={latlng => {
+            setPickupPosition(latlng);
+          }}
+          dropoffPosition={dropoffPosition}
+          setDropoffPosition={latlng => {
+            setDropoffPosition(latlng);
+          }}
+          pickupAddress={formData.pickupAddress}
+          setPickupAddress={address => {
+            setFormData(prev => ({ ...prev, pickupAddress: address }));
+          }}
+          dropoffAddress={formData.dropoffAddress}
+          setDropoffAddress={address => {
+            setFormData(prev => ({ ...prev, dropoffAddress: address }));
+          }}
+        />
+        <div className="mt-6">
           <EnhancedInput
-            label="Pickup Address"
-            name="pickupAddress"
-            value={formData.pickupAddress}
-            onChange={(e) => handleLocationSearch(e.target.value, 'pickup')} // Using specific handler for location
-            placeholder="Enter pickup address"
+            label="Package Name"
+            name="packageName"
+            value={formData.packageName}
+            onChange={handleChange}
+            placeholder="What are you sending?"
             required
-            icon={MapPin}
+            icon={Package}
           />
         </div>
-
-        <motion.div>
-          <label htmlFor="note" className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
-            Special Instructions
-          </label>
-          <motion.textarea
-            id="note" // Add id for accessibility
-            whileHover={{ scale: 1.01 }}
-            name="note"
-            value={formData.note}
-            onChange={handleChange} // Using generic handleChange
-            rows={4}
-            className="w-full px-4 py-4 border-2 border-gray-200 dark:border-gray-600 rounded-xl 
-                        focus:ring-4 focus:ring-green-500/20 focus:border-green-500 
-                        dark:bg-gray-800 dark:text-white transition-all duration-300
-                        hover:border-gray-300 dark:hover:border-gray-500 resize-none"
-            placeholder="Building details, floor number, contact person, etc..."
-          />
-        </motion.div>
       </div>
     </motion.div>
   );
@@ -701,7 +703,7 @@ const CreateDeliveryForm = () => {
   const renderCurrentStepContent = () => {
     switch (currentStep) {
       case 1: return renderCustomerAndPackageDetails();
-      case 2: return renderPickupInformation();
+      case 2: return renderPickupAndDropoffMap();
       case 3: return renderDeliveryInformation();
       case 4: return renderReviewAndConfirm();
       default: return null;
