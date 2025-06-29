@@ -44,7 +44,7 @@ const FeaturesSection = () => {
   ];
 
   return (
-    <section id="features" className="py-12 sm:py-20 bg-gradient-to-br from-gray-50 to-blue-50">
+    <section id="features" className="py-12 sm:py-20 bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-gray-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div
@@ -83,14 +83,14 @@ const FeaturesSection = () => {
               viewport={{ once: true }}
               className="group"
             >
-              <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 flex flex-col h-full transform hover:-translate-y-2 border border-gray-100 hover:border-blue-100">
+              <div className="bg-white dark:!bg-white p-6 sm:p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 flex flex-col h-full transform hover:-translate-y-2 border border-gray-100 dark:border-gray-200 hover:border-blue-100 dark:hover:border-blue-200">
                 <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-r from-blue-500 to-blue-900 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                   <feature.icon className="w-5 h-5 sm:w-7 sm:h-7 text-white" />
                 </div>
-                <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-3">
+                <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:!text-gray-800 mb-3">
                   {feature.title}
                 </h3>
-                <p className="text-gray-600 text-sm sm:text-base">
+                <p className="text-gray-600 dark:!text-gray-700 text-sm sm:text-base">
                   {feature.description}
                 </p>
               </div>

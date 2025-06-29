@@ -96,7 +96,6 @@ const StatsSection = () => {
           viewport={{ once: true }}
           className="text-center mb-12 sm:mb-16"
         >
-       
           <motion.h2
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -126,18 +125,18 @@ const StatsSection = () => {
             >
               <div className="absolute inset-0 bg-gradient-to-br rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-0" />
               
-              <div className="relative z-10 h-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg dark:shadow-gray-800/20 p-6 sm:p-8 text-center transition-all duration-300 hover:shadow-xl hover:-translate-y-2 border border-gray-100 dark:border-gray-700">
+              <div className="relative z-10 h-full bg-white dark:!bg-white rounded-xl shadow-lg dark:shadow-gray-800/20 p-6 sm:p-8 text-center transition-all duration-300 hover:shadow-xl hover:-translate-y-2 border border-gray-100 dark:border-gray-200">
                 <div className={`w-16 h-16 mx-auto mb-5 rounded-full flex items-center justify-center bg-gradient-to-r ${stat.color} shadow-md transition-transform duration-300 group-hover:scale-110`}>
                   {stat.icon}
                 </div>
-                <div className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2 transition-colors duration-300">
+                <div className="text-2xl sm:text-3xl font-bold text-gray-900 dark:!text-gray-800 mb-2 transition-colors duration-300">
                   {stat.value}
                 </div>
 
-                <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2 transition-colors duration-300">
+                <h3 className="text-lg font-semibold text-gray-800 dark:!text-gray-700 mb-2 transition-colors duration-300">
                   {stat.label}
                 </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300">
+                <p className="text-sm text-gray-600 dark:!text-gray-600 transition-colors duration-300">
                   {stat.description}
                 </p>
               </div>
@@ -163,7 +162,7 @@ const StatsSection = () => {
                   transition={{ delay: 0.5 + item * 0.1 }}
                   src={`https://randomuser.me/api/portraits/${item % 2 === 0 ? 'women' : 'men'}/${item + 20}.jpg`}
                   alt="Customer"
-                  className="w-10 h-10 rounded-full border-2 border-white dark:border-gray-800"
+                  className="w-10 h-10 rounded-full border-2 border-white dark:border-gray-200"
                 />
               ))}
             </div>
