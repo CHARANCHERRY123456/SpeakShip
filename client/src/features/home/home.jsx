@@ -16,7 +16,7 @@ const HomePage = () => {
       className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-gray-800"
     >
     
-      <main className="flex-grow">
+      <main className="flex-grow wd-full">
         <HeroSection />
         <FeaturesSection />
         <HowItWorks />

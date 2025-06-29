@@ -13,21 +13,19 @@ const testimonials = [
     image: "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&h=200&q=80"
   },
   {
-  quote: "I've tried many delivery services, but QuickDelivery's tracking and reliability are the best.",
-  author: "Michael Chen",
-  role: "Frequent Customer",
-  rating: 5,
-  image: "https://images.unsplash.com/photo-1595152772835-219674b2a8a6?auto=format&fit=crop&w=200&h=200&q=80"
-},
-
-{
-  quote: "The customer service team resolved my issue in minutes. Highly recommend!",
-  author: "Emma Rodriguez",
-  role: "Online Seller",
-  rating: 4,
-  image: "https://images.unsplash.com/photo-1599566150163-29194dcaad36?auto=format&fit=crop&w=200&h=200&q=80"
-}
-
+    quote: "I've tried many delivery services, but QuickDelivery's tracking and reliability are the best.",
+    author: "Michael Chen",
+    role: "Frequent Customer",
+    rating: 5,
+    image: "https://images.unsplash.com/photo-1595152772835-219674b2a8a6?auto=format&fit=crop&w=200&h=200&q=80"
+  },
+  {
+    quote: "The customer service team resolved my issue in minutes. Highly recommend!",
+    author: "Emma Rodriguez",
+    role: "Online Seller",
+    rating: 4,
+    image: "https://images.unsplash.com/photo-1599566150163-29194dcaad36?auto=format&fit=crop&w=200&h=200&q=80"
+  }
 ];
 
 // Custom Arrows
@@ -94,8 +92,7 @@ const Testimonials = () => {
     <section className="py-16 md:py-24 bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          
-           <motion.h2
+          <motion.h2
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
@@ -109,10 +106,8 @@ const Testimonials = () => {
             transition={{ duration: 0.5, delay: 0.4 }}
             className="text-lg sm:text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto"
           >
-             Don't just take our word for it — hear from our satisfied customers
+            Don't just take our word for it — hear from our satisfied customers
           </motion.p>
-          
-          
         </div>
 
         <div className="relative px-4 sm:px-0">
@@ -125,18 +120,18 @@ const Testimonials = () => {
                 transition={{ duration: 0.5, delay: index * 0.2 }}
                 viewport={{ once: true }}
                 whileHover={{ y: -5, boxShadow: '0 12px 24px -8px rgba(0, 0, 0, 0.15)' }}
-                className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 flex flex-col mx-2 md:mx-4"
+                className="bg-white dark:!bg-white p-8 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 flex flex-col mx-2 md:mx-4"
               >
                 <div className="flex justify-center mb-6">
                   <motion.img
                     src={testimonial.image}
                     alt={testimonial.author}
-                    className="w-20 h-20 rounded-full object-cover border-4 border-white dark:border-gray-700 shadow-md"
+                    className="w-20 h-20 rounded-full object-cover border-4 border-white dark:border-gray-200 shadow-md"
                     whileHover={{ scale: 1.05 }}
                     transition={{ type: 'spring', stiffness: 300 }}
                   />
                 </div>
-                <div className="text-gray-600 dark:text-gray-300 italic mb-6 text-center">
+                <div className="text-gray-600 dark:text-gray-700 italic mb-6 text-center">
                   "{testimonial.quote}"
                 </div>
                 <div className="flex justify-center mb-4">
@@ -151,10 +146,10 @@ const Testimonials = () => {
                     </svg>
                   ))}
                 </div>
-                <div className="font-semibold text-gray-900 dark:text-white text-center text-lg">
+                <div className="font-semibold text-gray-900 dark:text-gray-800 text-center text-lg">
                   {testimonial.author}
                 </div>
-                <div className="text-gray-500 dark:text-gray-400 text-sm text-center">
+                <div className="text-gray-500 dark:text-gray-600 text-sm text-center">
                   {testimonial.role}
                 </div>
               </motion.div>
