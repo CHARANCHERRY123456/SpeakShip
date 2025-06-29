@@ -1,34 +1,31 @@
-import React from "react";
 
 // Heroicons SVGs for section titles
 const sectionIcons = {
   Product: (
-    <svg className="inline-block w-6 h-6 mr-2 text-blue-300" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+    <svg className="inline-block w-6 h-6 mr-2 text-blue-900" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
       <path d="M12 6V3m0 3a9 9 0 1 0 9 9" />
       <circle cx="12" cy="12" r="9" />
     </svg>
   ),
   Platform: (
-    <svg className="inline-block w-6 h-6 mr-2 text-blue-300" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+    <svg className="inline-block w-6 h-6 mr-2 text-blue-900" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
       <path d="M4 6h16M4 10h16M4 14h16M4 18h16" />
     </svg>
   ),
   Support: (
-    <svg className="inline-block w-6 h-6 mr-2 text-blue-300" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+    <svg className="inline-block w-6 h-6 mr-2 text-blue-900" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
       <path d="M18 10c0-3.314-2.686-6-6-6S6 6.686 6 10c0 2.21 1.79 4 4 4h0c2.21 0 4-1.79 4-4z" />
       <path d="M12 18h.01" />
     </svg>
   ),
   Company: (
-    <svg className="inline-block w-6 h-6 mr-2 text-blue-300" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+    <svg className="inline-block w-6 h-6 mr-2 text-blue-900" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
       <path d="M3 21v-2a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v2" />
       <circle cx="12" cy="7" r="4" />
     </svg>
   ),
 };
 
-const mascot =
-  "https://cdn.dribbble.com/userupload/43435636/file/original-58ba2613383f6fa8e8e3f4e941e175c7.png?resize=400x0";
 
 const footerLinks = [
   {
@@ -77,9 +74,9 @@ const footerLinks = [
   },
 ];
 
-export default function Footer() {
+const Footer=()=> {
   return (
-    <footer className="bg-gradient-to-r from-blue-700 to-blue-900 text-gray-100 pt-12 pb-6 px-4 overflow-x-hidden">
+    <footer className="bg-gradient-to-r from-blue-500 to-blue-800 text-gray-100 pt-12 pb-6 px-4 overflow-x-hidden">
       <div className="max-w-7xl mx-auto flex flex-col lg:flex-row lg:justify-between gap-12">
         {/* Left: Links */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 flex-1">
@@ -145,7 +142,7 @@ export default function Footer() {
               <input
                 type="email"
                 placeholder="Your email"
-                className="rounded-l-lg px-3 py-2 bg-blue-800 text-gray-100 placeholder:text-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                className="rounded-l-lg px-3 py-2 bg-blue-700 text-gray-100 placeholder:text-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-300"
               />
               <button
                 type="submit"
@@ -199,3 +196,4 @@ export default function Footer() {
     </footer>
   );
 }
+export default Footer;

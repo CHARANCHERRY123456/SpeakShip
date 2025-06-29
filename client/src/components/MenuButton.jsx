@@ -1,4 +1,5 @@
 import React from "react";
+import { Menu as MenuIcon } from "lucide-react";
 
 const MenuButton = ({ onClick }) => (
   <button
@@ -6,7 +7,7 @@ const MenuButton = ({ onClick }) => (
     aria-label="Toggle menu"
     onClick={onClick}
   >
-    Menu
+    <MenuIcon className="w-6 h-6" />
   </button>
 );
 
