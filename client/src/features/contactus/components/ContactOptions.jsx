@@ -11,12 +11,12 @@ const ContactOptions = () => {
     },
     {
       title: "Chat with our team",
-      buttonText: "Chat with Sales",
+      buttonText: "Chat with team",
       isButton: true,
     },
     {
-      title: "Get a product demo",
-      buttonText: "Get a demo",
+      title: "contact through mail",
+      buttonText: "support@gmail.com",
       isButton: true,
     },
   ];

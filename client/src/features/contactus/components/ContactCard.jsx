@@ -1,10 +1,10 @@
 import React from 'react';
-import { FaPhone, FaComments, FaDesktop } from 'react-icons/fa'; // Import icons for phone, chat, and demo
+import { FaPhone, FaComments, FaDesktop, FaMailBulk } from 'react-icons/fa'; // Import icons for phone, chat, and demo
 
 const icons = {
   "Call us directly": <FaPhone size={24} className="text-blue-600 mb-4" />,
   "Chat with our team": <FaComments size={24} className="text-blue-600 mb-4" />,
-  "Get a product demo": <FaDesktop size={24} className="text-blue-600 mb-4" />,
+  "contact through mail": <FaMailBulk size={24} className="text-blue-600 mb-4" />,
 };
 
 const ContactCard = ({ title, content, buttonText, isButton }) => {
