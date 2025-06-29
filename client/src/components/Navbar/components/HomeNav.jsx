@@ -4,14 +4,14 @@ import { Link } from "react-router-dom";
 export const HomeNav = ({ onClose = () => {} }) => (
   <>
     <Link 
-      to="/about" 
+      to="/aboutus" 
       onClick={onClose} 
       className="flex items-center px-3 py-2 hover:bg-sky-100 rounded-md text-white hover:text-sky-600 transition-colors"
     >
       <FaInfoCircle className="mr-2" /> About
     </Link>
     <Link 
-      to="/contact" 
+      to="/contactus" 
       onClick={onClose} 
       className="flex items-center px-3 py-2 hover:bg-sky-100 rounded-md text-white hover:text-sky-600 transition-colors"
     >
