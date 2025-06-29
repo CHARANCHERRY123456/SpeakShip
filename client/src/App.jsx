@@ -9,6 +9,8 @@ import VoicePage from './features/voice/pages';
 import { Toaster } from 'react-hot-toast';
 import LoginPage from './features/auth/pages';
 import Home from './features/home/home';
+import ContactUs from './features/contactus/index';
+import AboutUs from './features/aboutus/index';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import CustomerDeliveryPage from './features/delivery/pages/CustomerDeliveryPage';
 import DriverDeliveryPage from './features/delivery/pages/DriverDeliveryPage';
@@ -77,6 +79,8 @@ function AuthRoutes() {
             </ProtectedRoute>
           } />
           <Route path="/" element={<Home/>}/>
+          <Route path="/contactus" element={<ContactUs/>}/>
+          <Route path="/aboutus" element={<AboutUs/>}/>
           <Route
             path="/reviews"
             element={
