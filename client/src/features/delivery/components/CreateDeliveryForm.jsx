@@ -9,6 +9,11 @@ import { toast } from 'react-hot-toast';
 import { STATUS_OPTIONS, DELIVERY_API_ROUTES } from '../constants';
 import MapAddressPicker from './MapAddressPicker';
 import { fetchGeminiPrice } from '../../../api/gemini';
+import CustomerAndPackageStep from './CustomerAndPackageStep';
+import PickupDropoffStep from './PickupDropoffStep';
+import UrgencyStep from './UrgencyStep';
+import ReviewStep from './ReviewStep';
+import { calculatePrice, calculateDeliveryTimeEstimate } from '../deliveryUtils';
 
 // MOVED OUTSIDE: Enhanced Input Component - now receives 'name' prop
 // Defining this component outside ensures it is not redefined on every render of CreateDeliveryForm,
@@ -185,34 +190,6 @@ const CreateDeliveryForm = () => {
   };
   
 
-  const calculatePrice = (distance, priority) => {
-    const basePrice = 5 + (distance * 0.5);
-    const multipliers = {
-      'Normal': 1,
-      'Urgent': 1.5,
-      'Overnight': 2
-    };
-    return Math.round(basePrice * multipliers[priority] * 100) / 100;
-  };
-
-  const calculateDeliveryTimeEstimate = (distance, priority) => {
-    const now = new Date();
-    const hoursToAdd = {
-      'Normal': distance * 0.3,
-      'Urgent': distance * 0.2,
-      'Overnight': 24
-    };
-    
-    if (priority === 'Overnight') {
-      now.setDate(now.getDate() + 1);
-      now.setHours(9, 0, 0, 0);
-    } else {
-      now.setHours(now.getHours() + hoursToAdd[priority]);
-    }
-    
-    return now;
-  };
-
   // Form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -265,449 +242,449 @@ const CreateDeliveryForm = () => {
 
 
   // Step 1: Customer & Package Details
-  const renderCustomerAndPackageDetails = () => (
-    <motion.div 
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: -20 }}
-      transition={{ duration: 0.3 }}
-      className="space-y-8"
-    >
-      <div className="text-center mb-8">
-        <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-          <Package className="w-8 h-8 text-white" />
-        </div>
-        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          Customer & Package Details
-        </h3>
+  // const renderCustomerAndPackageDetails = () => (
+  //   <motion.div 
+  //     initial={{ opacity: 0, x: 20 }}
+  //     animate={{ opacity: 1, x: 0 }}
+  //     exit={{ opacity: 0, x: -20 }}
+  //     transition={{ duration: 0.3 }}
+  //     className="space-y-8"
+  //   >
+  //     <div className="text-center mb-8">
+  //       <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+  //         <Package className="w-8 h-8 text-white" />
+  //       </div>
+  //       <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+  //         Customer & Package Details
+  //       </h3>
         
-      </div>
+  //     </div>
       
-      <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-2xl p-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          <EnhancedInput
-            label="Your Name"
-            name="name"
-            value={formData.name}
-            onChange={handleChange} // Using generic handleChange
-            placeholder="Enter your full name"
-            required
-          />
+  //     <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-2xl p-8">
+  //       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+  //         <EnhancedInput
+  //           label="Your Name"
+  //           name="name"
+  //           value={formData.name}
+  //           onChange={handleChange} // Using generic handleChange
+  //           placeholder="Enter your full name"
+  //           required
+  //         />
           
-          <EnhancedInput
-            label="Your Email"
-            name="email"
-            type="email"
-            value={formData.email}
-            onChange={handleChange} // Using generic handleChange
-            placeholder="Enter your email address"
-            required
-          />
-        </div>
+  //         <EnhancedInput
+  //           label="Your Email"
+  //           name="email"
+  //           type="email"
+  //           value={formData.email}
+  //           onChange={handleChange} // Using generic handleChange
+  //           placeholder="Enter your email address"
+  //           required
+  //         />
+  //       </div>
 
-        <div className="mb-6">
-          <EnhancedInput
-            label="Phone Number"
-            name="phone"
-            type="tel"
-            value={formData.phone}
-            onChange={handleChange} // Using generic handleChange
-            placeholder="Enter your phone number"
-          />
-        </div>
+  //       <div className="mb-6">
+  //         <EnhancedInput
+  //           label="Phone Number"
+  //           name="phone"
+  //           type="tel"
+  //           value={formData.phone}
+  //           onChange={handleChange} // Using generic handleChange
+  //           placeholder="Enter your phone number"
+  //         />
+  //       </div>
 
-        <div className="mb-6">
-          <EnhancedInput
-            label="Package Name"
-            name="packageName"
-            value={formData.packageName}
-            onChange={handleChange} // Using generic handleChange
-            placeholder="What are you sending?"
-            required
-            icon={Package}
-          />
-        </div>
+  //       <div className="mb-6">
+  //         <EnhancedInput
+  //           label="Package Name"
+  //           name="packageName"
+  //           value={formData.packageName}
+  //           onChange={handleChange} // Using generic handleChange
+  //           placeholder="What are you sending?"
+  //           required
+  //           icon={Package}
+  //         />
+  //       </div>
 
-        {/* Enhanced Image Upload */}
-        <motion.div className="mb-6">
-          <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
-            Package Photo
-          </label>
-          <div className="flex items-start space-x-6">
-            <motion.div 
-              className="relative group"
-              whileHover={{ scale: 1.05 }}
-              transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            >
-              <img 
-                src={formData.photoPreviewUrl || 'https://placehold.co/100x100?text=No+Image'} // Use photoPreviewUrl for display
-                alt="Package preview" 
-                className="w-24 h-24 rounded-2xl object-cover border-4 border-white shadow-lg"
-              />
-              {formData.photoFile || (formData.photoPreviewUrl && formData.photoPreviewUrl !== 'https://housing.com/news/wp-content/uploads/2023/10/Top-10-courier-companies-in-India-ft.jpg') ? (
-                <motion.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  type="button"
-                  onClick={() => setFormData(prev => ({...prev, photoFile: null, photoPreviewUrl: 'https://housing.com/news/wp-content/uploads/2023/10/Top-10-courier-companies-in-India-ft.jpg'}))} // Reset both
-                  className="absolute -top-2 -right-2 w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center shadow-lg transition-colors"
-                >
-                  <X className="w-4 h-4" />
-                </motion.button>
-              ) : null}
-            </motion.div>
+  //       {/* Enhanced Image Upload */}
+  //       <motion.div className="mb-6">
+  //         <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
+  //           Package Photo
+  //         </label>
+  //         <div className="flex items-start space-x-6">
+  //           <motion.div 
+  //             className="relative group"
+  //             whileHover={{ scale: 1.05 }}
+  //             transition={{ type: "spring", stiffness: 300, damping: 30 }}
+  //           >
+  //             <img 
+  //               src={formData.photoPreviewUrl || 'https://placehold.co/100x100?text=No+Image'} // Use photoPreviewUrl for display
+  //               alt="Package preview" 
+  //               className="w-24 h-24 rounded-2xl object-cover border-4 border-white shadow-lg"
+  //             />
+  //             {formData.photoFile || (formData.photoPreviewUrl && formData.photoPreviewUrl !== 'https://housing.com/news/wp-content/uploads/2023/10/Top-10-courier-companies-in-India-ft.jpg') ? (
+  //               <motion.button
+  //                 whileHover={{ scale: 1.1 }}
+  //                 whileTap={{ scale: 0.9 }}
+  //                 type="button"
+  //                 onClick={() => setFormData(prev => ({...prev, photoFile: null, photoPreviewUrl: 'https://housing.com/news/wp-content/uploads/2023/10/Top-10-courier-companies-in-India-ft.jpg'}))} // Reset both
+  //                 className="absolute -top-2 -right-2 w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center shadow-lg transition-colors"
+  //               >
+  //                 <X className="w-4 h-4" />
+  //               </motion.button>
+  //             ) : null}
+  //           </motion.div>
             
-            <div className="flex-1">
-              <motion.label 
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="flex flex-col items-center justify-center px-6 py-8 bg-white dark:bg-gray-700 rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-600 cursor-pointer hover:border-blue-400 dark:hover:border-blue-500 transition-all duration-300 group"
-              >
-                <Upload className="w-8 h-1 text-gray-400 group-hover:text-blue-500 mb-2 transition-colors" />
-                <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400">
-                  {formData.photoFile || (formData.photoPreviewUrl && formData.photoPreviewUrl !== 'https://housing.com/news/wp-content/uploads/2023/10/Top-10-courier-companies-in-India-ft.jpg') ? 'Change Photo' : 'Upload Photo'}
-                </span>
-                <span className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  PNG, JPG up to 10MB
-                </span>
-                <input 
-                  type="file" 
-                  name="photo" // Use 'photo' as name, matches backend field
-                  className="hidden" 
-                  accept="image/*"
-                  onChange={(e) => {
-                    const file = e.target.files[0];
-                    if (file) {
-                      setFormData(prev => ({
-                        ...prev,
-                        photoFile: file,
-                        photoPreviewUrl: URL.createObjectURL(file) // Create URL for preview
-                      }));
-                    }
-                  }}
-                />
-              </motion.label>
-            </div>
-          </div>
-        </motion.div>
+  //           <div className="flex-1">
+  //             <motion.label 
+  //               whileHover={{ scale: 1.02 }}
+  //               whileTap={{ scale: 0.98 }}
+  //               className="flex flex-col items-center justify-center px-6 py-8 bg-white dark:bg-gray-700 rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-600 cursor-pointer hover:border-blue-400 dark:hover:border-blue-500 transition-all duration-300 group"
+  //             >
+  //               <Upload className="w-8 h-1 text-gray-400 group-hover:text-blue-500 mb-2 transition-colors" />
+  //               <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400">
+  //                 {formData.photoFile || (formData.photoPreviewUrl && formData.photoPreviewUrl !== 'https://housing.com/news/wp-content/uploads/2023/10/Top-10-courier-companies-in-India-ft.jpg') ? 'Change Photo' : 'Upload Photo'}
+  //               </span>
+  //               <span className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+  //                 PNG, JPG up to 10MB
+  //               </span>
+  //               <input 
+  //                 type="file" 
+  //                 name="photo" // Use 'photo' as name, matches backend field
+  //                 className="hidden" 
+  //                 accept="image/*"
+  //                 onChange={(e) => {
+  //                   const file = e.target.files[0];
+  //                   if (file) {
+  //                     setFormData(prev => ({
+  //                       ...prev,
+  //                       photoFile: file,
+  //                       photoPreviewUrl: URL.createObjectURL(file) // Create URL for preview
+  //                     }));
+  //                   }
+  //                 }}
+  //               />
+  //             </motion.label>
+  //           </div>
+  //         </div>
+  //       </motion.div>
 
-        {/* Enhanced Priority Selection */}
-        <div>
-          <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-4">
-            Priority Level <span className="text-red-500">*</span>
-          </label>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <PriorityCard
-              level="Normal"
-              title="Standard"
-              description="Regular delivery speed"
-              multiplier="Base Price"
-              isSelected={formData.priorityLevel === 'Normal'}
-              onClick={() => {
-                setFormData(prev => {
-                    const newPrice = calculatePrice(prev.distanceInKm, 'Normal');
-                    return {...prev, priorityLevel: 'Normal', priceEstimate: newPrice};
-                });
-              }}
-            />
-            <PriorityCard
-              level="Urgent"
-              title="Urgent"
-              description="Faster delivery"
-              multiplier="+50%"
-              isSelected={formData.priorityLevel === 'Urgent'}
-              onClick={() => {
-                setFormData(prev => {
-                    const newPrice = calculatePrice(prev.distanceInKm, 'Urgent');
-                    return {...prev, priorityLevel: 'Urgent', priceEstimate: newPrice};
-                });
-              }}
-            />
-            <PriorityCard
-              level="Overnight"
-              title="Overnight"
-              description="Next day delivery"
-              multiplier="+100%"
-              isSelected={formData.priorityLevel === 'Overnight'}
-              onClick={() => {
-                setFormData(prev => {
-                    const newPrice = calculatePrice(prev.distanceInKm, 'Overnight');
-                    return {...prev, priorityLevel: 'Overnight', priceEstimate: newPrice};
-                });
-              }}
-            />
-          </div>
-        </div>
-      </div>
-    </motion.div>
-  );
+  //       {/* Enhanced Priority Selection */}
+  //       <div>
+  //         <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-4">
+  //           Priority Level <span className="text-red-500">*</span>
+  //         </label>
+  //         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+  //           <PriorityCard
+  //             level="Normal"
+  //             title="Standard"
+  //             description="Regular delivery speed"
+  //             multiplier="Base Price"
+  //             isSelected={formData.priorityLevel === 'Normal'}
+  //             onClick={() => {
+  //               setFormData(prev => {
+  //                   const newPrice = calculatePrice(prev.distanceInKm, 'Normal');
+  //                   return {...prev, priorityLevel: 'Normal', priceEstimate: newPrice};
+  //               });
+  //             }}
+  //           />
+  //           <PriorityCard
+  //             level="Urgent"
+  //             title="Urgent"
+  //             description="Faster delivery"
+  //             multiplier="+50%"
+  //             isSelected={formData.priorityLevel === 'Urgent'}
+  //             onClick={() => {
+  //               setFormData(prev => {
+  //                   const newPrice = calculatePrice(prev.distanceInKm, 'Urgent');
+  //                   return {...prev, priorityLevel: 'Urgent', priceEstimate: newPrice};
+  //               });
+  //             }}
+  //           />
+  //           <PriorityCard
+  //             level="Overnight"
+  //             title="Overnight"
+  //             description="Next day delivery"
+  //             multiplier="+100%"
+  //             isSelected={formData.priorityLevel === 'Overnight'}
+  //             onClick={() => {
+  //               setFormData(prev => {
+  //                   const newPrice = calculatePrice(prev.distanceInKm, 'Overnight');
+  //                   return {...prev, priorityLevel: 'Overnight', priceEstimate: newPrice};
+  //               });
+  //             }}
+  //           />
+  //         </div>
+  //       </div>
+  //     </div>
+  //   </motion.div>
+  // );
 
   // Step 2: Pickup & Drop-off via Map
-  const renderPickupAndDropoffMap = () => (
-    <motion.div 
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: -20 }}
-      transition={{ duration: 0.3 }}
-      className="space-y-8"
-    >
-      <div className="text-center mb-8">
-        <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-          <MapPin className="w-8 h-8 text-white" />
-        </div>
-        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          Pickup & Drop-off Locations
-        </h3>
-        <p className="text-gray-600 dark:text-gray-400">
-          Select pickup and drop-off addresses using the map below.
-        </p>
-      </div>
-      <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-2xl p-4 md:p-8">
-        <MapAddressPicker
-          pickupPosition={pickupPosition}
-          setPickupPosition={latlng => {
-            setPickupPosition(latlng);
-          }}
-          dropoffPosition={dropoffPosition}
-          setDropoffPosition={latlng => {
-            setDropoffPosition(latlng);
-          }}
-          pickupAddress={formData.pickupAddress}
-          setPickupAddress={address => {
-            setFormData(prev => ({ ...prev, pickupAddress: address }));
-          }}
-          dropoffAddress={formData.dropoffAddress}
-          setDropoffAddress={address => {
-            setFormData(prev => ({ ...prev, dropoffAddress: address }));
-          }}
-        />
-        <div className="mt-6">
-          <EnhancedInput
-            label="Package Name"
-            name="packageName"
-            value={formData.packageName}
-            onChange={handleChange}
-            placeholder="What are you sending?"
-            required
-            icon={Package}
-          />
-        </div>
-      </div>
-    </motion.div>
-  );
+  // const renderPickupAndDropoffMap = () => (
+  //   <motion.div 
+  //     initial={{ opacity: 0, x: 20 }}
+  //     animate={{ opacity: 1, x: 0 }}
+  //     exit={{ opacity: 0, x: -20 }}
+  //     transition={{ duration: 0.3 }}
+  //     className="space-y-8"
+  //   >
+  //     <div className="text-center mb-8">
+  //       <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+  //         <MapPin className="w-8 h-8 text-white" />
+  //       </div>
+  //       <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+  //         Pickup & Drop-off Locations
+  //       </h3>
+  //       <p className="text-gray-600 dark:text-gray-400">
+  //         Select pickup and drop-off addresses using the map below.
+  //       </p>
+  //     </div>
+  //     <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-2xl p-4 md:p-8">
+  //       <MapAddressPicker
+  //         pickupPosition={pickupPosition}
+  //         setPickupPosition={latlng => {
+  //           setPickupPosition(latlng);
+  //         }}
+  //         dropoffPosition={dropoffPosition}
+  //         setDropoffPosition={latlng => {
+  //           setDropoffPosition(latlng);
+  //         }}
+  //         pickupAddress={formData.pickupAddress}
+  //         setPickupAddress={address => {
+  //           setFormData(prev => ({ ...prev, pickupAddress: address }));
+  //         }}
+  //         dropoffAddress={formData.dropoffAddress}
+  //         setDropoffAddress={address => {
+  //           setFormData(prev => ({ ...prev, dropoffAddress: address }));
+  //         }}
+  //       />
+  //       <div className="mt-6">
+  //         <EnhancedInput
+  //           label="Package Name"
+  //           name="packageName"
+  //           value={formData.packageName}
+  //           onChange={handleChange}
+  //           placeholder="What are you sending?"
+  //           required
+  //           icon={Package}
+  //         />
+  //       </div>
+  //     </div>
+  //   </motion.div>
+  // );
 
   // Step 3: Urgency Selection
-  const renderUrgencySelection = () => (
-    <motion.div 
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: -20 }}
-      transition={{ duration: 0.3 }}
-      className="space-y-8"
-    >
-      <div className="text-center mb-8">
-        <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-          <Clock className="w-8 h-8 text-white" />
-        </div>
-        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          Select Delivery Urgency
-        </h3>
-        <p className="text-gray-600 dark:text-gray-400">
-          Choose how fast you want your package delivered. This will affect the price.
-        </p>
-      </div>
-      <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-2xl p-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <PriorityCard
-            level="Normal"
-            title="Standard"
-            description="Regular delivery speed"
-            multiplier="Base Price"
-            isSelected={formData.priorityLevel === 'Normal'}
-            onClick={() => {
-              const newPrice = calculatePrice(formData.distanceInKm, 'Normal');
-              setFormData(prev => ({ ...prev, priorityLevel: 'Normal', priceEstimate: newPrice }));
-            }}
-          />
-          <PriorityCard
-            level="Urgent"
-            title="Urgent"
-            description="Faster delivery"
-            multiplier="+50%"
-            isSelected={formData.priorityLevel === 'Urgent'}
-            onClick={() => {
-              const newPrice = calculatePrice(formData.distanceInKm, 'Urgent');
-              setFormData(prev => ({ ...prev, priorityLevel: 'Urgent', priceEstimate: newPrice }));
-            }}
-          />
-          <PriorityCard
-            level="Overnight"
-            title="Overnight"
-            description="Next day delivery"
-            multiplier="+100%"
-            isSelected={formData.priorityLevel === 'Overnight'}
-            onClick={() => {
-              const newPrice = calculatePrice(formData.distanceInKm, 'Overnight');
-              setFormData(prev => ({ ...prev, priorityLevel: 'Overnight', priceEstimate: newPrice }));
-            }}
-          />
-        </div>
-        <div className="mt-8 text-center">
-          <div className="text-2xl font-bold mb-2 text-gray-900 dark:text-white">
-            Estimated Price: <span className="text-blue-600 dark:text-blue-400">${formData.priceEstimate}</span>
-          </div>
-          <div className="text-gray-600 dark:text-gray-400 text-sm">
-            You can change urgency to see different prices.
-          </div>
-        </div>
-      </div>
-    </motion.div>
-  );
+  // const renderUrgencySelection = () => (
+  //   <motion.div 
+  //     initial={{ opacity: 0, x: 20 }}
+  //     animate={{ opacity: 1, x: 0 }}
+  //     exit={{ opacity: 0, x: -20 }}
+  //     transition={{ duration: 0.3 }}
+  //     className="space-y-8"
+  //   >
+  //     <div className="text-center mb-8">
+  //       <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+  //         <Clock className="w-8 h-8 text-white" />
+  //       </div>
+  //       <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+  //         Select Delivery Urgency
+  //       </h3>
+  //       <p className="text-gray-600 dark:text-gray-400">
+  //         Choose how fast you want your package delivered. This will affect the price.
+  //       </p>
+  //     </div>
+  //     <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-2xl p-8">
+  //       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+  //         <PriorityCard
+  //           level="Normal"
+  //           title="Standard"
+  //           description="Regular delivery speed"
+  //           multiplier="Base Price"
+  //           isSelected={formData.priorityLevel === 'Normal'}
+  //           onClick={() => {
+  //             const newPrice = calculatePrice(formData.distanceInKm, 'Normal');
+  //             setFormData(prev => ({ ...prev, priorityLevel: 'Normal', priceEstimate: newPrice }));
+  //           }}
+  //         />
+  //         <PriorityCard
+  //           level="Urgent"
+  //           title="Urgent"
+  //           description="Faster delivery"
+  //           multiplier="+50%"
+  //           isSelected={formData.priorityLevel === 'Urgent'}
+  //           onClick={() => {
+  //             const newPrice = calculatePrice(formData.distanceInKm, 'Urgent');
+  //             setFormData(prev => ({ ...prev, priorityLevel: 'Urgent', priceEstimate: newPrice }));
+  //           }}
+  //         />
+  //         <PriorityCard
+  //           level="Overnight"
+  //           title="Overnight"
+  //           description="Next day delivery"
+  //           multiplier="+100%"
+  //           isSelected={formData.priorityLevel === 'Overnight'}
+  //           onClick={() => {
+  //             const newPrice = calculatePrice(formData.distanceInKm, 'Overnight');
+  //             setFormData(prev => ({ ...prev, priorityLevel: 'Overnight', priceEstimate: newPrice }));
+  //           }}
+  //         />
+  //       </div>
+  //       <div className="mt-8 text-center">
+  //         <div className="text-2xl font-bold mb-2 text-gray-900 dark:text-white">
+  //           Estimated Price: <span className="text-blue-600 dark:text-blue-400">${formData.priceEstimate}</span>
+  //         </div>
+  //         <div className="text-gray-600 dark:text-gray-400 text-sm">
+  //           You can change urgency to see different prices.
+  //         </div>
+  //       </div>
+  //     </div>
+  //   </motion.div>
+  // );
 
   // Step 4: Review & Confirm
-  const renderReviewAndConfirm = () => (
-    <motion.div 
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: -20 }}
-      transition={{ duration: 0.3 }}
-      className="space-y-8"
-    >
-      <div className="text-center mb-8">
-        <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-          <Check className="w-8 h-8 text-white" />
-        </div>
-        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          Review Your Order
-        </h3>
-        <p className="text-gray-600 dark:text-gray-400">
-          Please review all details before confirming
-        </p>
-      </div>
+  // const renderReviewAndConfirm = () => (
+  //   <motion.div 
+  //     initial={{ opacity: 0, x: 20 }}
+  //     animate={{ opacity: 1, x: 0 }}
+  //     exit={{ opacity: 0, x: -20 }}
+  //     transition={{ duration: 0.3 }}
+  //     className="space-y-8"
+  //   >
+  //     <div className="text-center mb-8">
+  //       <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+  //         <Check className="w-8 h-8 text-white" />
+  //       </div>
+  //       <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+  //         Review Your Order
+  //       </h3>
+  //       <p className="text-gray-600 dark:text-gray-400">
+  //         Please review all details before confirming
+  //       </p>
+  //     </div>
 
-      <div className="space-y-6">
-        {/* Customer & Package Info */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <motion.div 
-            whileHover={{ y: -2 }}
-            className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 p-6 rounded-2xl border border-blue-200 dark:border-blue-800"
-          >
-            <div className="flex items-center mb-4">
-              <div className="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center mr-3">
-                <Package className="w-5 h-5 text-white" />
-              </div>
-              <h4 className="font-bold text-gray-900 dark:text-white">Customer Details</h4>
-            </div>
-            <div className="space-y-2 text-sm">
-              <p className="text-gray-700 dark:text-gray-300"><span className="font-medium">Name:</span> {formData.name}</p>
-              <p className="text-gray-700 dark:text-gray-300"><span className="font-medium">Email:</span> {formData.email}</p>
-              <p className="text-gray-700 dark:text-gray-300"><span className="font-medium">Phone:</span> {formData.phone}</p>
-            </div>
-          </motion.div>
+  //     <div className="space-y-6">
+  //       {/* Customer & Package Info */}
+  //       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+  //         <motion.div 
+  //           whileHover={{ y: -2 }}
+  //           className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 p-6 rounded-2xl border border-blue-200 dark:border-blue-800"
+  //         >
+  //           <div className="flex items-center mb-4">
+  //             <div className="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center mr-3">
+  //               <Package className="w-5 h-5 text-white" />
+  //             </div>
+  //             <h4 className="font-bold text-gray-900 dark:text-white">Customer Details</h4>
+  //           </div>
+  //           <div className="space-y-2 text-sm">
+  //             <p className="text-gray-700 dark:text-gray-300"><span className="font-medium">Name:</span> {formData.name}</p>
+  //             <p className="text-gray-700 dark:text-gray-300"><span className="font-medium">Email:</span> {formData.email}</p>
+  //             <p className="text-gray-700 dark:text-gray-300"><span className="font-medium">Phone:</span> {formData.phone}</p>
+  //           </div>
+  //         </motion.div>
 
-          <motion.div 
-            whileHover={{ y: -2 }}
-            className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 p-6 rounded-2xl border border-green-200 dark:border-green-800"
-          >
-            <div className="flex items-center mb-4">
-              <div className="w-10 h-10 bg-green-500 rounded-xl flex items-center justify-center mr-3">
-                <Package className="w-5 h-5 text-white" />
-              </div>
-              <h4 className="font-bold text-gray-900 dark:text-white">Package Details</h4>
-            </div>
-            <div className="space-y-2 text-sm">
-              <p className="text-gray-700 dark:text-gray-300">
-                <span className="font-medium">Item:</span> {formData.packageName}
-              </p>
-              <p className="text-gray-700 dark:text-gray-300">
-                <span className="font-medium">Priority:</span> {formData.priorityLevel}
-              </p>
-              <div className="flex items-center mt-3">
-                <img src={formData.photoPreviewUrl || 'https://placehold.co/100x100?text=No+Image'} alt="Package" className="w-12 h-12 rounded-lg object-cover" /> {/* Use photoPreviewUrl for display */}
-              </div>
-            </div>
-          </motion.div>
-        </div>
+  //         <motion.div 
+  //           whileHover={{ y: -2 }}
+  //           className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 p-6 rounded-2xl border border-green-200 dark:border-green-800"
+  //         >
+  //           <div className="flex items-center mb-4">
+  //             <div className="w-10 h-10 bg-green-500 rounded-xl flex items-center justify-center mr-3">
+  //               <Package className="w-5 h-5 text-white" />
+  //             </div>
+  //             <h4 className="font-bold text-gray-900 dark:text-white">Package Details</h4>
+  //           </div>
+  //           <div className="space-y-2 text-sm">
+  //             <p className="text-gray-700 dark:text-gray-300">
+  //               <span className="font-medium">Item:</span> {formData.packageName}
+  //             </p>
+  //             <p className="text-gray-700 dark:text-gray-300">
+  //               <span className="font-medium">Priority:</span> {formData.priorityLevel}
+  //             </p>
+  //             <div className="flex items-center mt-3">
+  //               <img src={formData.photoPreviewUrl || 'https://placehold.co/100x100?text=No+Image'} alt="Package" className="w-12 h-12 rounded-lg object-cover" /> {/* Use photoPreviewUrl for display */}
+  //             </div>
+  //           </div>
+  //         </motion.div>
+  //       </div>
 
-        {/* Addresses */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <motion.div 
-            whileHover={{ y: -2 }}
-            className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 p-6 rounded-2xl border border-purple-200 dark:border-purple-800"
-          >
-            <div className="flex items-center mb-4">
-              <div className="w-10 h-10 bg-purple-500 rounded-xl flex items-center justify-center mr-3">
-                <MapPin className="w-5 h-5 text-white" />
-              </div>
-              <h4 className="font-bold text-gray-900 dark:text-white">Pickup Location</h4>
-            </div>
-            <p className="text-gray-700 dark:text-gray-300 text-sm mb-3">{formData.pickupAddress}</p>
-            {formData.note && (
-              <div className="bg-white/50 dark:bg-gray-800/50 p-3 rounded-lg">
-                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Instructions:</p>
-                <p className="text-sm text-gray-600 dark:text-gray-300">{formData.note}</p>
-              </div>
-            )}
-          </motion.div>
+  //       {/* Addresses */}
+  //       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+  //         <motion.div 
+  //           whileHover={{ y: -2 }}
+  //           className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 p-6 rounded-2xl border border-purple-200 dark:border-purple-800"
+  //         >
+  //           <div className="flex items-center mb-4">
+  //             <div className="w-10 h-10 bg-purple-500 rounded-xl flex items-center justify-center mr-3">
+  //               <MapPin className="w-5 h-5 text-white" />
+  //             </div>
+  //             <h4 className="font-bold text-gray-900 dark:text-white">Pickup Location</h4>
+  //           </div>
+  //           <p className="text-gray-700 dark:text-gray-300 text-sm mb-3">{formData.pickupAddress}</p>
+  //           {formData.note && (
+  //             <div className="bg-white/50 dark:bg-gray-800/50 p-3 rounded-lg">
+  //               <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Instructions:</p>
+  //               <p className="text-sm text-gray-600 dark:text-gray-300">{formData.note}</p>
+  //             </div>
+  //           )}
+  //         </motion.div>
 
-          <motion.div 
-            whileHover={{ y: -2 }}
-            className="bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 p-6 rounded-2xl border border-orange-200 dark:border-orange-800"
-          >
-            <div className="flex items-center mb-4">
-              <div className="w-10 h-10 bg-orange-500 rounded-xl flex items-center justify-center mr-3">
-                <MapPin className="w-5 h-5 text-white" />
-              </div>
-              <h4 className="font-bold text-gray-900 dark:text-white">Delivery Location</h4>
-            </div>
-            <p className="text-gray-700 dark:text-gray-300 text-sm">{formData.dropoffAddress}</p>
-          </motion.div>
-        </div>
+  //         <motion.div 
+  //           whileHover={{ y: -2 }}
+  //           className="bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 p-6 rounded-2xl border border-orange-200 dark:border-orange-800"
+  //         >
+  //           <div className="flex items-center mb-4">
+  //             <div className="w-10 h-10 bg-orange-500 rounded-xl flex items-center justify-center mr-3">
+  //               <MapPin className="w-5 h-5 text-white" />
+  //             </div>
+  //             <h4 className="font-bold text-gray-900 dark:text-white">Delivery Location</h4>
+  //           </div>
+  //           <p className="text-gray-700 dark:text-gray-300 text-sm">{formData.dropoffAddress}</p>
+  //         </motion.div>
+  //       </div>
 
-        {/* Final Summary */}
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.2 }}
-          className="bg-gradient-to-br from-gray-900 to-gray-800 dark:from-gray-100 dark:to-gray-200 p-8 rounded-2xl text-white dark:text-gray-900"
-        >
-          <div className="flex items-center justify-between">
-            <div className="space-y-3">
-              <div className="flex items-center space-x-3">
-                <DollarSign className="w-6 h-6" />
-                <h4 className="text-2xl font-bold">Order Summary</h4>
-              </div>
-              <p className="text-gray-300 dark:text-gray-600">
-                Estimated delivery: {calculateDeliveryTimeEstimate(formData.distanceInKm, formData.priorityLevel).toLocaleDateString()} at {calculateDeliveryTimeEstimate(formData.distanceInKm, formData.priorityLevel).toLocaleTimeString()}
-              </p>
-              <div className="flex items-center space-x-4 text-sm">
-                <span className="bg-white/20 dark:bg-gray-800/20 px-3 py-1 rounded-full">
-                  📦 {formData.packageName}
-                </span>
-                <span className="bg-white/20 dark:bg-gray-800/20 px-3 py-1 rounded-full">
-                  📍 {formData.distanceInKm.toFixed(1)} km
-                </span>
-                <span className="bg-white/20 dark:bg-gray-800/20 px-3 py-1 rounded-full">
-                  ⚡ {formData.priorityLevel}
-                </span>
-              </div>
-            </div>
-            <motion.div 
-              className="text-right"
-              whileHover={{ scale: 1.05 }}
-            >
-              <div className="text-5xl font-bold mb-2">
-                ${formData.priceEstimate}
-              </div>
-              <div className="text-gray-300 dark:text-gray-600 text-sm">
-                Total Amount
-              </div>
-            </motion.div>
-          </div>
-        </motion.div>
-      </div>
-    </motion.div>
-  );
+  //       {/* Final Summary */}
+  //       <motion.div 
+  //         initial={{ opacity: 0, scale: 0.95 }}
+  //         animate={{ opacity: 1, scale: 1 }}
+  //         transition={{ delay: 0.2 }}
+  //         className="bg-gradient-to-br from-gray-900 to-gray-800 dark:from-gray-100 dark:to-gray-200 p-8 rounded-2xl text-white dark:text-gray-900"
+  //       >
+  //         <div className="flex items-center justify-between">
+  //           <div className="space-y-3">
+  //             <div className="flex items-center space-x-3">
+  //               <DollarSign className="w-6 h-6" />
+  //               <h4 className="text-2xl font-bold">Order Summary</h4>
+  //             </div>
+  //             <p className="text-gray-300 dark:text-gray-600">
+  //               Estimated delivery: {calculateDeliveryTimeEstimate(formData.distanceInKm, formData.priorityLevel).toLocaleDateString()} at {calculateDeliveryTimeEstimate(formData.distanceInKm, formData.priorityLevel).toLocaleTimeString()}
+  //             </p>
+  //             <div className="flex items-center space-x-4 text-sm">
+  //               <span className="bg-white/20 dark:bg-gray-800/20 px-3 py-1 rounded-full">
+  //                 📦 {formData.packageName}
+  //               </span>
+  //               <span className="bg-white/20 dark:bg-gray-800/20 px-3 py-1 rounded-full">
+  //                 📍 {formData.distanceInKm.toFixed(1)} km
+  //               </span>
+  //               <span className="bg-white/20 dark:bg-gray-800/20 px-3 py-1 rounded-full">
+  //                 ⚡ {formData.priorityLevel}
+  //               </span>
+  //             </div>
+  //           </div>
+  //           <motion.div 
+  //             className="text-right"
+  //             whileHover={{ scale: 1.05 }}
+  //           >
+  //             <div className="text-5xl font-bold mb-2">
+  //               ${formData.priceEstimate}
+  //             </div>
+  //             <div className="text-gray-300 dark:text-gray-600 text-sm">
+  //               Total Amount
+  //             </div>
+  //           </motion.div>
+  //         </div>
+  //       </motion.div>
+  //     </div>
+  //   </motion.div>
+  // );
 
   // Form Navigation
   const goToNextStep = () => {
@@ -738,10 +715,46 @@ const CreateDeliveryForm = () => {
   // Render current step content (renamed from renderStepContent for clarity)
   const renderCurrentStepContent = () => {
     switch (currentStep) {
-      case 1: return renderCustomerAndPackageDetails();
-      case 2: return renderPickupAndDropoffMap();
-      case 3: return renderUrgencySelection();
-      case 4: return renderReviewAndConfirm();
+      case 1:
+        return (
+          <CustomerAndPackageStep
+            formData={formData}
+            setFormData={setFormData}
+            handleChange={handleChange}
+            calculatePrice={calculatePrice}
+            EnhancedInput={EnhancedInput}
+            PriorityCard={PriorityCard}
+          />
+        );
+      case 2:
+        return (
+          <PickupDropoffStep
+            pickupPosition={pickupPosition}
+            setPickupPosition={setPickupPosition}
+            dropoffPosition={dropoffPosition}
+            setDropoffPosition={setDropoffPosition}
+            formData={formData}
+            setFormData={setFormData}
+            handleChange={handleChange}
+            EnhancedInput={EnhancedInput}
+          />
+        );
+      case 3:
+        return (
+          <UrgencyStep
+            formData={formData}
+            setFormData={setFormData}
+            calculatePrice={calculatePrice}
+            PriorityCard={PriorityCard}
+          />
+        );
+      case 4:
+        return (
+          <ReviewStep
+            formData={formData}
+            calculateDeliveryTimeEstimate={calculateDeliveryTimeEstimate}
+          />
+        );
       default: return null;
     }
   };
