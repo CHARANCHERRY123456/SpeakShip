@@ -4,6 +4,7 @@ import authRoutes from './features/auth/routes/index.js';
 import deliveryRoutes from './features/delivery/routes/index.js';
 import feedbackRoutes from './features/feedback/routes.js';
 import profileRoutes from './features/profile/routes/index.js';
+import priceRoutes from './features/delivery/routes/price.js';
 import cors from 'cors';
 import passport from './features/auth/services/GoogleStrategy.js';
 import path from 'path';
@@ -33,6 +34,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/delivery', deliveryRoutes);
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/profile', profileRoutes);
+app.use('/api/price', priceRoutes);
 
 
 
