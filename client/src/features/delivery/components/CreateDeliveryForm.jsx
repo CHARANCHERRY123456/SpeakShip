@@ -320,25 +320,26 @@ const CreateDeliveryForm = () => {
 
       {/* Progress Tracker */}
       <div className="mb-10 relative">
-        <div className="flex justify-between items-center relative z-10">
-          {steps.map((step) => (
-            <div key={step.number} className="flex flex-col items-center flex-1 relative">
-              <div 
-                className={`w-12 h-12 rounded-full flex items-center justify-center 
-                  font-bold text-white text-lg transition-all duration-300 ease-in-out
+        <div className="w-full overflow-x-auto">
+          <div className="flex justify-between items-center relative z-10 whitespace-nowrap">
+            {steps.map((step) => (
+              <div key={step.number} className="flex flex-col items-center flex-1 min-w-[110px] relative flex-shrink-0">
+                <div 
+                  className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-white text-lg transition-all duration-300 ease-in-out
                   ${currentStep >= step.number 
                     ? `bg-gradient-to-br ${step.color} shadow-lg` 
                     : 'bg-gray-300 dark:bg-gray-600'
                   }`}
-              >
-                {currentStep > step.number ? <Check className="w-6 h-6" /> : step.number}
+                >
+                  {currentStep > step.number ? <Check className="w-6 h-6" /> : step.number}
+                </div>
+                <p className={`mt-2 text-center text-sm md:text-base font-semibold whitespace-nowrap transition-colors duration-300
+                  ${currentStep >= step.number ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'}`}>
+                  {step.title}
+                </p>
               </div>
-              <p className={`mt-2 text-center text-sm md:text-base font-semibold whitespace-nowrap transition-colors duration-300
-                ${currentStep >= step.number ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'}`}>
-                {step.title}
-              </p>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
         {/* Progress Line */}
         <div className="absolute top-6 left-0 right-0 h-1 bg-gray-200 dark:bg-gray-700 z-0">
