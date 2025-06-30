@@ -100,41 +100,21 @@ const ReviewStep = ({ formData, calculateDeliveryTimeEstimate }) => (
       <motion.div 
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.2 }}
-        className="bg-gradient-to-br from-gray-900 to-gray-800 dark:from-gray-100 dark:to-gray-200 p-8 rounded-2xl text-white dark:text-gray-900"
+        exit={{ opacity: 0, scale: 0.95 }}
+        transition={{ duration: 0.3 }}
+        className="bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 p-6 rounded-2xl border border-orange-200 dark:border-orange-800 mt-8"
       >
-        <div className="flex items-center justify-between">
-          <div className="space-y-3">
-            <div className="flex items-center space-x-3">
-              <DollarSign className="w-6 h-6" />
-              <h4 className="text-2xl font-bold">Order Summary</h4>
-            </div>
-            <p className="text-gray-300 dark:text-gray-600">
-              Estimated delivery: {calculateDeliveryTimeEstimate(formData.distanceInKm, formData.priorityLevel).toLocaleDateString()} at {calculateDeliveryTimeEstimate(formData.distanceInKm, formData.priorityLevel).toLocaleTimeString()}
-            </p>
-            <div className="flex items-center space-x-4 text-sm">
-              <span className="bg-white/20 dark:bg-gray-800/20 px-3 py-1 rounded-full">
-                📦 {formData.packageName}
-              </span>
-              <span className="bg-white/20 dark:bg-gray-800/20 px-3 py-1 rounded-full">
-                📍 {formData.distanceInKm.toFixed(1)} km
-              </span>
-              <span className="bg-white/20 dark:bg-gray-800/20 px-3 py-1 rounded-full">
-                ⚡ {formData.priorityLevel}
-              </span>
-            </div>
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div className="flex items-center gap-2 text-lg font-bold text-gray-900 dark:text-white">
+            Total Estimate:
+            <span className="text-blue-600 dark:text-blue-400">₹{formData.priceEstimate}</span>
           </div>
-          <motion.div 
-            className="text-right"
-            whileHover={{ scale: 1.05 }}
-          >
-            <div className="text-5xl font-bold mb-2">
-              ${formData.priceEstimate}
-            </div>
-            <div className="text-gray-300 dark:text-gray-600 text-sm">
-              Total Amount
-            </div>
-          </motion.div>
+          <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+            Est. Delivery Time:
+            <span className="font-semibold text-gray-900 dark:text-white">
+              {formData.deliveryTimeEstimate ? new Date(formData.deliveryTimeEstimate).toLocaleString() : 'N/A'}
+            </span>
+          </div>
         </div>
       </motion.div>
     </div>
