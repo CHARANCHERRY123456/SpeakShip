@@ -1,9 +1,6 @@
 import axios from 'axios';
+import config from '../../../config/config.js';
 import { PRICE_PER_KM, WEIGHT_MULTIPLIER } from '../priceConstants.js';
-
-// You should set GEMINI_API_KEY in your environment variables
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
 // Helper: fallback distance calculation (very rough, for demo)
 function fallbackDistanceKm(pickup, dropoff) {
@@ -41,14 +38,15 @@ function calculateDeliveryTimeEstimate(distance, urgency) {
 }
 
 export async function getGeminiPriceSuggestion({ pickupAddress, dropoffAddress, packageName, urgency, weight }) {
-  if (!GEMINI_API_KEY) throw new Error('Gemini API key not set');
+  if (!config.GEMINI_API_KEY) throw new Error('Gemini API key not set');
+  if (!config.GEMINI_API_URL) throw new Error('Gemini API URL not set');
 
   // Build a prompt for Gemini
   const prompt = `Estimate the distance in kilometers only as a number.\nPickup: ${pickupAddress}\nDrop-off: ${dropoffAddress}`;
 
   try {
     const response = await axios.post(
-      `${GEMINI_API_URL}?key=${GEMINI_API_KEY}`,
+      `${config.GEMINI_API_URL}?key=${config.GEMINI_API_KEY}`,
       {
         contents: [{ parts: [{ text: prompt }] }]
       },
@@ -56,8 +54,7 @@ export async function getGeminiPriceSuggestion({ pickupAddress, dropoffAddress, 
         headers: { 'Content-Type': 'application/json' }
       }
     );
-    // Log Gemini's raw response for debugging
-    console.log('Gemini API raw response:', JSON.stringify(response.data, null, 2));
+
     // Parse Gemini's response
     const text = response.data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
     // Try to extract distance
@@ -77,7 +74,6 @@ export async function getGeminiPriceSuggestion({ pickupAddress, dropoffAddress, 
     };
   } catch (err) {
     // On Gemini error, fallback to random distance and null price
-    console.error('Gemini API error:', err);
     const fallbackDistance = fallbackDistanceKm(pickupAddress, dropoffAddress);
     const price = calculateDeliveryPrice({ distance: fallbackDistance, urgency, weight });
     const deliveryTimeEstimate = calculateDeliveryTimeEstimate(fallbackDistance, urgency);
