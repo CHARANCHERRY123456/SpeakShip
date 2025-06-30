@@ -53,7 +53,7 @@ const ContactHeader = () => {
                     initial={{ opacity: 0, x: -20 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.5, delay: 0.2 }}
-                    className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4"
+                    className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-black mb-4"
                   >
                      Contact <span className="bg-gradient-to-r from-blue-500 to-blue-900 bg-clip-text text-transparent"> Speakship </span>Support
         </motion.h2>
@@ -61,7 +61,7 @@ const ContactHeader = () => {
       
       <motion.p 
         variants={itemVariants}
-        className="text-lg sm:text-xl text-gray-600 dark:text-gray-300 max-w-4xl mx-auto 
+        className="text-lg sm:text-xl text-gray-600 dark:text-black max-w-4xl mx-auto 
                   leading-relaxed transition-colors duration-300"
       >
         Our dedicated team is available 24/7 to assist with any delivery concerns. Whether you're tracking a package, 
