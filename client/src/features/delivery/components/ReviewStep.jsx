@@ -23,100 +23,90 @@ const ReviewStep = ({ formData, calculateDeliveryTimeEstimate }) => (
     </div>
     <div className="space-y-6">
       {/* Customer & Package Info */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6">
-        <motion.div 
-          whileHover={{ y: -2 }}
-          className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 p-4 md:p-6 rounded-2xl border border-blue-200 dark:border-blue-800"
-        >
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 md:p-6">
           <div className="flex items-center mb-3 md:mb-4">
-            <div className="w-8 h-8 md:w-10 md:h-10 bg-blue-500 rounded-xl flex items-center justify-center mr-2 md:mr-3">
-              <Package className="w-5 h-5 text-white" />
-            </div>
-            <h4 className="font-bold text-base md:text-lg text-gray-900 dark:text-white">Customer Details</h4>
+            <span className="w-8 h-8 md:w-10 md:h-10 bg-blue-100 rounded-xl flex items-center justify-center mr-2 md:mr-3">
+              <Package className="w-5 h-5 text-blue-600" />
+            </span>
+            <h4 className="font-bold text-base md:text-lg text-blue-900">Customer Details</h4>
           </div>
           <div className="space-y-1 md:space-y-2 text-xs md:text-sm">
-            <p className="text-gray-700 dark:text-gray-300 break-words"><span className="font-medium">Name:</span> {formData.name}</p>
-            <p className="text-gray-700 dark:text-gray-300 break-words"><span className="font-medium">Email:</span> {formData.email}</p>
-            <p className="text-gray-700 dark:text-gray-300 break-words"><span className="font-medium">Phone:</span> {formData.phone}</p>
+            <p className="text-blue-900 break-words"><span className="font-medium">Name:</span> {formData.name}</p>
+            <p className="text-blue-900 break-words"><span className="font-medium">Email:</span> {formData.email}</p>
+            <p className="text-blue-900 break-words"><span className="font-medium">Phone:</span> {formData.phone}</p>
           </div>
-        </motion.div>
-        <motion.div 
-          whileHover={{ y: -2 }}
-          className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 p-4 md:p-6 rounded-2xl border border-green-200 dark:border-green-800"
-        >
+        </div>
+        <div className="bg-green-50 border border-green-200 rounded-xl p-4 md:p-6">
           <div className="flex items-center mb-3 md:mb-4">
-            <div className="w-8 h-8 md:w-10 md:h-10 bg-green-500 rounded-xl flex items-center justify-center mr-2 md:mr-3">
-              <Package className="w-5 h-5 text-white" />
-            </div>
-            <h4 className="font-bold text-base md:text-lg text-gray-900 dark:text-white">Package Details</h4>
+            <span className="w-8 h-8 md:w-10 md:h-10 bg-green-100 rounded-xl flex items-center justify-center mr-2 md:mr-3">
+              <Package className="w-5 h-5 text-green-600" />
+            </span>
+            <h4 className="font-bold text-base md:text-lg text-green-900">Package Details</h4>
           </div>
           <div className="space-y-1 md:space-y-2 text-xs md:text-sm">
-            <p className="text-gray-700 dark:text-gray-300 break-words">
-              <span className="font-medium">Item:</span> {formData.packageName}
-            </p>
-            <p className="text-gray-700 dark:text-gray-300 break-words">
-              <span className="font-medium">Priority:</span> {formData.priorityLevel}
-            </p>
+            <p className="text-green-900 break-words">
+              <span className="font-medium">Item:</span> {formData.packageName}</p>
+            <p className="text-green-900 break-words">
+              <span className="font-medium">Priority:</span> {formData.priorityLevel}</p>
             <div className="flex items-center mt-2 md:mt-3">
               <img src={formData.photoPreviewUrl || 'https://placehold.co/100x100?text=No+Image'} alt="Package" className="w-10 h-10 md:w-12 md:h-12 rounded-lg object-cover" />
             </div>
           </div>
-        </motion.div>
+        </div>
       </div>
       {/* Addresses */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6">
-        <motion.div 
-          whileHover={{ y: -2 }}
-          className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 p-4 md:p-6 rounded-2xl border border-purple-200 dark:border-purple-800"
-        >
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="bg-purple-50 border border-purple-200 rounded-xl p-4 md:p-6">
           <div className="flex items-center mb-3 md:mb-4">
-            <div className="w-8 h-8 md:w-10 md:h-10 bg-purple-500 rounded-xl flex items-center justify-center mr-2 md:mr-3">
-              <MapPin className="w-5 h-5 text-white" />
-            </div>
-            <h4 className="font-bold text-base md:text-lg text-gray-900 dark:text-white">Pickup Location</h4>
+            <span className="w-8 h-8 md:w-10 md:h-10 bg-purple-100 rounded-xl flex items-center justify-center mr-2 md:mr-3">
+              <MapPin className="w-5 h-5 text-purple-600" />
+            </span>
+            <h4 className="font-bold text-base md:text-lg text-purple-900">Pickup Location</h4>
           </div>
-          <p className="text-gray-700 dark:text-gray-300 text-xs md:text-sm mb-2 md:mb-3 break-words">{formData.pickupAddress}</p>
+          <p className="text-purple-900 text-xs md:text-sm mb-2 md:mb-3 break-words">{formData.pickupAddress}</p>
           {formData.note && (
-            <div className="bg-white/50 dark:bg-gray-800/50 p-2 md:p-3 rounded-lg">
-              <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Instructions:</p>
-              <p className="text-xs md:text-sm text-gray-600 dark:text-gray-300 break-words">{formData.note}</p>
+            <div className="bg-white/60 p-2 md:p-3 rounded-lg">
+              <p className="text-xs font-medium text-purple-700 mb-1">Instructions:</p>
+              <p className="text-xs md:text-sm text-purple-900 break-words">{formData.note}</p>
             </div>
           )}
-        </motion.div>
-        <motion.div 
-          whileHover={{ y: -2 }}
-          className="bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 p-4 md:p-6 rounded-2xl border border-orange-200 dark:border-orange-800"
-        >
+        </div>
+        <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 md:p-6">
           <div className="flex items-center mb-3 md:mb-4">
-            <div className="w-8 h-8 md:w-10 md:h-10 bg-orange-500 rounded-xl flex items-center justify-center mr-2 md:mr-3">
-              <MapPin className="w-5 h-5 text-white" />
-            </div>
-            <h4 className="font-bold text-base md:text-lg text-gray-900 dark:text-white">Delivery Location</h4>
+            <span className="w-8 h-8 md:w-10 md:h-10 bg-orange-100 rounded-xl flex items-center justify-center mr-2 md:mr-3">
+              <MapPin className="w-5 h-5 text-orange-600" />
+            </span>
+            <h4 className="font-bold text-base md:text-lg text-orange-900">Delivery Location</h4>
           </div>
-          <p className="text-gray-700 dark:text-gray-300 text-xs md:text-sm break-words">{formData.dropoffAddress}</p>
-        </motion.div>
+          <p className="text-orange-900 text-xs md:text-sm break-words">{formData.dropoffAddress}</p>
+        </div>
       </div>
       {/* Final Summary */}
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.95 }}
-        transition={{ duration: 0.3 }}
-        className="bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 p-4 md:p-6 rounded-2xl border border-orange-200 dark:border-orange-800 mt-6 md:mt-8"
-      >
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 md:gap-4 flex-wrap">
-          <div className="flex items-center gap-1 md:gap-2 text-base md:text-lg font-bold text-gray-900 dark:text-white flex-wrap">
-            Total Estimate:
-            <span className="text-blue-600 dark:text-blue-400 truncate">₹{formData.priceEstimate}</span>
-          </div>
-          <div className="flex items-center gap-1 md:gap-2 text-xs md:text-sm text-gray-600 dark:text-gray-400 flex-wrap">
-            Est. Delivery Time:
-            <span className="font-semibold text-gray-900 dark:text-white truncate">
-              {formData.deliveryTimeEstimate ? new Date(formData.deliveryTimeEstimate).toLocaleString() : 'N/A'}
-            </span>
-          </div>
+      <div className="bg-white border border-gray-200 rounded-xl p-4 mt-6 md:mt-8 shadow-md flex flex-col gap-4">
+        <div className="flex items-center gap-2">
+          <DollarSign className="w-6 h-6 text-green-500" />
+          <span className="text-lg font-bold text-gray-900">Order Summary</span>
         </div>
-      </motion.div>
+        <div className="flex flex-wrap gap-2">
+          <span className="bg-gray-100 text-gray-800 rounded-full px-3 py-1 text-sm flex items-center gap-1">
+            <Package className="w-4 h-4" /> {formData.packageName}
+          </span>
+          <span className="bg-gray-100 text-gray-800 rounded-full px-3 py-1 text-sm flex items-center gap-1">
+            {formData.distanceInKm ? `${formData.distanceInKm.toFixed(1)} km` : '0.0 km'}
+          </span>
+          <span className="bg-gray-100 text-gray-800 rounded-full px-3 py-1 text-sm flex items-center gap-1">
+            {formData.priorityLevel}
+          </span>
+        </div>
+        <div className="flex items-center justify-between mt-2">
+          <div className="text-base text-gray-600">Total Amount</div>
+          <div className="text-3xl font-extrabold text-green-600">₹{formData.priceEstimate}</div>
+        </div>
+        <div className="text-sm text-gray-500 mt-1">
+          Estimated delivery: {formData.deliveryTimeEstimate ? new Date(formData.deliveryTimeEstimate).toLocaleString() : 'N/A'}
+        </div>
+      </div>
     </div>
   </motion.div>
 );

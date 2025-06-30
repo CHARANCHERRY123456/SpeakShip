@@ -270,152 +270,205 @@ const CreateDeliveryForm = () => {
     switch (currentStep) {
       case 1:
         return (
-          <CustomerAndPackageStep
-            formData={formData}
-            setFormData={setFormData}
-            handleChange={handleChange}
-            calculatePrice={calculatePrice}
-            EnhancedInput={EnhancedInput}
-            PriorityCard={PriorityCard}
-          />
+          <motion.div className="bg-white dark:bg-gray-900 shadow-md rounded-xl border border-gray-200 dark:border-gray-800 p-4 md:p-6">
+            <CustomerAndPackageStep
+              formData={formData}
+              setFormData={setFormData}
+              handleChange={handleChange}
+              calculatePrice={calculatePrice}
+              EnhancedInput={EnhancedInput}
+              PriorityCard={PriorityCard}
+            />
+          </motion.div>
         );
       case 2:
         return (
-          <PickupDropoffStep
-            pickupPosition={pickupPosition}
-            setPickupPosition={setPickupPosition}
-            dropoffPosition={dropoffPosition}
-            setDropoffPosition={setDropoffPosition}
-            formData={formData}
-            setFormData={setFormData}
-            handleChange={handleChange}
-            EnhancedInput={EnhancedInput}
-          />
+          <motion.div className="bg-white dark:bg-gray-900 shadow-md rounded-xl border border-gray-200 dark:border-gray-800 p-4 md:p-6">
+            <PickupDropoffStep
+              pickupPosition={pickupPosition}
+              setPickupPosition={setPickupPosition}
+              dropoffPosition={dropoffPosition}
+              setDropoffPosition={setDropoffPosition}
+              formData={formData}
+              setFormData={setFormData}
+              handleChange={handleChange}
+              EnhancedInput={EnhancedInput}
+            />
+          </motion.div>
         );
       case 3:
         return (
-          <UrgencyStep
-            formData={formData}
-            setFormData={setFormData}
-            calculatePrice={calculatePrice}
-            PriorityCard={PriorityCard}
-          />
+          <motion.div className="bg-white dark:bg-gray-900 shadow-md rounded-xl border border-gray-200 dark:border-gray-800 p-4 md:p-6">
+            <UrgencyStep
+              formData={formData}
+              setFormData={setFormData}
+              calculatePrice={calculatePrice}
+              PriorityCard={PriorityCard}
+            />
+          </motion.div>
         );
       case 4:
         return (
-          <ReviewStep
-            formData={formData}
-            calculateDeliveryTimeEstimate={calculateDeliveryTimeEstimate}
-          />
+          <motion.div className="bg-white dark:bg-gray-900 shadow-md rounded-xl border border-gray-200 dark:border-gray-800 p-4 md:p-6">
+            <ReviewStep
+              formData={formData}
+              calculateDeliveryTimeEstimate={calculateDeliveryTimeEstimate}
+            />
+          </motion.div>
         );
       default: return null;
     }
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700">
-      <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white text-center mb-8">
-        Create New Delivery Request
-      </h2>
+    <div className="min-h-screen w-full bg-gray-50 dark:bg-gray-950 flex flex-col justify-center items-center py-8">
+      <div className="max-w-4xl w-full mx-auto p-0 md:p-6 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+        <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white text-center mb-8">
+          Create New Delivery Request
+        </h2>
 
-      {/* Progress Tracker */}
-      <div className="mb-10 relative">
-        <div className="w-full overflow-x-auto">
-          <div className="flex justify-between items-center relative z-10 whitespace-nowrap">
-            {steps.map((step) => (
-              <div key={step.number} className="flex flex-col items-center flex-1 min-w-[60px] md:min-w-[110px] relative flex-shrink-0">
-                <div 
-                  className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center font-bold text-white text-lg transition-all duration-300 ease-in-out ${currentStep >= step.number ? `bg-gradient-to-br ${step.color} shadow-lg` : 'bg-gray-300 dark:bg-gray-600'}`}
-                >
-                  {step.icon ? <step.icon className="w-5 h-5 md:w-6 md:h-6" /> : (currentStep > step.number ? <Check className="w-6 h-6" /> : step.number)}
+        {/* Progress Tracker */}
+        <div className="mb-10 relative">
+          <div className="w-full overflow-x-auto">
+            <div className="flex justify-between items-center relative z-10 whitespace-nowrap">
+              {steps.map((step) => (
+                <div key={step.number} className="flex flex-col items-center flex-1 min-w-[60px] md:min-w-[110px] relative flex-shrink-0">
+                  <div 
+                    className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center font-bold text-white text-lg transition-all duration-300 ease-in-out ${currentStep >= step.number ? `bg-gradient-to-br ${step.color} shadow-lg` : 'bg-gray-300 dark:bg-gray-600'}`}
+                  >
+                    {step.icon ? <step.icon className="w-5 h-5 md:w-6 md:h-6" /> : (currentStep > step.number ? <Check className="w-6 h-6" /> : step.number)}
+                  </div>
+                  <span className={`hidden md:inline mt-2 text-center text-sm md:text-base font-semibold whitespace-nowrap transition-colors duration-300 ${currentStep >= step.number ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'}`}
+                    title={step.title}
+                  >
+                    {step.title}
+                  </span>
                 </div>
-                <span className={`hidden md:inline mt-2 text-center text-sm md:text-base font-semibold whitespace-nowrap transition-colors duration-300 ${currentStep >= step.number ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'}`}
-                  title={step.title}
-                >
-                  {step.title}
-                </span>
-              </div>
-            ))}
+              ))}
+            </div>
+          </div>
+          {/* Progress Line */}
+          <div className="absolute top-5 md:top-6 left-0 right-0 h-1 bg-gray-200 dark:bg-gray-700 z-0">
+            <motion.div
+              className="h-full bg-sky-500 rounded-full"
+              initial={{ width: 0 }}
+              animate={{ width: `${((currentStep - 1) / (steps.length - 1)) * 100}%` }}
+              transition={{ duration: 0.5, ease: "easeInOut" }}
+            />
           </div>
         </div>
-        {/* Progress Line */}
-        <div className="absolute top-5 md:top-6 left-0 right-0 h-1 bg-gray-200 dark:bg-gray-700 z-0">
-          <motion.div
-            className="h-full bg-sky-500 rounded-full"
-            initial={{ width: 0 }}
-            animate={{ width: `${((currentStep - 1) / (steps.length - 1)) * 100}%` }}
-            transition={{ duration: 0.5, ease: "easeInOut" }}
-          />
-        </div>
+
+        <form 
+          onSubmit={e => {
+            handleSubmit(e);
+          }}
+          onKeyDown={e => {
+            if (e.key === 'Enter' && currentStep !== steps.length) {
+              e.preventDefault();
+            }
+          }}
+        >
+          <AnimatePresence mode="wait">
+            {currentStep === 1 && (
+              <motion.div className="bg-white dark:bg-gray-900 shadow-md rounded-xl border border-gray-200 dark:border-gray-800 p-4 md:p-6">
+                <CustomerAndPackageStep
+                  formData={formData}
+                  setFormData={setFormData}
+                  handleChange={handleChange}
+                  calculatePrice={calculatePrice}
+                  EnhancedInput={EnhancedInput}
+                  PriorityCard={PriorityCard}
+                />
+              </motion.div>
+            )}
+            {currentStep === 2 && (
+              <motion.div className="bg-white dark:bg-gray-900 shadow-md rounded-xl border border-gray-200 dark:border-gray-800 p-4 md:p-6">
+                <PickupDropoffStep
+                  pickupPosition={pickupPosition}
+                  setPickupPosition={setPickupPosition}
+                  dropoffPosition={dropoffPosition}
+                  setDropoffPosition={setDropoffPosition}
+                  formData={formData}
+                  setFormData={setFormData}
+                  handleChange={handleChange}
+                  EnhancedInput={EnhancedInput}
+                />
+              </motion.div>
+            )}
+            {currentStep === 3 && (
+              <motion.div className="bg-white dark:bg-gray-900 shadow-md rounded-xl border border-gray-200 dark:border-gray-800 p-4 md:p-6">
+                <UrgencyStep
+                  formData={formData}
+                  setFormData={setFormData}
+                  calculatePrice={calculatePrice}
+                  PriorityCard={PriorityCard}
+                />
+              </motion.div>
+            )}
+            {currentStep === 4 && (
+              <motion.div className="bg-white dark:bg-gray-900 shadow-md rounded-xl border border-gray-200 dark:border-gray-800 p-4 md:p-6">
+                <ReviewStep
+                  formData={formData}
+                  calculateDeliveryTimeEstimate={calculateDeliveryTimeEstimate}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Form Navigation Buttons */}
+          <div className="flex justify-between mt-10 pt-6 border-t border-gray-200 dark:border-gray-700">
+            {currentStep > 1 && (
+              <motion.button
+                whileHover={{ x: -5 }}
+                whileTap={{ scale: 0.95 }}
+                type="button"
+                onClick={goToPreviousStep}
+                className="flex items-center px-6 py-3 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white font-semibold transition-colors hover:bg-gray-300 dark:hover:bg-gray-600"
+              >
+                <ArrowLeft className="w-5 h-5 mr-2" /> Previous
+              </motion.button>
+            )}
+
+            {/* Only show Next if not on last step */}
+            {currentStep < steps.length && (
+              <motion.button
+                whileHover={{ x: 5 }}
+                whileTap={{ scale: 0.95 }}
+                type="button"
+                onClick={goToNextStep}
+                className={
+                  `flex items-center px-6 py-3 rounded-full bg-sky-600 text-white font-semibold transition-colors hover:bg-sky-700${currentStep === 1 ? ' ml-auto' : ''}`
+                }
+              >
+                Next <ArrowRight className="w-5 h-5 ml-2" />
+              </motion.button>
+            )}
+
+            {/* Only show Confirm Order if on last step */}
+            {currentStep === steps.length && (
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                type="submit"
+                disabled={loading}
+                className={
+                  `flex items-center px-8 py-3 rounded-full bg-green-600 text-white font-bold text-lg transition-colors hover:bg-green-700${loading ? ' opacity-70 cursor-not-allowed' : ''} ml-auto`
+                }
+              >
+                {loading ? (
+                  <svg className="animate-spin h-5 w-5 mr-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                ) : (
+                  <Check className="w-6 h-6 mr-3" />
+                )}
+                Confirm Order
+              </motion.button>
+            )}
+          </div>
+        </form>
       </div>
-
-      <form 
-        onSubmit={e => {
-          handleSubmit(e);
-        }}
-        onKeyDown={e => {
-          if (e.key === 'Enter' && currentStep !== steps.length) {
-            e.preventDefault();
-          }
-        }}
-      >
-        <AnimatePresence mode="wait">
-          {renderCurrentStepContent()}
-        </AnimatePresence>
-
-        {/* Form Navigation Buttons */}
-        <div className="flex justify-between mt-10 pt-6 border-t border-gray-200 dark:border-gray-700">
-          {currentStep > 1 && (
-            <motion.button
-              whileHover={{ x: -5 }}
-              whileTap={{ scale: 0.95 }}
-              type="button"
-              onClick={goToPreviousStep}
-              className="flex items-center px-6 py-3 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white font-semibold transition-colors hover:bg-gray-300 dark:hover:bg-gray-600"
-            >
-              <ArrowLeft className="w-5 h-5 mr-2" /> Previous
-            </motion.button>
-          )}
-
-          {/* Only show Next if not on last step */}
-          {currentStep < steps.length && (
-            <motion.button
-              whileHover={{ x: 5 }}
-              whileTap={{ scale: 0.95 }}
-              type="button"
-              onClick={goToNextStep}
-              className={
-                `flex items-center px-6 py-3 rounded-full bg-sky-600 text-white font-semibold transition-colors hover:bg-sky-700${currentStep === 1 ? ' ml-auto' : ''}`
-              }
-            >
-              Next <ArrowRight className="w-5 h-5 ml-2" />
-            </motion.button>
-          )}
-
-          {/* Only show Confirm Order if on last step */}
-          {currentStep === steps.length && (
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              type="submit"
-              disabled={loading}
-              className={
-                `flex items-center px-8 py-3 rounded-full bg-green-600 text-white font-bold text-lg transition-colors hover:bg-green-700${loading ? ' opacity-70 cursor-not-allowed' : ''} ml-auto`
-              }
-            >
-              {loading ? (
-                <svg className="animate-spin h-5 w-5 mr-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-              ) : (
-                <Check className="w-6 h-6 mr-3" />
-              )}
-              Confirm Order
-            </motion.button>
-          )}
-        </div>
-      </form>
     </div>
   );
 };
