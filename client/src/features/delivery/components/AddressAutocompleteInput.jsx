@@ -10,7 +10,7 @@ function debounce(fn, delay) {
   };
 }
 
-const AddressAutocompleteInput = ({ label, value, onChange, placeholder = '', required = false, icon: Icon }) => {
+const AddressAutocompleteInput = ({ label, value, onChange, onSelectSuggestion, placeholder = '', required = false, icon: Icon }) => {
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -44,7 +44,9 @@ const AddressAutocompleteInput = ({ label, value, onChange, placeholder = '', re
     onChange({ target: { value: suggestion.display_name } });
     setShowSuggestions(false);
     setSuggestions([]);
-    // Optionally, you can pass coordinates as well
+    if (onSelectSuggestion && suggestion.lat && suggestion.lon) {
+      onSelectSuggestion(suggestion);
+    }
   };
 
   return (
@@ -76,7 +78,7 @@ const AddressAutocompleteInput = ({ label, value, onChange, placeholder = '', re
       </div>
       {showSuggestions && suggestions.length > 0 && (
         <ul className="absolute z-10 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-xl mt-1 max-h-56 overflow-y-auto shadow-lg">
-          {suggestions.map((s, idx) => (
+          {suggestions.map((s) => (
             <li
               key={s.place_id}
               className="px-4 py-2 cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-900/30 text-sm"

@@ -39,6 +39,11 @@ const PickupDropoffStep = ({
           label="Pickup Address"
           value={formData.pickupAddress}
           onChange={e => setFormData(prev => ({ ...prev, pickupAddress: e.target.value }))}
+          onSelectSuggestion={suggestion => {
+            if (suggestion.lat && suggestion.lon) {
+              setPickupPosition({ lat: parseFloat(suggestion.lat), lng: parseFloat(suggestion.lon) });
+            }
+          }}
           placeholder="Search or type pickup address"
           required
           icon={MapPin}
@@ -47,6 +52,11 @@ const PickupDropoffStep = ({
           label="Drop-off Address"
           value={formData.dropoffAddress}
           onChange={e => setFormData(prev => ({ ...prev, dropoffAddress: e.target.value }))}
+          onSelectSuggestion={suggestion => {
+            if (suggestion.lat && suggestion.lon) {
+              setDropoffPosition({ lat: parseFloat(suggestion.lat), lng: parseFloat(suggestion.lon) });
+            }
+          }}
           placeholder="Search or type drop-off address"
           required
           icon={MapPin}
