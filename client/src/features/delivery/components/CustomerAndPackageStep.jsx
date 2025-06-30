@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Package, Upload, X, Check } from 'lucide-react';
 
 // EnhancedInput and PriorityCard should be imported from their respective files if split further
-const CustomerAndPackageStep = ({ formData, setFormData, handleChange, calculatePrice, EnhancedInput, PriorityCard }) => (
+const CustomerAndPackageStep = ({ formData, setFormData, handleChange, EnhancedInput, PriorityCard }) => (
   <motion.div 
     initial={{ opacity: 0, x: 20 }}
     animate={{ opacity: 1, x: 0 }}
@@ -58,6 +58,18 @@ const CustomerAndPackageStep = ({ formData, setFormData, handleChange, calculate
           placeholder="What are you sending?"
           required
           icon={Package}
+        />
+      </div>
+      {/* Weight input */}
+      <div className="mb-6">
+        <EnhancedInput
+          label="Package Weight (kg)"
+          name="weight"
+          type="number"
+          value={formData.weight}
+          onChange={handleChange}
+          placeholder="Enter weight in kg"
+          required
         />
       </div>
       {/* Enhanced Image Upload */}
@@ -134,10 +146,7 @@ const CustomerAndPackageStep = ({ formData, setFormData, handleChange, calculate
             multiplier="Base Price"
             isSelected={formData.priorityLevel === 'Normal'}
             onClick={() => {
-              setFormData(prev => {
-                  const newPrice = calculatePrice(prev.distanceInKm, 'Normal');
-                  return {...prev, priorityLevel: 'Normal', priceEstimate: newPrice};
-              });
+              setFormData(prev => ({ ...prev, priorityLevel: 'Normal' }));
             }}
           />
           <PriorityCard
@@ -147,10 +156,7 @@ const CustomerAndPackageStep = ({ formData, setFormData, handleChange, calculate
             multiplier="+50%"
             isSelected={formData.priorityLevel === 'Urgent'}
             onClick={() => {
-              setFormData(prev => {
-                  const newPrice = calculatePrice(prev.distanceInKm, 'Urgent');
-                  return {...prev, priorityLevel: 'Urgent', priceEstimate: newPrice};
-              });
+              setFormData(prev => ({ ...prev, priorityLevel: 'Urgent' }));
             }}
           />
           <PriorityCard
@@ -160,10 +166,7 @@ const CustomerAndPackageStep = ({ formData, setFormData, handleChange, calculate
             multiplier="+100%"
             isSelected={formData.priorityLevel === 'Overnight'}
             onClick={() => {
-              setFormData(prev => {
-                  const newPrice = calculatePrice(prev.distanceInKm, 'Overnight');
-                  return {...prev, priorityLevel: 'Overnight', priceEstimate: newPrice};
-              });
+              setFormData(prev => ({ ...prev, priorityLevel: 'Overnight' }));
             }}
           />
         </div>
