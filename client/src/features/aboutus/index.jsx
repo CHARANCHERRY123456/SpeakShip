@@ -5,8 +5,9 @@ import BenefitCard from './components/BenefitCard';
 import TeamCarousel from './components/TeamCarousel';
 // Import team member images
 import PushpalathaImg from './assests/pushpa.jpg';
-import CharanImg from './assests/charan.jpg';
-import MeghanaImg from './assests/meghana.png';
+import CharanImg from './assests/charan.jpeg';
+import MeghanaImg from './assests/meghana.jpeg';
+
 
 const AboutUs = () => {
   const developers = [
