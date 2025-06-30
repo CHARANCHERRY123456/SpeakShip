@@ -323,26 +323,23 @@ const CreateDeliveryForm = () => {
         <div className="w-full overflow-x-auto">
           <div className="flex justify-between items-center relative z-10 whitespace-nowrap">
             {steps.map((step) => (
-              <div key={step.number} className="flex flex-col items-center flex-1 min-w-[110px] relative flex-shrink-0">
+              <div key={step.number} className="flex flex-col items-center flex-1 min-w-[60px] md:min-w-[110px] relative flex-shrink-0">
                 <div 
-                  className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-white text-lg transition-all duration-300 ease-in-out
-                  ${currentStep >= step.number 
-                    ? `bg-gradient-to-br ${step.color} shadow-lg` 
-                    : 'bg-gray-300 dark:bg-gray-600'
-                  }`}
+                  className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center font-bold text-white text-lg transition-all duration-300 ease-in-out ${currentStep >= step.number ? `bg-gradient-to-br ${step.color} shadow-lg` : 'bg-gray-300 dark:bg-gray-600'}`}
                 >
-                  {currentStep > step.number ? <Check className="w-6 h-6" /> : step.number}
+                  {step.icon ? <step.icon className="w-5 h-5 md:w-6 md:h-6" /> : (currentStep > step.number ? <Check className="w-6 h-6" /> : step.number)}
                 </div>
-                <p className={`mt-2 text-center text-sm md:text-base font-semibold whitespace-nowrap transition-colors duration-300
-                  ${currentStep >= step.number ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'}`}>
+                <span className={`hidden md:inline mt-2 text-center text-sm md:text-base font-semibold whitespace-nowrap transition-colors duration-300 ${currentStep >= step.number ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'}`}
+                  title={step.title}
+                >
                   {step.title}
-                </p>
+                </span>
               </div>
             ))}
           </div>
         </div>
         {/* Progress Line */}
-        <div className="absolute top-6 left-0 right-0 h-1 bg-gray-200 dark:bg-gray-700 z-0">
+        <div className="absolute top-5 md:top-6 left-0 right-0 h-1 bg-gray-200 dark:bg-gray-700 z-0">
           <motion.div
             className="h-full bg-sky-500 rounded-full"
             initial={{ width: 0 }}
