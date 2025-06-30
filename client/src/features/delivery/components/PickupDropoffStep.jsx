@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { MapPin, Package } from 'lucide-react';
 import MapAddressPicker from './MapAddressPicker';
+import AddressAutocompleteInput from './AddressAutocompleteInput';
 
 const PickupDropoffStep = ({
   pickupPosition,
@@ -32,6 +33,36 @@ const PickupDropoffStep = ({
       </p>
     </div>
     <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-2xl p-4 md:p-8">
+      {/* Address Autocomplete Inputs */}
+      <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <AddressAutocompleteInput
+          label="Pickup Address"
+          value={formData.pickupAddress}
+          onChange={e => setFormData(prev => ({ ...prev, pickupAddress: e.target.value }))}
+          onSelectSuggestion={suggestion => {
+            if (suggestion.lat && suggestion.lon) {
+              setPickupPosition({ lat: parseFloat(suggestion.lat), lng: parseFloat(suggestion.lon) });
+            }
+          }}
+          placeholder="Search or type pickup address"
+          required
+          icon={MapPin}
+        />
+        <AddressAutocompleteInput
+          label="Drop-off Address"
+          value={formData.dropoffAddress}
+          onChange={e => setFormData(prev => ({ ...prev, dropoffAddress: e.target.value }))}
+          onSelectSuggestion={suggestion => {
+            if (suggestion.lat && suggestion.lon) {
+              setDropoffPosition({ lat: parseFloat(suggestion.lat), lng: parseFloat(suggestion.lon) });
+            }
+          }}
+          placeholder="Search or type drop-off address"
+          required
+          icon={MapPin}
+        />
+      </div>
+      {/* Map picker remains for visual/manual selection */}
       <MapAddressPicker
         pickupPosition={pickupPosition}
         setPickupPosition={setPickupPosition}

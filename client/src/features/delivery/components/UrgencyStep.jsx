@@ -59,7 +59,7 @@ const UrgencyStep = ({ formData, setFormData, calculatePrice, PriorityCard }) =>
       </div>
       <div className="mt-8 text-center">
         <div className="text-2xl font-bold mb-2 text-gray-900 dark:text-white">
-          Estimated Price: <span className="text-blue-600 dark:text-blue-400">${formData.priceEstimate}</span>
+          Estimated Price: <span className="text-blue-600 dark:text-blue-400">₹{formData.priceEstimate}</span>
         </div>
         <div className="text-gray-600 dark:text-gray-400 text-sm">
           You can change urgency to see different prices.
