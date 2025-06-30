@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Clock } from 'lucide-react';
 
-const UrgencyStep = ({ formData, setFormData, calculatePrice, PriorityCard }) => (
+const UrgencyStep = ({ formData, setFormData, PriorityCard }) => (
   <motion.div 
     initial={{ opacity: 0, x: 20 }}
     animate={{ opacity: 1, x: 0 }}
@@ -30,8 +30,7 @@ const UrgencyStep = ({ formData, setFormData, calculatePrice, PriorityCard }) =>
           multiplier="Base Price"
           isSelected={formData.priorityLevel === 'Normal'}
           onClick={() => {
-            const newPrice = calculatePrice(formData.distanceInKm, 'Normal');
-            setFormData(prev => ({ ...prev, priorityLevel: 'Normal', priceEstimate: newPrice }));
+            setFormData(prev => ({ ...prev, priorityLevel: 'Normal' }));
           }}
         />
         <PriorityCard
@@ -41,8 +40,7 @@ const UrgencyStep = ({ formData, setFormData, calculatePrice, PriorityCard }) =>
           multiplier="+50%"
           isSelected={formData.priorityLevel === 'Urgent'}
           onClick={() => {
-            const newPrice = calculatePrice(formData.distanceInKm, 'Urgent');
-            setFormData(prev => ({ ...prev, priorityLevel: 'Urgent', priceEstimate: newPrice }));
+            setFormData(prev => ({ ...prev, priorityLevel: 'Urgent' }));
           }}
         />
         <PriorityCard
@@ -52,18 +50,9 @@ const UrgencyStep = ({ formData, setFormData, calculatePrice, PriorityCard }) =>
           multiplier="+100%"
           isSelected={formData.priorityLevel === 'Overnight'}
           onClick={() => {
-            const newPrice = calculatePrice(formData.distanceInKm, 'Overnight');
-            setFormData(prev => ({ ...prev, priorityLevel: 'Overnight', priceEstimate: newPrice }));
+            setFormData(prev => ({ ...prev, priorityLevel: 'Overnight' }));
           }}
         />
-      </div>
-      <div className="mt-8 text-center">
-        <div className="text-2xl font-bold mb-2 text-gray-900 dark:text-white">
-          Estimated Price: <span className="text-blue-600 dark:text-blue-400">₹{formData.priceEstimate}</span>
-        </div>
-        <div className="text-gray-600 dark:text-gray-400 text-sm">
-          You can change urgency to see different prices.
-        </div>
       </div>
     </div>
   </motion.div>

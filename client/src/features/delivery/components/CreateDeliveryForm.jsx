@@ -13,7 +13,6 @@ import CustomerAndPackageStep from './CustomerAndPackageStep';
 import PickupDropoffStep from './PickupDropoffStep';
 import UrgencyStep from './UrgencyStep';
 import ReviewStep from './ReviewStep';
-import { calculatePrice, calculateDeliveryTimeEstimate } from '../deliveryUtils';
 
 // MOVED OUTSIDE: Enhanced Input Component - now receives 'name' prop
 // Defining this component outside ensures it is not redefined on every render of CreateDeliveryForm,
@@ -101,9 +100,10 @@ const CreateDeliveryForm = () => {
     pickupAddress: '',
     dropoffAddress: '',
     note: '',
-    photoFile: null, // Stores the actual File object for upload
-    photoPreviewUrl: 'https://housing.com/news/wp-content/uploads/2023/10/Top-10-courier-companies-in-India-ft.jpg', // Stores URL for display/initial value
+    photoFile: null,
+    photoPreviewUrl: 'https://housing.com/news/wp-content/uploads/2023/10/Top-10-courier-companies-in-India-ft.jpg',
     priorityLevel: 'Normal',
+    weight: '', // <-- Add weight field
     deliveryTimeEstimate: null,
     priceEstimate: 0,
     distanceInKm: 0
@@ -113,8 +113,6 @@ const CreateDeliveryForm = () => {
   const [dropoffPosition, setDropoffPosition] = useState(null);
 
   const [geminiSuggestedPrice, setGeminiSuggestedPrice] = useState(null);
-  const [geminiPrompt, setGeminiPrompt] = useState('');
-  const [geminiRaw, setGeminiRaw] = useState('');
   const [fetchingGemini, setFetchingGemini] = useState(false);
 
   const steps = [
@@ -124,15 +122,15 @@ const CreateDeliveryForm = () => {
     { number: 4, title: 'Review & Confirm', icon: Check, color: 'from-orange-500 to-red-500' }
   ];
 
-  // Fetch Gemini price suggestion when relevant fields change
+  // Fetch Gemini price and distance suggestion when relevant fields change
   useEffect(() => {
-    async function getGeminiPrice() {
+    async function fetchGeminiEstimates() {
       if (
         formData.pickupAddress &&
         formData.dropoffAddress &&
         formData.packageName &&
-        formData.priorityLevel
-        
+        formData.priorityLevel &&
+        formData.weight // Require weight
       ) {
         setFetchingGemini(true);
         try {
@@ -141,27 +139,28 @@ const CreateDeliveryForm = () => {
             dropoffAddress: formData.dropoffAddress,
             packageName: formData.packageName,
             urgency: formData.priorityLevel,
+            weight: formData.weight,
           });
-          setGeminiSuggestedPrice(result.suggestedPrice);
-          setGeminiPrompt(result.prompt);
-          setGeminiRaw(result.geminiRaw);
-          // If user hasn't overridden, update priceEstimate
           setFormData(prev => ({
             ...prev,
-            priceEstimate: prev.priceEstimate === 0 || prev.priceEstimate === prev.geminiSuggestedPrice ? result.suggestedPrice : prev.priceEstimate,
-            geminiSuggestedPrice: result.suggestedPrice,
+            priceEstimate: result.price ?? 0,
+            distanceInKm: result.distance ?? 0,
+            deliveryTimeEstimate: result.estimatedDelivery ?? null,
           }));
         } catch (err) {
-          setGeminiSuggestedPrice(null);
-          setGeminiPrompt('');
-          setGeminiRaw('');
+          setFormData(prev => ({
+            ...prev,
+            priceEstimate: 0,
+            distanceInKm: 0,
+            deliveryTimeEstimate: null,
+          }));
         } finally {
           setFetchingGemini(false);
         }
       }
     }
-    getGeminiPrice();
-  }, [formData.pickupAddress, formData.dropoffAddress, formData.packageName, formData.priorityLevel]);
+    fetchGeminiEstimates();
+  }, [formData.pickupAddress, formData.dropoffAddress, formData.packageName, formData.priorityLevel, formData.weight]);
 
   // Generic handleChange function for all text inputs
   const handleChange = (e) => {
@@ -172,21 +171,12 @@ const CreateDeliveryForm = () => {
     }));
   };
 
-  // Helper functions for location search and price/time calculation
+  // Remove handleLocationSearch mock calculation logic
   const handleLocationSearch = (address, type) => {
-    const updatedFormData = {
-      ...formData,
+    setFormData(prev => ({
+      ...prev,
       [`${type}Address`]: address
-    };
-  
-    if (updatedFormData.pickupAddress && updatedFormData.dropoffAddress) {
-      const mockDistance = Math.random() * 20 + 5; // 5-25 km
-      const mockPrice = calculatePrice(mockDistance, updatedFormData.priorityLevel);
-      updatedFormData.distanceInKm = mockDistance;
-      updatedFormData.priceEstimate = mockPrice;
-    }
-  
-    setFormData(updatedFormData);
+    }));
   };
   
 
@@ -204,9 +194,10 @@ const CreateDeliveryForm = () => {
       data.append('dropoffAddress', formData.dropoffAddress);
       data.append('note', formData.note);
       data.append('priorityLevel', formData.priorityLevel);
+      data.append('weight', formData.weight); // <-- Send weight
       data.append('customer', currentUser._id);
       data.append('status', STATUS_OPTIONS.find(opt => opt.label === 'Pending').value);
-      data.append('deliveryTimeEstimate', calculateDeliveryTimeEstimate(formData.distanceInKm, formData.priorityLevel).toISOString());
+      data.append('deliveryTimeEstimate', formData.deliveryTimeEstimate ? new Date(formData.deliveryTimeEstimate).toISOString() : '');
       data.append('priceEstimate', formData.priceEstimate);
       data.append('distanceInKm', formData.distanceInKm);
       if (formData.photoFile) {
@@ -227,6 +218,7 @@ const CreateDeliveryForm = () => {
         photoFile: null,
         photoPreviewUrl: '',
         priorityLevel: 'Normal',
+        weight: '',
         deliveryTimeEstimate: null,
         priceEstimate: 0,
         distanceInKm: 0
@@ -275,7 +267,6 @@ const CreateDeliveryForm = () => {
               formData={formData}
               setFormData={setFormData}
               handleChange={handleChange}
-              calculatePrice={calculatePrice}
               EnhancedInput={EnhancedInput}
               PriorityCard={PriorityCard}
             />
@@ -302,7 +293,6 @@ const CreateDeliveryForm = () => {
             <UrgencyStep
               formData={formData}
               setFormData={setFormData}
-              calculatePrice={calculatePrice}
               PriorityCard={PriorityCard}
             />
           </motion.div>
@@ -312,7 +302,6 @@ const CreateDeliveryForm = () => {
           <motion.div className="bg-white dark:bg-gray-900 shadow-md rounded-xl border border-gray-200 dark:border-gray-800 p-4 md:p-6">
             <ReviewStep
               formData={formData}
-              calculateDeliveryTimeEstimate={calculateDeliveryTimeEstimate}
             />
           </motion.div>
         );
@@ -375,7 +364,6 @@ const CreateDeliveryForm = () => {
                   formData={formData}
                   setFormData={setFormData}
                   handleChange={handleChange}
-                  calculatePrice={calculatePrice}
                   EnhancedInput={EnhancedInput}
                   PriorityCard={PriorityCard}
                 />
@@ -400,7 +388,6 @@ const CreateDeliveryForm = () => {
                 <UrgencyStep
                   formData={formData}
                   setFormData={setFormData}
-                  calculatePrice={calculatePrice}
                   PriorityCard={PriorityCard}
                 />
               </motion.div>
@@ -409,7 +396,6 @@ const CreateDeliveryForm = () => {
               <motion.div className="bg-white dark:bg-gray-900 shadow-md rounded-xl border border-gray-200 dark:border-gray-800 p-4 md:p-6">
                 <ReviewStep
                   formData={formData}
-                  calculateDeliveryTimeEstimate={calculateDeliveryTimeEstimate}
                 />
               </motion.div>
             )}
