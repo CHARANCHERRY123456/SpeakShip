@@ -10,16 +10,18 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 });
 
-function LocationMarker({ position, setPosition, label, onAddressChange }) {
+function LocationMarker({ position, setPosition, label, onAddressChange, setLoading }) {
   useMapEvents({
     click(e) {
       setPosition(e.latlng);
+      setLoading(true);
       // Reverse geocode
       fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${e.latlng.lat}&lon=${e.latlng.lng}`)
         .then(res => res.json())
         .then(data => {
           onAddressChange(data.display_name || `${e.latlng.lat}, ${e.latlng.lng}`);
-        });
+        })
+        .finally(() => setLoading(false));
     },
   });
 
@@ -37,6 +39,8 @@ const MapAddressPicker = ({
   setDropoffAddress,
 }) => {
   const [selecting, setSelecting] = useState('pickup');
+  const [pickupLoading, setPickupLoading] = useState(false);
+  const [dropoffLoading, setDropoffLoading] = useState(false);
 
   return (
     <div className="w-full flex flex-col gap-4">
@@ -67,20 +71,22 @@ const MapAddressPicker = ({
               position={pickupPosition}
               setPosition={latlng => {
                 setPickupPosition(latlng);
-                setPickupAddress('Fetching address...');
+                // Do not setPickupAddress('Fetching address...')
               }}
               label="Pickup"
               onAddressChange={setPickupAddress}
+              setLoading={setPickupLoading}
             />
           ) : (
             <LocationMarker
               position={dropoffPosition}
               setPosition={latlng => {
                 setDropoffPosition(latlng);
-                setDropoffAddress('Fetching address...');
+                // Do not setDropoffAddress('Fetching address...')
               }}
               label="Drop-off"
               onAddressChange={setDropoffAddress}
+              setLoading={setDropoffLoading}
             />
           )}
           {pickupPosition && <Marker position={pickupPosition} />}
@@ -90,11 +96,15 @@ const MapAddressPicker = ({
       <div className="flex flex-col md:flex-row gap-2 mt-2">
         <div className="flex-1 bg-gray-50 rounded p-2 border">
           <div className="font-semibold text-xs text-gray-600 mb-1">Pickup Address</div>
-          <div className="text-sm text-gray-800 break-words min-h-[32px]">{pickupAddress || 'Not selected'}</div>
+          <div className="text-sm text-gray-800 break-words min-h-[32px]">
+            {pickupLoading ? <span className="text-xs text-blue-500">Fetching address...</span> : (pickupAddress || 'Not selected')}
+          </div>
         </div>
         <div className="flex-1 bg-gray-50 rounded p-2 border">
           <div className="font-semibold text-xs text-gray-600 mb-1">Drop-off Address</div>
-          <div className="text-sm text-gray-800 break-words min-h-[32px]">{dropoffAddress || 'Not selected'}</div>
+          <div className="text-sm text-gray-800 break-words min-h-[32px]">
+            {dropoffLoading ? <span className="text-xs text-blue-500">Fetching address...</span> : (dropoffAddress || 'Not selected')}
+          </div>
         </div>
       </div>
     </div>

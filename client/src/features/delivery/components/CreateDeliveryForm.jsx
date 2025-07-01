@@ -115,11 +115,14 @@ const CreateDeliveryForm = () => {
   const [geminiSuggestedPrice, setGeminiSuggestedPrice] = useState(null);
   const [fetchingGemini, setFetchingGemini] = useState(false);
 
+  const [urgencyPrices, setUrgencyPrices] = useState({ Normal: 0, Urgent: 0, Overnight: 0 });
+
   const steps = [
     { number: 1, title: 'Customer & Package Details', icon: Package, color: 'from-blue-500 to-cyan-500' },
     { number: 2, title: 'Pickup Information', icon: MapPin, color: 'from-green-500 to-emerald-500' },
     { number: 3, title: 'Delivery Information', icon: MapPin, color: 'from-purple-500 to-pink-500' },
-    { number: 4, title: 'Review & Confirm', icon: Check, color: 'from-orange-500 to-red-500' }
+    { number: 4, title: 'Urgency & Price', icon: DollarSign, color: 'from-yellow-500 to-orange-500' },
+    { number: 5, title: 'Review & Confirm', icon: Check, color: 'from-orange-500 to-red-500' }
   ];
 
   // Fetch Gemini price and distance suggestion when relevant fields change
@@ -161,6 +164,37 @@ const CreateDeliveryForm = () => {
     }
     fetchGeminiEstimates();
   }, [formData.pickupAddress, formData.dropoffAddress, formData.packageName, formData.priorityLevel, formData.weight]);
+
+  // Fetch all urgency prices when addresses, package, or weight change
+  useEffect(() => {
+    async function fetchAllUrgencyPrices() {
+      if (
+        formData.pickupAddress &&
+        formData.dropoffAddress &&
+        formData.packageName &&
+        formData.weight
+      ) {
+        const urgencies = ['Normal', 'Urgent', 'Overnight'];
+        const prices = {};
+        for (const urgency of urgencies) {
+          try {
+            const result = await fetchGeminiPrice({
+              pickupAddress: formData.pickupAddress,
+              dropoffAddress: formData.dropoffAddress,
+              packageName: formData.packageName,
+              urgency,
+              weight: formData.weight,
+            });
+            prices[urgency] = result.price ?? 0;
+          } catch {
+            prices[urgency] = 0;
+          }
+        }
+        setUrgencyPrices(prices);
+      }
+    }
+    fetchAllUrgencyPrices();
+  }, [formData.pickupAddress, formData.dropoffAddress, formData.packageName, formData.weight]);
 
   // Generic handleChange function for all text inputs
   const handleChange = (e) => {
@@ -268,7 +302,7 @@ const CreateDeliveryForm = () => {
               setFormData={setFormData}
               handleChange={handleChange}
               EnhancedInput={EnhancedInput}
-              PriorityCard={PriorityCard}
+              // Remove PriorityCard from here
             />
           </motion.div>
         );
@@ -293,11 +327,116 @@ const CreateDeliveryForm = () => {
             <UrgencyStep
               formData={formData}
               setFormData={setFormData}
+              urgencyPrices={urgencyPrices}
+              EnhancedInput={EnhancedInput}
               PriorityCard={PriorityCard}
             />
           </motion.div>
         );
       case 4:
+        // Enhanced Urgency & Price selection step with vibrant UI/UX
+        return (
+          <motion.div
+            className="relative overflow-hidden rounded-xl shadow-xl border border-gray-200 dark:border-gray-800 p-0 md:p-0"
+            style={{ minHeight: 420 }}
+          >
+            {/* Animated Gradient Background */}
+            <motion.div
+              className="absolute inset-0 z-0 animate-gradient bg-gradient-to-br from-blue-400 via-pink-300 to-yellow-300 dark:from-blue-900 dark:via-fuchsia-900 dark:to-yellow-900 opacity-80 blur-[2px]"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.8 }}
+              transition={{ duration: 1.2 }}
+            />
+            <div className="relative z-10 p-6 md:p-10 flex flex-col gap-8">
+              <motion.h3
+                className="text-2xl md:text-3xl font-extrabold mb-2 text-gray-900 dark:text-white drop-shadow-lg"
+                initial={{ y: -20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.6, type: 'spring', stiffness: 120 }}
+              >
+                Select Delivery Urgency & Price
+              </motion.h3>
+              <motion.div
+                className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4"
+                initial="hidden"
+                animate="visible"
+                variants={{
+                  hidden: {},
+                  visible: { transition: { staggerChildren: 0.12 } }
+                }}
+              >
+                {['Normal', 'Urgent', 'Overnight'].map((level, idx) => (
+                  <motion.div
+                    key={level}
+                    variants={{
+                      hidden: { scale: 0.95, opacity: 0 },
+                      visible: { scale: 1, opacity: 1 }
+                    }}
+                    whileHover={{ scale: 1.06, boxShadow: '0 8px 32px 0 rgba(0,0,0,0.18)' }}
+                    whileTap={{ scale: 0.97 }}
+                    onClick={() => {
+                      setFormData(prev => ({ ...prev, priorityLevel: level, priceEstimate: urgencyPrices[level] }));
+                    }}
+                    className={`relative cursor-pointer select-none p-7 rounded-3xl border-4 transition-all duration-300 group
+                      ${formData.priorityLevel === level
+                        ? 'border-yellow-400 bg-gradient-to-br from-yellow-100 via-blue-100 to-pink-100 dark:from-yellow-900/40 dark:via-blue-900/30 dark:to-pink-900/30 shadow-2xl scale-105'
+                        : 'border-transparent bg-white/80 dark:bg-gray-900/80 hover:border-blue-300 hover:shadow-lg'}
+                    `}
+                  >
+                    {/* Satisfying selection animation */}
+                    {formData.priorityLevel === level && (
+                      <motion.div
+                        className="absolute -top-3 -right-3 w-8 h-8 bg-gradient-to-br from-yellow-400 to-pink-400 dark:from-yellow-700 dark:to-pink-700 rounded-full flex items-center justify-center shadow-lg"
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1.1 }}
+                        transition={{ type: 'spring', stiffness: 300, damping: 15 }}
+                      >
+                        <Check className="w-5 h-5 text-white drop-shadow" />
+                      </motion.div>
+                    )}
+                    <div className="flex justify-between items-center mb-2">
+                      <span className={`font-bold text-lg md:text-xl ${formData.priorityLevel === level ? 'text-yellow-700 dark:text-yellow-200' : 'text-gray-800 dark:text-gray-200'}`}>{level}</span>
+                      <span className={`text-xs font-semibold px-3 py-1 rounded-full ${formData.priorityLevel === level ? 'bg-yellow-200 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100' : 'bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300'}`}>{level === 'Normal' ? 'Base Price' : level === 'Urgent' ? '+50%' : '+100%'}</span>
+                    </div>
+                    <p className={`text-sm ${formData.priorityLevel === level ? 'text-blue-700 dark:text-blue-200' : 'text-gray-600 dark:text-gray-400'}`}>{level === 'Normal' ? 'Standard delivery' : level === 'Urgent' ? 'Faster delivery' : 'Next day delivery'}</p>
+                    <motion.div
+                      className={`mt-4 text-lg font-bold ${formData.priorityLevel === level ? 'text-green-700 dark:text-green-300' : 'text-gray-500 dark:text-gray-400'}`}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.1 * idx }}
+                    >
+                      ₹{urgencyPrices[level] || 0}
+                    </motion.div>
+                  </motion.div>
+                ))}
+              </motion.div>
+              <motion.div
+                className="w-full max-w-md mx-auto bg-white/90 dark:bg-gray-900/90 rounded-2xl shadow-lg p-6 flex flex-col gap-2 border-2 border-yellow-200 dark:border-yellow-800"
+                initial={{ scale: 0.98, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.5, type: 'spring', stiffness: 120 }}
+              >
+                <label className="block text-base font-semibold text-gray-800 dark:text-gray-200 mb-1">
+                  Predicted Price (editable) <span className="text-red-500">*</span>
+                </label>
+                <div className="flex items-center gap-2">
+                  <EnhancedInput
+                    label=""
+                    name="priceEstimate"
+                    type="number"
+                    value={formData.priceEstimate}
+                    onChange={handleChange}
+                    icon={DollarSign}
+                    required
+                  />
+                  <span className="text-xs text-gray-500 ml-2">System: <span className="font-semibold text-green-600">₹{urgencyPrices[formData.priorityLevel] || 0}</span></span>
+                </div>
+                <span className="text-xs text-gray-500">You can use the system price for better acceptance, or set your own price if you prefer.</span>
+              </motion.div>
+            </div>
+          </motion.div>
+        );
+      case 5:
         return (
           <motion.div className="bg-white dark:bg-gray-900 shadow-md rounded-xl border border-gray-200 dark:border-gray-800 p-4 md:p-6">
             <ReviewStep
@@ -365,7 +504,7 @@ const CreateDeliveryForm = () => {
                   setFormData={setFormData}
                   handleChange={handleChange}
                   EnhancedInput={EnhancedInput}
-                  PriorityCard={PriorityCard}
+                  // Remove PriorityCard from here
                 />
               </motion.div>
             )}
@@ -388,11 +527,19 @@ const CreateDeliveryForm = () => {
                 <UrgencyStep
                   formData={formData}
                   setFormData={setFormData}
+                  urgencyPrices={urgencyPrices}
+                  EnhancedInput={EnhancedInput}
                   PriorityCard={PriorityCard}
                 />
               </motion.div>
             )}
             {currentStep === 4 && (
+              <motion.div className="bg-white dark:bg-gray-900 shadow-md rounded-xl border border-gray-200 dark:border-gray-800 p-4 md:p-6">
+                {/* Urgency & Price step */}
+                {renderCurrentStepContent()}
+              </motion.div>
+            )}
+            {currentStep === 5 && (
               <motion.div className="bg-white dark:bg-gray-900 shadow-md rounded-xl border border-gray-200 dark:border-gray-800 p-4 md:p-6">
                 <ReviewStep
                   formData={formData}
