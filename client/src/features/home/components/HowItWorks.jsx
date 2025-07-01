@@ -69,7 +69,7 @@ const HowItWorks = () => {
   };
 
   return (
-    <section className="py-8 sm:py-12 md:py-16 bg-white dark:bg-gray-900 px-4 sm:px-6">
+    <section className="py-8 sm:py-12 md:py-16 bg-white dark:bg-white px-4 sm:px-6">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <motion.div
@@ -83,7 +83,7 @@ const HowItWorks = () => {
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-4"
+            className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-black mb-3 sm:mb-4"
           >
             Delivery <span className="bg-gradient-to-r from-blue-500 to-blue-900 bg-clip-text text-transparent">Process</span> Steps
           </motion.h2>
@@ -91,7 +91,7 @@ const HowItWorks = () => {
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.4 }}
-            className="text-base sm:text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto"
+            className="text-base sm:text-lg md:text-xl text-gray-600 dark:text-black max-w-3xl mx-auto"
           >
             Simple steps from pickup to delivery
           </motion.p>

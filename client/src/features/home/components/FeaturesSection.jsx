@@ -44,7 +44,7 @@ const FeaturesSection = () => {
   ];
 
   return (
-    <section id="features" className="py-12 sm:py-20 bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-gray-800">
+    <section id="features" className="py-12 sm:py-20 bg-gradient-to-br from-gray-50 to-blue-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div
@@ -58,7 +58,7 @@ const FeaturesSection = () => {
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4"
+            className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-black mb-4"
           >
             Why Choose <span className="bg-gradient-to-r from-blue-500 to-blue-900 bg-clip-text text-transparent">QuickDelivery</span>?
           </motion.h2>
@@ -66,7 +66,7 @@ const FeaturesSection = () => {
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.4 }}
-            className="text-lg sm:text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto"
+            className="text-lg sm:text-xl text-gray-600 dark:text-black max-w-3xl mx-auto"
           >
             We combine cutting-edge technology with human care to deliver your packages safely, quickly, and reliably every single time.
           </motion.p>

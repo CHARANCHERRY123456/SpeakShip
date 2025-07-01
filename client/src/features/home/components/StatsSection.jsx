@@ -58,10 +58,10 @@ const StatsSection = () => {
   };
 
   return (
-    <section className="relative py-16 sm:py-20 md:py-28 bg-white dark:bg-gray-900 overflow-hidden">
+    <section className="relative py-16 sm:py-20 md:py-28 bg-white dark:bg-white overflow-hidden">
       {/* Decorative background elements */}
       <div className="absolute inset-0 overflow-hidden -z-10">
-        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 opacity-80"></div>
+        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-gray-50 to-gray-100  opacity-80"></div>
         {[...Array(8)].map((_, i) => (
           <motion.div
             key={i}
@@ -100,11 +100,11 @@ const StatsSection = () => {
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4"
+            className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-black mb-4"
           >
-            Why Businesses<span className="bg-gradient-to-r from-blue-600 to-blue-900 bg-clip-text text-transparent">Trust Us</span>
+            Why Businesses <span className="bg-gradient-to-r from-blue-600 to-blue-900 bg-clip-text text-transparent">Trust Us</span>
           </motion.h2>
-          <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+          <p className="text-lg sm:text-xl text-gray-600 dark:text-black max-w-3xl mx-auto">
             Delivering excellence through numbers and customer satisfaction
           </p>
         </motion.div>
@@ -167,25 +167,25 @@ const StatsSection = () => {
               ))}
             </div>
             <div className="text-left">
-              <div className="font-medium text-gray-900 dark:text-white">Trusted by 10K+ customers</div>
+              <div className="font-medium text-gray-900 dark:text-black">Trusted by 10K+ customers</div>
               <div className="flex items-center mt-1">
                 {[...Array(5)].map((_, i) => (
                   <Star key={i} className="w-4 h-4 text-yellow-400 fill-current" />
                 ))}
-                <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">4.9/5 rating</span>
+                <span className="ml-2 text-sm text-gray-600 dark:text-black">4.9/5 rating</span>
               </div>
             </div>
           </div>
 
-          <div className="hidden sm:block h-10 w-px bg-gray-200 dark:bg-gray-700"></div>
+          <div className="hidden sm:block h-10 w-px bg-gray-200 dark:bg-black"></div>
 
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-100 flex items-center justify-center">
               <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
             </div>
             <div>
-              <div className="font-medium text-gray-900 dark:text-white">99.8% Success Rate</div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">Last 30 days</div>
+              <div className="font-medium text-gray-900 dark:text-black">99.8% Success Rate</div>
+              <div className="text-sm text-gray-600 dark:text-black">Last 30 days</div>
             </div>
           </div>
         </motion.div>

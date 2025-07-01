@@ -83,7 +83,7 @@ const HeroSection = () => {
   };
 
   return (
-    <section className="relative overflow-hidden pt-24 pb-16 md:pt-32 md:pb-24">
+    <section className="relative overflow-hidden pt-24 pb-16 md:pt-32 md:pb-24 dark:bg-white">
       {/* Animated background elements */}
       <motion.div 
         initial={{ opacity: 0 }}
@@ -133,7 +133,7 @@ const HeroSection = () => {
           >
             <motion.h1 
               variants={titleVariants}
-              className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white leading-tight"
+              className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-black leading-tight"
             >
               <motion.span className="block" variants={itemVariants}>
                 Fast, Reliable
@@ -149,7 +149,7 @@ const HeroSection = () => {
             
             <motion.p 
               variants={itemVariants}
-              className="mt-6 text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-lg"
+              className="mt-6 text-lg md:text-xl text-gray-600 dark:text-black max-w-lg"
             >
               Get your packages delivered in record time with our AI-powered logistics platform. 
               Real-time tracking, secure handling, and 24/7 support.
@@ -189,12 +189,12 @@ const HeroSection = () => {
             <motion.div
               variants={itemVariants}
               whileHover={{ scale: 1.05 }}
-              className="mt-8 p-4 bg-blue-50/70 dark:bg-gray-800/60 rounded-xl inline-flex items-center gap-3 border border-blue-100 dark:border-gray-700 shadow-sm"
+              className="mt-8 p-4 bg-blue-50/70 dark:bg-white rounded-xl inline-flex items-center gap-3 border border-blue-100  shadow-sm"
             >
               <span className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold">
                 !
               </span>
-              <span className="text-sm md:text-base font-medium text-blue-800 dark:text-blue-300">
+              <span className="text-sm md:text-base font-medium text-blue-800 dark:text-blue-800 ">
                 Over 10,000 deliveries completed!
               </span>
             </motion.div>
