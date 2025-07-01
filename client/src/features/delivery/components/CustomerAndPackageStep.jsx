@@ -1,9 +1,9 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Package, Upload, X, Check } from 'lucide-react';
+import { Package, Upload, X } from 'lucide-react';
 
-// EnhancedInput and PriorityCard should be imported from their respective files if split further
-const CustomerAndPackageStep = ({ formData, setFormData, handleChange, EnhancedInput, PriorityCard }) => (
+// EnhancedInput should be imported from its respective file if split further
+const CustomerAndPackageStep = ({ formData, setFormData, handleChange, EnhancedInput }) => (
   <motion.div 
     initial={{ opacity: 0, x: 20 }}
     animate={{ opacity: 1, x: 0 }}
@@ -133,44 +133,7 @@ const CustomerAndPackageStep = ({ formData, setFormData, handleChange, EnhancedI
           </div>
         </div>
       </motion.div>
-      {/* Enhanced Priority Selection */}
-      <div>
-        <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-4">
-          Priority Level <span className="text-red-500">*</span>
-        </label>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <PriorityCard
-            level="Normal"
-            title="Standard"
-            description="Regular delivery speed"
-            multiplier="Base Price"
-            isSelected={formData.priorityLevel === 'Normal'}
-            onClick={() => {
-              setFormData(prev => ({ ...prev, priorityLevel: 'Normal' }));
-            }}
-          />
-          <PriorityCard
-            level="Urgent"
-            title="Urgent"
-            description="Faster delivery"
-            multiplier="+50%"
-            isSelected={formData.priorityLevel === 'Urgent'}
-            onClick={() => {
-              setFormData(prev => ({ ...prev, priorityLevel: 'Urgent' }));
-            }}
-          />
-          <PriorityCard
-            level="Overnight"
-            title="Overnight"
-            description="Next day delivery"
-            multiplier="+100%"
-            isSelected={formData.priorityLevel === 'Overnight'}
-            onClick={() => {
-              setFormData(prev => ({ ...prev, priorityLevel: 'Overnight' }));
-            }}
-          />
-        </div>
-      </div>
+      {/* Remove Priority Selection: Urgency is now handled in a later step */}
     </div>
   </motion.div>
 );
