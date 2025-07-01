@@ -13,7 +13,7 @@ import DeliveryCardImage from './components/DeliveryCardImage';
 import DeliveryCardActions from './components/DeliveryCardActions';
 import DeliveryCardModals from './components/DeliveryCardModals';
 import OtpModal from './components/OtpModal';
-import StatusBadge from './StatusBadge';
+import StatusBadge from './components/StatusBadge';
 
 // The props now include the handlers and loading states from useDeliveryApi
 const DeliveryCard = ({

@@ -1,6 +1,6 @@
 // src/features/delivery/components/CreateDeliveryForm.jsx
 import React, { useState, useEffect } from 'react';
-import { MapPin, Package, Clock, DollarSign, Upload, X, Check, ArrowRight, ArrowLeft } from 'lucide-react';
+import { MapPin, Package, DollarSign,Check, ArrowRight, ArrowLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from '../../../../api/axios.js';
 import { useNavigate } from 'react-router-dom';
@@ -336,7 +336,7 @@ const CreateDeliveryForm = () => {
   // Enhanced Urgency & Price selection step with vibrant UI/UX
   return (
     <motion.div
-      className="relative overflow-hidden rounded-xl shadow-xl border border-gray-200 dark:border-gray-200 p-0 md:p-0"
+      className="relative overflow-hidden rounded-xl shadow-xl p-0 md:p-0"
       style={{ minHeight: 420 }}
     >
       {/* Animated Gradient Background */}
@@ -347,19 +347,24 @@ const CreateDeliveryForm = () => {
         transition={{ duration: 1.2 }}
       />
       
-      <div className="relative z-10 p-6 md:p-10 flex flex-col gap-4"> {/* Reduced gap from gap-8 to gap-4 */}
-        <div className="w-16 h-16 bg-gradient-to-br from-orange-300 to-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-2"> {/* Reduced mb-4 to mb-2 */}
-          <DollarSign className="w-8 h-8 text-white " />
+      <div className="relative z-10 p-6 md:p-10 flex flex-col gap-4">
+        <div className="w-16 h-16 bg-gradient-to-br from-orange-300 to-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-2">
+          <DollarSign className="w-8 h-8 text-white" />
         </div>
         
         <motion.h3
-          className="text-2xl  md:text-3xl font-extrabold text-center text-gray-900 dark:text-black drop-shadow-lg"
+          className="text-2xl md:text-3xl font-extrabold text-center text-gray-900 dark:text-black drop-shadow-lg"
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.6, type: 'spring', stiffness: 120 }}
         >
           Select Delivery Urgency & Price
         </motion.h3>
+        
+        {/* Added descriptive text below the heading */}
+        <p className="text-gray-600 dark:text-gray-600 text-center mb-4">
+          Choose how fast you want your package delivered based on Price and Urgency.
+        </p>
         
         <motion.div
           className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4"
@@ -440,6 +445,7 @@ const CreateDeliveryForm = () => {
         </motion.div>
       </div>
     </motion.div>
+  
   );
       case 5:
         return (
