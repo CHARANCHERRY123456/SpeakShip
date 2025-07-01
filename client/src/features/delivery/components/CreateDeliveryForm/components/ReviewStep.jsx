@@ -14,10 +14,10 @@ const ReviewStep = ({ formData }) => (
       <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
         <Check className="w-8 h-8 text-white" />
       </div>
-      <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+      <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-900 mb-2">
         Review Your Order
       </h3>
-      <p className="text-gray-600 dark:text-gray-400">
+      <p className="text-gray-600">
         Please review all details before confirming
       </p>
     </div>

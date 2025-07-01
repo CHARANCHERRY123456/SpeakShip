@@ -1,7 +1,7 @@
 // src/features/delivery/components/DeliveryCardActions.jsx
 import React from 'react';
 import { CheckCircle, Truck as TruckIcon, PackageCheck, X } from 'lucide-react'; // Ensure lucide-react is installed
-import LoadingButton from '../../../components/LoadingButton'; // Correct path
+import LoadingButton from '../../../../../components/LoadingButton'; // Correct path
 
 const DeliveryCardActions = ({
     isDriverView,

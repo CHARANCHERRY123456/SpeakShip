@@ -25,14 +25,14 @@ const PickupDropoffStep = ({
       <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
         <MapPin className="w-8 h-8 text-white" />
       </div>
-      <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+      <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-900 mb-2">
         Pickup & Drop-off Locations
       </h3>
-      <p className="text-gray-600 dark:text-gray-400">
+      <p className="text-gray-600 dark:text-gray-600">
         Select pickup and drop-off addresses using the map below.
       </p>
     </div>
-    <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-2xl p-4 md:p-8">
+    <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-50 dark:to-emerald-50 rounded-2xl p-4 md:p-8">
       {/* Address Autocomplete Inputs */}
       <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
         <AddressAutocompleteInput

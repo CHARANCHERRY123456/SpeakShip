@@ -1,6 +1,6 @@
 // src/features/delivery/components/OtpModal.jsx
 import React from 'react';
-import LoadingButton from '../../../components/LoadingButton';
+import LoadingButton from '../../../../../components/LoadingButton';
 
 const OtpModal = ({ show, otpInput, setOtpInput, otpLoading, otpError, onClose, onSubmit, delivery }) => {
     if (!show) return null;

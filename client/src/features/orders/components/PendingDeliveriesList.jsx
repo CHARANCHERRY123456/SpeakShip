@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import DeliveryCard from './DeliveryCard';
-import DeliveryGrid from '../../delivery/components/DeliveryGrid';
+import DeliveryGrid from '../../delivery/components/DeliveryCard/components/DeliveryGrid';
 
 export default function PendingDeliveriesList({ deliveries, onAccept }) {
   const [acceptingId, setAcceptingId] = useState(null);

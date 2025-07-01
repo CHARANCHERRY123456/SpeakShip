@@ -89,14 +89,14 @@ const Testimonials = () => {
   };
 
   return (
-    <section className="py-16 md:py-24 bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+    <section className="py-16 md:py-24 bg-gradient-to-b from-gray-50 to-gray-100 ">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <motion.h2
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4"
+            className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-black mb-4"
           >
             What Our <span className="bg-gradient-to-r from-blue-500 to-blue-900 bg-clip-text text-transparent">Customers Says?</span>
           </motion.h2>
@@ -104,7 +104,7 @@ const Testimonials = () => {
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.4 }}
-            className="text-lg sm:text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto"
+            className="text-lg sm:text-xl text-gray-600 dark:text-black max-w-3xl mx-auto"
           >
             Don't just take our word for it — hear from our satisfied customers
           </motion.p>
@@ -126,12 +126,12 @@ const Testimonials = () => {
                   <motion.img
                     src={testimonial.image}
                     alt={testimonial.author}
-                    className="w-20 h-20 rounded-full object-cover border-4 border-white dark:border-gray-200 shadow-md"
+                    className="w-20 h-20 rounded-full object-cover border-4 border-white dark:border-white shadow-md"
                     whileHover={{ scale: 1.05 }}
                     transition={{ type: 'spring', stiffness: 300 }}
                   />
                 </div>
-                <div className="text-gray-600 dark:text-gray-700 italic mb-6 text-center">
+                <div className="text-gray-600 dark:text-black italic mb-6 text-center">
                   "{testimonial.quote}"
                 </div>
                 <div className="flex justify-center mb-4">
@@ -146,10 +146,10 @@ const Testimonials = () => {
                     </svg>
                   ))}
                 </div>
-                <div className="font-semibold text-gray-900 dark:text-gray-800 text-center text-lg">
+                <div className="font-semibold text-gray-900 dark:text-black text-center text-lg">
                   {testimonial.author}
                 </div>
-                <div className="text-gray-500 dark:text-gray-600 text-sm text-center">
+                <div className="text-gray-500 dark:text-black text-sm text-center">
                   {testimonial.role}
                 </div>
               </motion.div>
