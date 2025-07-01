@@ -16,7 +16,7 @@ const CustomerOrdersPage = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold text-gray-900 mb-8 text-center">
-        {currentUser?.role === 'customer' ? 'Create New Order' : 'Order Management'}
+        {currentUser?.role === 'customer' ? 'Create New Delivery Request' : ''}
       </h1>
       
       {currentUser?.role === 'customer' && (

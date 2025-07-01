@@ -462,9 +462,7 @@ const CreateDeliveryForm = () => {
   return (
     <div className="min-h-screen w-full bg-white dark:bg-white flex flex-col justify-center items-center py-8">
       <div className="max-w-4xl w-full mx-auto p-0 md:p-6 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-200 bg-white dark:bg-white">
-        <h2 className="text-3xl font-extrabold text-gray-900 dark:text-black text-center mb-8">
-          Create New Delivery Request
-        </h2>
+        <h2 className=" mb-8"></h2>
 
         {/* Progress Tracker */}
         <div className="mb-10 relative">
