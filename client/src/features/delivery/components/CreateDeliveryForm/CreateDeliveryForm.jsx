@@ -2,17 +2,16 @@
 import React, { useState, useEffect } from 'react';
 import { MapPin, Package, Clock, DollarSign, Upload, X, Check, ArrowRight, ArrowLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import axios from '../../../api/axios.js';
+import axios from '../../../../api/axios.js';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../../contexts/AuthContext';
+import { useAuth } from '../../../../contexts/AuthContext.jsx';
 import { toast } from 'react-hot-toast';
-import { STATUS_OPTIONS, DELIVERY_API_ROUTES } from '../constants';
-import MapAddressPicker from './MapAddressPicker';
-import { fetchGeminiPrice } from '../../../api/gemini';
-import CustomerAndPackageStep from './CustomerAndPackageStep';
-import PickupDropoffStep from './PickupDropoffStep';
-import UrgencyStep from './UrgencyStep';
-import ReviewStep from './ReviewStep';
+import { STATUS_OPTIONS, DELIVERY_API_ROUTES } from '../../constants/index.js';
+import { fetchGeminiPrice } from '../../../../api/gemini.js';
+import CustomerAndPackageStep from './components/CustomerAndPackageStep.jsx';
+import PickupDropoffStep from './components/PickupDropoffStep.jsx';
+import UrgencyStep from './components/UrgencyStep.jsx';
+import ReviewStep from './components/ReviewStep.jsx';
 
 // MOVED OUTSIDE: Enhanced Input Component - now receives 'name' prop
 // Defining this component outside ensures it is not redefined on every render of CreateDeliveryForm,
@@ -23,7 +22,7 @@ const EnhancedInput = ({ label, type = "text", name, value, onChange, placeholde
     whileHover={{ scale: 1.01 }}
     transition={{ type: "spring", stiffness: 300, damping: 30 }}
   >
-    <label htmlFor={name} className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
+    <label htmlFor={name} className="block text-sm font-semibold text-gray-800 dark:text-black mb-3">
       {label} {required && <span className="text-red-500">*</span>}
     </label>
     <div className="relative">
@@ -38,10 +37,10 @@ const EnhancedInput = ({ label, type = "text", name, value, onChange, placeholde
         onChange={onChange}
         placeholder={placeholder}
         required={required}
-        className={`w-full ${Icon ? 'pl-12' : 'pl-4'} pr-4 py-4 border-2 border-gray-200 dark:border-gray-600 rounded-xl 
+        className={`w-full ${Icon ? 'pl-12' : 'pl-4'} pr-4 py-4 border-2 border-gray-200 dark:border-gray-200 rounded-xl 
                     focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 
-                    dark:bg-gray-800 dark:text-white transition-all duration-300
-                    hover:border-gray-300 dark:hover:border-gray-500
+                    dark:bg-white dark:text-black transition-all duration-300
+                    hover:border-gray-300 dark:hover:border-gray-300
                     group-hover:shadow-lg`}
       />
     </div>
@@ -56,8 +55,8 @@ const PriorityCard = ({ level, title, description, multiplier, isSelected, onCli
     onClick={onClick} // This onClick will be passed from parent
     className={`relative p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 ${
       isSelected 
-        ? 'border-blue-500 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 shadow-lg'
-        : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 bg-white dark:bg-gray-800'
+        ? 'border-blue-500 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-50 dark:to-cyan-50 shadow-lg'
+        : 'border-gray-200 dark:border-gray-200 hover:border-gray-300 dark:hover:border-gray-300 bg-white dark:bg-white'
     }`}
   >
     {isSelected && (
@@ -70,16 +69,16 @@ const PriorityCard = ({ level, title, description, multiplier, isSelected, onCli
       </motion.div>
     )}
     <div className="flex justify-between items-start mb-2">
-      <h4 className={`font-bold text-lg ${isSelected ? 'text-blue-700 dark:text-blue-300' : 'text-gray-800 dark:text-gray-200'}`}>
+      <h4 className={`font-bold text-lg ${isSelected ? 'text-blue-700 dark:text-blue-700' : 'text-gray-800 dark:text-black'}`}>
         {title}
       </h4>
       <span className={`text-sm font-semibold px-2 py-1 rounded-full ${
-        isSelected ? 'bg-blue-100 text-blue-700 dark:bg-blue-800 dark:text-blue-200' : 'bg-gray-100 text-gray-600 dark:bg-gray-600 dark:text-gray-300'
+        isSelected ? 'bg-blue-100 text-blue-700 dark:bg-blue-100 dark:text-blue-700' : 'bg-gray-100 text-gray-600 dark:bg-gray-100 dark:text-gray-600'
       }`}>
         {multiplier}
       </span>
     </div>
-    <p className={`text-sm ${isSelected ? 'text-blue-600 dark:text-blue-400' : 'text-gray-600 dark:text-gray-400'}`}>
+    <p className={`text-sm ${isSelected ? 'text-blue-600 dark:text-blue-600' : 'text-gray-600 dark:text-gray-600'}`}>
       {description}
     </p>
   </motion.div>
@@ -296,7 +295,7 @@ const CreateDeliveryForm = () => {
     switch (currentStep) {
       case 1:
         return (
-          <motion.div className="bg-white dark:bg-gray-900 shadow-md rounded-xl border border-gray-200 dark:border-gray-800 p-4 md:p-6">
+          <motion.div className="bg-white dark:bg-white shadow-md rounded-xl border border-gray-200 dark:border-gray-200 p-4 md:p-6">
             <CustomerAndPackageStep
               formData={formData}
               setFormData={setFormData}
@@ -308,7 +307,7 @@ const CreateDeliveryForm = () => {
         );
       case 2:
         return (
-          <motion.div className="bg-white dark:bg-gray-900 shadow-md rounded-xl border border-gray-200 dark:border-gray-800 p-4 md:p-6">
+          <motion.div className="bg-white dark:bg-white shadow-md rounded-xl border border-gray-200 dark:border-gray-200 p-4 md:p-6">
             <PickupDropoffStep
               pickupPosition={pickupPosition}
               setPickupPosition={setPickupPosition}
@@ -323,7 +322,7 @@ const CreateDeliveryForm = () => {
         );
       case 3:
         return (
-          <motion.div className="bg-white dark:bg-gray-900 shadow-md rounded-xl border border-gray-200 dark:border-gray-800 p-4 md:p-6">
+          <motion.div className="bg-white dark:bg-white shadow-md rounded-xl border border-gray-200 dark:border-gray-200 p-4 md:p-6">
             <UrgencyStep
               formData={formData}
               setFormData={setFormData}
@@ -333,112 +332,118 @@ const CreateDeliveryForm = () => {
             />
           </motion.div>
         );
-      case 4:
-        // Enhanced Urgency & Price selection step with vibrant UI/UX
-        return (
-          <motion.div
-            className="relative overflow-hidden rounded-xl shadow-xl border border-gray-200 dark:border-gray-800 p-0 md:p-0"
-            style={{ minHeight: 420 }}
-          >
-            {/* Animated Gradient Background */}
+   case 4:
+  // Enhanced Urgency & Price selection step with vibrant UI/UX
+  return (
+    <motion.div
+      className="relative overflow-hidden rounded-xl shadow-xl border border-gray-200 dark:border-gray-200 p-0 md:p-0"
+      style={{ minHeight: 420 }}
+    >
+      {/* Animated Gradient Background */}
+      <motion.div
+        className="absolute inset-0 z-0 animate-gradient"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 0.8 }}
+        transition={{ duration: 1.2 }}
+      />
+      
+      <div className="relative z-10 p-6 md:p-10 flex flex-col gap-4"> {/* Reduced gap from gap-8 to gap-4 */}
+        <div className="w-16 h-16 bg-gradient-to-br from-orange-300 to-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-2"> {/* Reduced mb-4 to mb-2 */}
+          <DollarSign className="w-8 h-8 text-white " />
+        </div>
+        
+        <motion.h3
+          className="text-2xl  md:text-3xl font-extrabold text-center text-gray-900 dark:text-black drop-shadow-lg"
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.6, type: 'spring', stiffness: 120 }}
+        >
+          Select Delivery Urgency & Price
+        </motion.h3>
+        
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4"
+          initial="hidden"
+          animate="visible"
+          variants={{
+            hidden: {},
+            visible: { transition: { staggerChildren: 0.12 } }
+          }}
+        >
+          {['Normal', 'Urgent', 'Overnight'].map((level, idx) => (
             <motion.div
-              className="absolute inset-0 z-0 animate-gradient bg-gradient-to-br from-blue-400 via-pink-300 to-yellow-300 dark:from-blue-900 dark:via-fuchsia-900 dark:to-yellow-900 opacity-80 blur-[2px]"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 0.8 }}
-              transition={{ duration: 1.2 }}
+              key={level}
+              variants={{
+                hidden: { scale: 0.95, opacity: 0 },
+                visible: { scale: 1, opacity: 1 }
+              }}
+              whileHover={{ scale: 1.06, boxShadow: '0 8px 32px 0 rgba(0,0,0,0.18)' }}
+              whileTap={{ scale: 0.97 }}
+              onClick={() => {
+                setFormData(prev => ({ ...prev, priorityLevel: level, priceEstimate: urgencyPrices[level] }));
+              }}
+              className={`relative cursor-pointer select-none p-7 rounded-3xl border-4 transition-all duration-300 group
+                ${formData.priorityLevel === level
+                  ? 'border-yellow-400 bg-gradient-to-br from-yellow-100 via-blue-100 to-pink-100 dark:from-yellow-100 dark:via-blue-100 dark:to-pink-100 shadow-2xl scale-105'
+                  : 'border-gray-200 bg-white/80 dark:bg-white/80 hover:border-blue-300 hover:shadow-lg'}
+              `}
+            >
+              {formData.priorityLevel === level && (
+                <motion.div
+                  className="absolute -top-3 -right-3 w-8 h-8 bg-gradient-to-br from-yellow-400 to-pink-400 dark:from-yellow-400 dark:to-pink-400 rounded-full flex items-center justify-center shadow-lg"
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1.1 }}
+                  transition={{ type: 'spring', stiffness: 300, damping: 15 }}
+                >
+                  <Check className="w-5 h-5 text-white drop-shadow" />
+                </motion.div>
+              )}
+              <div className="flex justify-between items-center mb-2">
+                <span className={`font-bold text-lg md:text-xl ${formData.priorityLevel === level ? 'text-yellow-700 dark:text-yellow-700' : 'text-gray-800 dark:text-gray-800'}`}>{level}</span>
+                <span className={`text-xs font-semibold px-3 py-1 rounded-full ${formData.priorityLevel === level ? 'bg-yellow-200 text-yellow-800 dark:bg-yellow-200 dark:text-yellow-800' : 'bg-gray-200 text-gray-600 dark:bg-gray-200 dark:text-gray-600'}`}>{level === 'Normal' ? 'Base Price' : level === 'Urgent' ? '+50%' : '+100%'}</span>
+              </div>
+              <p className={`text-sm ${formData.priorityLevel === level ? 'text-blue-700 dark:text-blue-200' : 'text-gray-600 dark:text-gray-400'}`}>{level === 'Normal' ? 'Standard delivery' : level === 'Urgent' ? 'Faster delivery' : 'Next day delivery'}</p>
+              <motion.div
+                className={`mt-4 text-lg font-bold ${formData.priorityLevel === level ? 'text-green-700 dark:text-green-700' : 'text-gray-500 dark:text-gray-500'}`}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 * idx }}
+              >
+                ₹{urgencyPrices[level] || 0}
+              </motion.div>
+            </motion.div>
+          ))}
+        </motion.div>
+        
+        <motion.div
+          className="w-full max-w-md mx-auto bg-white/90 dark:bg-white/90 rounded-2xl shadow-lg p-6 flex flex-col gap-2 border-2 border-yellow-200 dark:border-yellow-200"
+          initial={{ scale: 0.98, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.5, type: 'spring', stiffness: 120 }}
+        >
+          <label className="block text-base font-semibold text-gray-800 dark:text-gray-800 mb-1">
+            Predicted Price (editable) <span className="text-red-500">*</span>
+          </label>
+          <div className="flex items-center gap-2">
+            <EnhancedInput
+              label=""
+              name="priceEstimate"
+              type="number"
+              value={formData.priceEstimate}
+              onChange={handleChange}
+              icon={DollarSign}
+              required
             />
-            <div className="relative z-10 p-6 md:p-10 flex flex-col gap-8">
-              <motion.h3
-                className="text-2xl md:text-3xl font-extrabold mb-2 text-gray-900 dark:text-white drop-shadow-lg"
-                initial={{ y: -20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 0.6, type: 'spring', stiffness: 120 }}
-              >
-                Select Delivery Urgency & Price
-              </motion.h3>
-              <motion.div
-                className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4"
-                initial="hidden"
-                animate="visible"
-                variants={{
-                  hidden: {},
-                  visible: { transition: { staggerChildren: 0.12 } }
-                }}
-              >
-                {['Normal', 'Urgent', 'Overnight'].map((level, idx) => (
-                  <motion.div
-                    key={level}
-                    variants={{
-                      hidden: { scale: 0.95, opacity: 0 },
-                      visible: { scale: 1, opacity: 1 }
-                    }}
-                    whileHover={{ scale: 1.06, boxShadow: '0 8px 32px 0 rgba(0,0,0,0.18)' }}
-                    whileTap={{ scale: 0.97 }}
-                    onClick={() => {
-                      setFormData(prev => ({ ...prev, priorityLevel: level, priceEstimate: urgencyPrices[level] }));
-                    }}
-                    className={`relative cursor-pointer select-none p-7 rounded-3xl border-4 transition-all duration-300 group
-                      ${formData.priorityLevel === level
-                        ? 'border-yellow-400 bg-gradient-to-br from-yellow-100 via-blue-100 to-pink-100 dark:from-yellow-900/40 dark:via-blue-900/30 dark:to-pink-900/30 shadow-2xl scale-105'
-                        : 'border-transparent bg-white/80 dark:bg-gray-900/80 hover:border-blue-300 hover:shadow-lg'}
-                    `}
-                  >
-                    {/* Satisfying selection animation */}
-                    {formData.priorityLevel === level && (
-                      <motion.div
-                        className="absolute -top-3 -right-3 w-8 h-8 bg-gradient-to-br from-yellow-400 to-pink-400 dark:from-yellow-700 dark:to-pink-700 rounded-full flex items-center justify-center shadow-lg"
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1.1 }}
-                        transition={{ type: 'spring', stiffness: 300, damping: 15 }}
-                      >
-                        <Check className="w-5 h-5 text-white drop-shadow" />
-                      </motion.div>
-                    )}
-                    <div className="flex justify-between items-center mb-2">
-                      <span className={`font-bold text-lg md:text-xl ${formData.priorityLevel === level ? 'text-yellow-700 dark:text-yellow-200' : 'text-gray-800 dark:text-gray-200'}`}>{level}</span>
-                      <span className={`text-xs font-semibold px-3 py-1 rounded-full ${formData.priorityLevel === level ? 'bg-yellow-200 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100' : 'bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300'}`}>{level === 'Normal' ? 'Base Price' : level === 'Urgent' ? '+50%' : '+100%'}</span>
-                    </div>
-                    <p className={`text-sm ${formData.priorityLevel === level ? 'text-blue-700 dark:text-blue-200' : 'text-gray-600 dark:text-gray-400'}`}>{level === 'Normal' ? 'Standard delivery' : level === 'Urgent' ? 'Faster delivery' : 'Next day delivery'}</p>
-                    <motion.div
-                      className={`mt-4 text-lg font-bold ${formData.priorityLevel === level ? 'text-green-700 dark:text-green-300' : 'text-gray-500 dark:text-gray-400'}`}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.1 * idx }}
-                    >
-                      ₹{urgencyPrices[level] || 0}
-                    </motion.div>
-                  </motion.div>
-                ))}
-              </motion.div>
-              <motion.div
-                className="w-full max-w-md mx-auto bg-white/90 dark:bg-gray-900/90 rounded-2xl shadow-lg p-6 flex flex-col gap-2 border-2 border-yellow-200 dark:border-yellow-800"
-                initial={{ scale: 0.98, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 0.5, type: 'spring', stiffness: 120 }}
-              >
-                <label className="block text-base font-semibold text-gray-800 dark:text-gray-200 mb-1">
-                  Predicted Price (editable) <span className="text-red-500">*</span>
-                </label>
-                <div className="flex items-center gap-2">
-                  <EnhancedInput
-                    label=""
-                    name="priceEstimate"
-                    type="number"
-                    value={formData.priceEstimate}
-                    onChange={handleChange}
-                    icon={DollarSign}
-                    required
-                  />
-                  <span className="text-xs text-gray-500 ml-2">System: <span className="font-semibold text-green-600">₹{urgencyPrices[formData.priorityLevel] || 0}</span></span>
-                </div>
-                <span className="text-xs text-gray-500">You can use the system price for better acceptance, or set your own price if you prefer.</span>
-              </motion.div>
-            </div>
-          </motion.div>
-        );
+            <span className="text-xs text-gray-500 ml-2">System: <span className="font-semibold text-green-600">₹{urgencyPrices[formData.priorityLevel] || 0}</span></span>
+          </div>
+          <span className="text-xs text-gray-500">You can use the system price for better acceptance, or set your own price if you prefer.</span>
+        </motion.div>
+      </div>
+    </motion.div>
+  );
       case 5:
         return (
-          <motion.div className="bg-white dark:bg-gray-900 shadow-md rounded-xl border border-gray-200 dark:border-gray-800 p-4 md:p-6">
+          <motion.div className="bg-white dark:bg-white shadow-md rounded-xl border border-gray-200 dark:border-gray-200 p-4 md:p-6">
             <ReviewStep
               formData={formData}
             />
@@ -449,9 +454,9 @@ const CreateDeliveryForm = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-gray-50 dark:bg-gray-950 flex flex-col justify-center items-center py-8">
-      <div className="max-w-4xl w-full mx-auto p-0 md:p-6 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
-        <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white text-center mb-8">
+    <div className="min-h-screen w-full bg-white dark:bg-white flex flex-col justify-center items-center py-8">
+      <div className="max-w-4xl w-full mx-auto p-0 md:p-6 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-200 bg-white dark:bg-white">
+        <h2 className="text-3xl font-extrabold text-gray-900 dark:text-black text-center mb-8">
           Create New Delivery Request
         </h2>
 
@@ -462,7 +467,7 @@ const CreateDeliveryForm = () => {
               {steps.map((step) => (
                 <div key={step.number} className="flex flex-col items-center flex-1 min-w-[60px] md:min-w-[110px] relative flex-shrink-0">
                   <div 
-                    className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center font-bold text-white text-lg transition-all duration-300 ease-in-out ${currentStep >= step.number ? `bg-gradient-to-br ${step.color} shadow-lg` : 'bg-gray-300 dark:bg-gray-600'}`}
+                    className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center font-bold text-white text-lg transition-all duration-300 ease-in-out ${currentStep >= step.number ? `bg-gradient-to-br ${step.color} shadow-lg` : 'bg-gray-300 dark:bg-gray-300'}`}
                   >
                     {step.icon ? <step.icon className="w-5 h-5 md:w-6 md:h-6" /> : (currentStep > step.number ? <Check className="w-6 h-6" /> : step.number)}
                   </div>
@@ -476,7 +481,7 @@ const CreateDeliveryForm = () => {
             </div>
           </div>
           {/* Progress Line */}
-          <div className="absolute top-5 md:top-6 left-0 right-0 h-1 bg-gray-200 dark:bg-gray-700 z-0">
+          <div className="absolute top-5 md:top-6 left-0 right-0 h-1 bg-gray-200 dark:bg-gray-200 z-0">
             <motion.div
               className="h-full bg-sky-500 rounded-full"
               initial={{ width: 0 }}
@@ -498,7 +503,7 @@ const CreateDeliveryForm = () => {
         >
           <AnimatePresence mode="wait">
             {currentStep === 1 && (
-              <motion.div className="bg-white dark:bg-gray-900 shadow-md rounded-xl border border-gray-200 dark:border-gray-800 p-4 md:p-6">
+              <motion.div className="bg-white dark:bg-white shadow-md rounded-xl border border-gray-200 dark:border-gray-200 p-4 md:p-6">
                 <CustomerAndPackageStep
                   formData={formData}
                   setFormData={setFormData}
@@ -509,7 +514,7 @@ const CreateDeliveryForm = () => {
               </motion.div>
             )}
             {currentStep === 2 && (
-              <motion.div className="bg-white dark:bg-gray-900 shadow-md rounded-xl border border-gray-200 dark:border-gray-800 p-4 md:p-6">
+              <motion.div className="bg-white dark:bg-white shadow-md rounded-xl border border-gray-200 dark:border-gray-200 p-4 md:p-6">
                 <PickupDropoffStep
                   pickupPosition={pickupPosition}
                   setPickupPosition={setPickupPosition}
@@ -523,7 +528,7 @@ const CreateDeliveryForm = () => {
               </motion.div>
             )}
             {currentStep === 3 && (
-              <motion.div className="bg-white dark:bg-gray-900 shadow-md rounded-xl border border-gray-200 dark:border-gray-800 p-4 md:p-6">
+              <motion.div className="bg-white dark:white shadow-md rounded-xl border border-gray-200 dark:border-gray-200 p-4 md:p-6">
                 <UrgencyStep
                   formData={formData}
                   setFormData={setFormData}
@@ -534,13 +539,13 @@ const CreateDeliveryForm = () => {
               </motion.div>
             )}
             {currentStep === 4 && (
-              <motion.div className="bg-white dark:bg-gray-900 shadow-md rounded-xl border border-gray-200 dark:border-gray-800 p-4 md:p-6">
+              <motion.div className="bg-white dark:bg-white shadow-md rounded-xl border border-gray-200 dark:border-gray-200 p-4 md:p-6">
                 {/* Urgency & Price step */}
                 {renderCurrentStepContent()}
               </motion.div>
             )}
             {currentStep === 5 && (
-              <motion.div className="bg-white dark:bg-gray-900 shadow-md rounded-xl border border-gray-200 dark:border-gray-800 p-4 md:p-6">
+              <motion.div className="bg-white dark:bg-white shadow-md rounded-xl border border-gray-200 dark:border-gray-200 p-4 md:p-6">
                 <ReviewStep
                   formData={formData}
                 />
@@ -549,14 +554,14 @@ const CreateDeliveryForm = () => {
           </AnimatePresence>
 
           {/* Form Navigation Buttons */}
-          <div className="flex justify-between mt-10 pt-6 border-t border-gray-200 dark:border-gray-700">
+          <div className="flex justify-between mt-10 pt-6 border-t border-gray-200 dark:border-gray-200">
             {currentStep > 1 && (
               <motion.button
                 whileHover={{ x: -5 }}
                 whileTap={{ scale: 0.95 }}
                 type="button"
                 onClick={goToPreviousStep}
-                className="flex items-center px-6 py-3 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white font-semibold transition-colors hover:bg-gray-300 dark:hover:bg-gray-600"
+                className="flex items-center px-6 py-3 rounded-full bg-gray-200 dark:bg-gray-200 text-gray-800 dark:text-gray-800 font-semibold transition-colors hover:bg-gray-300 dark:hover:bg-gray-300"
               >
                 <ArrowLeft className="w-5 h-5 mr-2" /> Previous
               </motion.button>
@@ -577,7 +582,7 @@ const CreateDeliveryForm = () => {
               </motion.button>
             )}
 
-            {/* Only show Confirm Order if on last step */}
+           {/* Only show Confirm Order if on last step */}
             {currentStep === steps.length && (
               <motion.button
                 whileHover={{ scale: 1.02 }}
@@ -585,21 +590,20 @@ const CreateDeliveryForm = () => {
                 type="submit"
                 disabled={loading}
                 className={
-                  `flex items-center px-8 py-3 rounded-full bg-green-600 text-white font-bold text-lg transition-colors hover:bg-green-700${loading ? ' opacity-70 cursor-not-allowed' : ''} ml-auto`
+                  `flex items-center px-6 py-2 rounded-full bg-green-600 text-white font-bold text-md transition-colors hover:bg-green-700${loading ? ' opacity-70 cursor-not-allowed' : ''} ml-auto`
                 }
               >
                 {loading ? (
-                  <svg className="animate-spin h-5 w-5 mr-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <svg className="animate-spin h-4 w-4 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
                 ) : (
-                  <Check className="w-6 h-6 mr-3" />
+                  <Check className="w-5 h-5 mr-2" />
                 )}
                 Confirm Order
               </motion.button>
-            )}
-          </div>
+            )}</div>
         </form>
       </div>
     </div>

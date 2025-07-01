@@ -52,7 +52,7 @@ const AddressAutocompleteInput = ({ label, value, onChange, onSelectSuggestion, 
   return (
     <div className="relative">
       {label && (
-        <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
+        <label className="block text-sm font-semibold text-gray-800 dark:text-gray-800 mb-3">
           {label} {required && <span className="text-red-500">*</span>}
         </label>
       )}
@@ -69,7 +69,7 @@ const AddressAutocompleteInput = ({ label, value, onChange, onSelectSuggestion, 
           onChange={handleInputChange}
           placeholder={placeholder}
           required={required}
-          className={`w-full ${Icon ? 'pl-16' : 'pl-8'} pr-4 py-4 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 dark:bg-gray-800 dark:text-white transition-all duration-300 hover:border-gray-300 dark:hover:border-gray-500`}
+          className={`w-full ${Icon ? 'pl-16' : 'pl-8'} pr-4 py-4 border-2 border-gray-200 dark:border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 dark:bg-white dark:text-black transition-all duration-300 hover:border-gray-300 dark:hover:border-gray-300`}
           autoComplete="off"
           aria-label={label || 'Address search'}
           onFocus={() => value && setShowSuggestions(true)}
@@ -77,11 +77,11 @@ const AddressAutocompleteInput = ({ label, value, onChange, onSelectSuggestion, 
         />
       </div>
       {showSuggestions && suggestions.length > 0 && (
-        <ul className="absolute z-10 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-xl mt-1 max-h-56 overflow-y-auto shadow-lg">
+        <ul className="absolute z-10 w-full bg-white dark:bg-white border border-gray-200 dark:border-gray-200 rounded-xl mt-1 max-h-56 overflow-y-auto shadow-lg">
           {suggestions.map((s) => (
             <li
               key={s.place_id}
-              className="px-4 py-2 cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-900/30 text-sm"
+              className="px-4 py-2 cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-100 text-sm"
               onMouseDown={() => handleSuggestionClick(s)}
             >
               {s.display_name}

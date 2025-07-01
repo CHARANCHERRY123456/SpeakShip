@@ -1,6 +1,6 @@
 // src/features/delivery/view/CustomerDeliveryView.jsx
 import React, { useEffect, useState } from 'react';
-import DeliveryCard from '../components/DeliveryCard';
+import DeliveryCard from '../components/DeliveryCard/DeliveryCard';
 import useDeliveryApi from '../hooks/useDeliveryApi';
 import { useAuth } from '../../../contexts/AuthContext';
 import LoadingSpinner from '../../../features/core/components/LoadingSpinner';

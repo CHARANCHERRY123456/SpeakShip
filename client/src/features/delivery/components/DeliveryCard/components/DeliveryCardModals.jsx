@@ -1,7 +1,7 @@
 // src/features/delivery/components/DeliveryCardModals.jsx
 import React from 'react';
 import DeliveryDetailsModal from './DeliveryDetailsModal';
-import LoadingButton from '../../../components/LoadingButton'; // Ensure this import is still needed if ConfirmModal is not used directly here
+import LoadingButton from '../../../../../components/LoadingButton'; // Ensure this import is still needed if ConfirmModal is not used directly here
 
 // If you have a separate ConfirmModal component like in my previous thought process,
 // you might want to import it like this:
@@ -27,8 +27,8 @@ const DeliveryCardModals = ({
             {showConfirmTransitModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
                     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full p-6">
-                        <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-3">Confirm Parcel Pickup</h3>
-                        <p className="text-sm text-gray-600 dark:text-gray-300 mb-6">Have you physically picked up the parcel for this delivery?</p>
+                        <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-800 mb-3">Confirm Parcel Pickup</h3>
+                        <p className="text-sm text-gray-600 dark:text-gray-600 mb-6">Have you physically picked up the parcel for this delivery?</p>
                         <div className="flex flex-col sm:flex-row gap-3">
                             <LoadingButton
                                 onClick={handleConfirmTransit}
@@ -42,7 +42,7 @@ const DeliveryCardModals = ({
                             <button
                                 onClick={() => setShowConfirmTransitModal(false)}
                                 disabled={updateLoading}
-                                className="flex-1 py-2 px-4 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors"
+                                className="flex-1 py-2 px-4 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-300 hover:bg-gray-50 dark:hover:bg-gray-50 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-700 transition-colors"
                             >
                                 Cancel
                             </button>
@@ -69,7 +69,7 @@ const DeliveryCardModals = ({
                             <button
                                 onClick={() => setShowConfirmDeliveredModal(false)}
                                 disabled={updateLoading}
-                                className="flex-1 py-2 px-4 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors"
+                                className="flex-1 py-2 px-4 bg-white dark:bg-white border border-gray-300 dark:border-gray-300 hover:bg-gray-50 dark:hover:bg-gray-50 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-700 transition-colors"
                             >
                                 Cancel
                             </button>

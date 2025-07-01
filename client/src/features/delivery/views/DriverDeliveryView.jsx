@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import DeliveryCard from '../components/DeliveryCard';
-import DeliveryGrid from '../components/DeliveryGrid';
+import DeliveryCard from '../components/DeliveryCard/DeliveryCard';
+import DeliveryGrid from '../components/DeliveryCard/components/DeliveryGrid';
 import useDeliveryApi from '../hooks/useDeliveryApi'; // Correct import path
 import { useAuth } from '../../../contexts/AuthContext';
 

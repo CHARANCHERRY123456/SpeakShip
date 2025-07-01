@@ -1,19 +1,18 @@
 // src/features/delivery/components/DeliveryCard.jsx
 import React, { useState, useEffect } from 'react';
 import { MapPin, Truck } from 'lucide-react';
-import { API_BASE_URL } from '../../../constants/config';
+import { API_BASE_URL } from '../../../../constants/config';
 import { toast } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 
 // REMOVE useDeliveryApi import from here, it's now in the parent component
 // import useDeliveryApi from '../../delivery/hooks/useDeliveryApi';
 
-import DeliveryCardHeader from './DeliveryCardHeader';
-import DeliveryCardImage from './DeliveryCardImage';
-import DeliveryCardInfo from './DeliveryCardInfo';
-import DeliveryCardActions from './DeliveryCardActions';
-import DeliveryCardModals from './DeliveryCardModals';
-import OtpModal from './OtpModal';
+
+import DeliveryCardImage from './components/DeliveryCardImage';
+import DeliveryCardActions from './components/DeliveryCardActions';
+import DeliveryCardModals from './components/DeliveryCardModals';
+import OtpModal from './components/OtpModal';
 import StatusBadge from './StatusBadge';
 
 // The props now include the handlers and loading states from useDeliveryApi
@@ -136,7 +135,7 @@ const DeliveryCard = ({
         >
             {/* Header */}
             <div className="flex items-center justify-between mb-1 gap-2">
-                <h3 className="text-base md:text-lg font-bold text-blue-700 dark:text-blue-400 truncate max-w-[70%] break-words">
+                <h3 className="text-base md:text-lg font-bold text-blue-700 dark:text-blue-700 truncate max-w-[70%] break-words">
                     {delivery.packageName || 'Package'} #{delivery._id.substring(0, 8)}
                 </h3>
                 {/* Status Badge - will re-render when delivery.status changes */}
@@ -150,30 +149,30 @@ const DeliveryCard = ({
             <div className="mb-1 space-y-1 w-full">
                 {delivery.driver && typeof delivery.driver === 'object' && delivery.driver !== null && (
                     <div className="flex flex-wrap items-center gap-2 text-xs md:text-sm">
-                        <span className="font-bold text-blue-700 dark:text-blue-400">Assigned to:</span>
-                        <span className="text-blue-600 dark:text-blue-300 break-all max-w-full">{delivery.driver.name || delivery.driver.username || 'N/A'}</span>
+                        <span className="font-bold text-blue-700 dark:text-blue-700">Assigned to:</span>
+                        <span className="text-blue-600 dark:text-blue-600 break-all max-w-full">{delivery.driver.name || delivery.driver.username || 'N/A'}</span>
                     </div>
                 )}
                 <div className="flex flex-wrap items-center gap-2 text-xs md:text-sm">
-                    <span className="font-bold text-blue-700 dark:text-blue-400">Charge:</span>
-                    <span className="text-gray-900 dark:text-gray-100 font-semibold break-all max-w-full">₹{delivery.priceEstimate}</span>
+                    <span className="font-bold text-blue-700 dark:text-blue-700">Charge:</span>
+                    <span className="text-gray-900 dark:text-gray-900 font-semibold break-all max-w-full">₹{delivery.priceEstimate}</span>
                 </div>
             </div>
             {/* Main Details (pickup/dropoff/distance) */}
             <div className="space-y-2 w-full">
                 <div className="flex flex-wrap items-center gap-2 w-full">
-                    <MapPin className="h-4 w-4 md:h-5 md:w-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
-                    <span className="text-xs md:text-sm font-medium text-blue-700 dark:text-blue-400">Pickup:</span>
+                    <MapPin className="h-4 w-4 md:h-5 md:w-5 text-blue-600 dark:text-blue-600 flex-shrink-0" />
+                    <span className="text-xs md:text-sm font-medium text-blue-700 dark:text-blue-700">Pickup:</span>
                     <span className="text-xs md:text-sm text-gray-900 dark:text-gray-900 break-words max-w-full flex-1">{delivery.pickupAddress}</span>
                 </div>
                 <div className="flex flex-wrap items-center gap-2 w-full">
-                    <MapPin className="h-4 w-4 md:h-5 md:w-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
-                    <span className="text-xs md:text-sm font-medium text-blue-700 dark:text-blue-400">Dropoff:</span>
+                    <MapPin className="h-4 w-4 md:h-5 md:w-5 text-blue-600 dark:text-blue-600 flex-shrink-0" />
+                    <span className="text-xs md:text-sm font-medium text-blue-700 dark:text-blue-700">Dropoff:</span>
                     <span className="text-xs md:text-sm text-gray-900 dark:text-gray-900 break-words max-w-full flex-1">{delivery.dropoffAddress}</span>
                 </div>
                 <div className="flex flex-wrap items-center gap-2 w-full">
-                    <Truck className="h-4 w-4 md:h-5 md:w-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
-                    <span className="text-xs md:text-sm font-medium text-blue-700 dark:text-blue-400">Distance:</span>
+                    <Truck className="h-4 w-4 md:h-5 md:w-5 text-blue-600 dark:text-blue-600 flex-shrink-0" />
+                    <span className="text-xs md:text-sm font-medium text-blue-700 dark:text-blue-700">Distance:</span>
                     <span className="text-xs md:text-sm text-gray-900 dark:text-gray-900">{delivery.distanceInKm != null ? Number(delivery.distanceInKm).toFixed(2) : 0} km</span>
                 </div>
             </div>
