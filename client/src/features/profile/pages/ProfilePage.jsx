@@ -24,6 +24,7 @@ const ProfilePage = () => {
   const [loadingProfile, setLoadingProfile] = useState(false);
   const [errorProfile, setErrorProfile] = useState('');
   const [successProfile, setSuccessProfile] = useState('');
+  const [imageLoading, setImageLoading] = useState(false);
   const fileInputRef = useRef();
 
   React.useEffect(() => {
@@ -92,7 +93,9 @@ const ProfilePage = () => {
   const handleFileChange = async (e) => {
     const file = e.target.files && e.target.files[0];
     if (file) {
+      setImageLoading(true); // Show spinner
       await upload(file);
+      setImageLoading(false); // Hide spinner
       e.target.value = '';
     }
   };
@@ -107,7 +110,8 @@ const ProfilePage = () => {
               username: currentUser?.username || 'username',
               role: currentUser?.role || 'Member',
               email: currentUser?.email || 'No email provided',
-              phone: currentUser?.phone || null
+              phone: currentUser?.phone || null,
+              loading: imageLoading // Pass loading state for spinner
             }}
             imageUrl={imageUrl}
             onEditImage={handleEditImage}

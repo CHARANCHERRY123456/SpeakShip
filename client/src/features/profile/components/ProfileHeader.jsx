@@ -31,7 +31,6 @@ const ProfileHeader = ({ user, imageUrl, onEditToggle, onSettingsClick, onEditIm
         <div className="absolute top-0 right-0 w-32 h-32 bg-white rounded-full -mr-16 -mt-16"></div>
         <div className="absolute bottom-0 left-0 w-24 h-24 bg-white rounded-full -ml-12 -mb-12"></div>
       </div>
-      
       <div className="relative z-10">
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
           {/* Avatar */}
@@ -49,6 +48,15 @@ const ProfileHeader = ({ user, imageUrl, onEditToggle, onSettingsClick, onEditIm
             ) : (
               <div className="w-20 h-20 sm:w-24 sm:h-24 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-2xl sm:text-3xl font-bold border-4 border-white/30">
                 {getInitials(user?.name)}
+              </div>
+            )}
+            {/* Loading spinner overlay */}
+            {user?.loading && (
+              <div className="absolute inset-0 flex items-center justify-center bg-white/70 rounded-full z-20">
+                <svg className="animate-spin h-10 w-10 text-blue-600" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                </svg>
               </div>
             )}
             <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-green-500 rounded-full border-4 border-white flex items-center justify-center">
