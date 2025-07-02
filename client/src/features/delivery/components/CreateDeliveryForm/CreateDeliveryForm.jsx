@@ -558,14 +558,14 @@ const CreateDeliveryForm = () => {
           </AnimatePresence>
 
           {/* Form Navigation Buttons */}
-          <div className="flex justify-between mt-10 pt-6 border-t border-gray-200 dark:border-gray-200">
+         <div className="flex flex-col sm:flex-row justify-between gap-4 mt-10 pt-6 border-t border-gray-200 dark:border-gray-200">
             {currentStep > 1 && (
               <motion.button
                 whileHover={{ x: -5 }}
                 whileTap={{ scale: 0.95 }}
                 type="button"
                 onClick={goToPreviousStep}
-                className="flex items-center px-6 py-3 rounded-full bg-gray-200 dark:bg-gray-200 text-gray-800 dark:text-gray-800 font-semibold transition-colors hover:bg-gray-300 dark:hover:bg-gray-300"
+                className="flex items-center justify-center w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 rounded-full bg-gray-200 dark:bg-gray-200 text-gray-800 dark:text-gray-800 font-semibold text-base sm:text-lg transition-colors hover:bg-gray-300 dark:hover:bg-gray-300"
               >
                 <ArrowLeft className="w-5 h-5 mr-2" /> Previous
               </motion.button>
@@ -579,14 +579,14 @@ const CreateDeliveryForm = () => {
                 type="button"
                 onClick={goToNextStep}
                 className={
-                  `flex items-center px-6 py-3 rounded-full bg-sky-600 text-white font-semibold transition-colors hover:bg-sky-700${currentStep === 1 ? ' ml-auto' : ''}`
+                  `flex items-center justify-center w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 rounded-full bg-sky-600 text-white font-semibold text-base sm:text-lg transition-colors hover:bg-sky-700${currentStep === 1 ? ' sm:ml-auto' : ''}`
                 }
               >
                 Next <ArrowRight className="w-5 h-5 ml-2" />
               </motion.button>
             )}
 
-           {/* Only show Confirm Order if on last step */}
+            {/* Only show Confirm Order if on last step */}
             {currentStep === steps.length && (
               <motion.button
                 whileHover={{ scale: 1.02 }}
@@ -594,7 +594,7 @@ const CreateDeliveryForm = () => {
                 type="submit"
                 disabled={loading}
                 className={
-                  `flex items-center px-6 py-2 rounded-full bg-green-600 text-white font-bold text-md transition-colors hover:bg-green-700${loading ? ' opacity-70 cursor-not-allowed' : ''} ml-auto`
+                  `flex items-center justify-center w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 rounded-full bg-green-600 text-white font-bold text-base sm:text-lg transition-colors hover:bg-green-700${loading ? ' opacity-70 cursor-not-allowed' : ''} sm:ml-auto`
                 }
               >
                 {loading ? (
@@ -607,7 +607,9 @@ const CreateDeliveryForm = () => {
                 )}
                 Confirm Order
               </motion.button>
-            )}</div>
+            )}
+          </div>
+
         </form>
       </div>
     </div>
