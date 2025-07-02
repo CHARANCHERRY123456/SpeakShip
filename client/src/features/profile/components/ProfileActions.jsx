@@ -11,9 +11,6 @@ const ProfileActions = ({ onLogout }) => {
           >
             Sign Out
           </button>
-          <button className="w-full sm:w-auto px-6 py-2.5 font-semibold bg-indigo-50 text-indigo-600 border border-indigo-200 rounded-lg hover:bg-indigo-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:ring-opacity-50">
-            Edit Profile
-          </button>
         </div>
       </div>
     </div>

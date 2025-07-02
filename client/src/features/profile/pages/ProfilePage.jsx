@@ -8,6 +8,7 @@ import ProfileField from '../components/ProfileField';
 import ProfileActions from '../components/ProfileActions';
 import ProfileImageUploader from '../components/ProfileImageUploader';
 import { DEFAULT_PROFILE_IMAGE_URL } from '../constants/profileImageConstants';
+import { Edit3 } from 'lucide-react';
 
 const editableFields = [
   { id: 'name', label: 'Full Name', type: 'text', placeholder: 'Enter your name' },
@@ -54,6 +55,7 @@ const ProfilePage = () => {
     );
   }
 
+  // Handler for toggling edit mode for profile details
   const handleEditToggle = () => {
     setIsEditing((prev) => !prev);
     setErrorProfile('');
@@ -111,9 +113,10 @@ const ProfilePage = () => {
               role: currentUser?.role || 'Member',
               email: currentUser?.email || 'No email provided',
               phone: currentUser?.phone || null,
-              loading: imageLoading // Pass loading state for spinner
+              loading: imageLoading
             }}
             imageUrl={imageUrl}
+            onEditToggle={handleEditToggle}
             onEditImage={handleEditImage}
             onRemoveImage={handleRemoveImage}
           />
@@ -125,7 +128,6 @@ const ProfilePage = () => {
             ref={fileInputRef}
             onChange={handleFileChange}
           />
-
           {isEditing ? (
             <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
               {editableFields.map((field) => (
