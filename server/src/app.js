@@ -9,6 +9,7 @@ import cors from 'cors';
 import passport from './features/auth/services/GoogleStrategy.js';
 import path from 'path';
 import morgan from 'morgan';
+import profileImageRoutes from './features/profile/routes/image.js';
 
 
 const app = express();
@@ -34,6 +35,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/delivery', deliveryRoutes);
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/profile', profileRoutes);
+app.use('/api/profile', profileImageRoutes);
 app.use('/api/price', priceRoutes);
 
 
