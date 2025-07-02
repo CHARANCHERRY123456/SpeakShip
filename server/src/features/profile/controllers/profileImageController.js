@@ -11,13 +11,19 @@ import {
 
 export const uploadProfileImage = async (req, res) => {
   try {
+    console.log('uploadProfileImage called');
     if (!req.file) {
+      console.log('No file uploaded');
       return res.status(400).json({ error: 'No file uploaded' });
     }
-    const userId = req.user._id; // Assumes authentication middleware sets req.user
-    const updatedUser = await uploadProfileImageService(userId, req.file.path);
-    res.json({ url: updatedUser.profileImage });
+    const userId = req.user.id; // Use 'id' instead of '_id'
+    const userType = req.user.role; // Use 'role' instead of 'type'
+    console.log('Uploading for userId:', userId, 'userType:', userType, 'file:', req.file.originalname);
+    const updatedUser = await uploadProfileImageService(userId, userType, req.file.path);
+    console.log('Updated user:', updatedUser);
+    res.json({ url: updatedUser.photoUrl });
   } catch (err) {
+    console.error('Error in uploadProfileImage:', err);
     res.status(500).json({ error: PROFILE_IMAGE_UPLOAD_ERROR });
   }
 };
@@ -27,9 +33,10 @@ export const editProfileImage = async (req, res) => {
     if (!req.file) {
       return res.status(400).json({ error: 'No file uploaded' });
     }
-    const userId = req.user._id;
-    const updatedUser = await editProfileImageService(userId, req.file.path);
-    res.json({ url: updatedUser.profileImage });
+    const userId = req.user.id; // Use 'id' instead of '_id'
+    const userType = req.user.role; // Use 'role' instead of 'type'
+    const updatedUser = await editProfileImageService(userId, userType, req.file.path);
+    res.json({ url: updatedUser.photoUrl });
   } catch (err) {
     res.status(500).json({ error: PROFILE_IMAGE_EDIT_ERROR });
   }
@@ -37,9 +44,10 @@ export const editProfileImage = async (req, res) => {
 
 export const removeProfileImage = async (req, res) => {
   try {
-    const userId = req.user._id;
-    const updatedUser = await removeProfileImageService(userId);
-    res.json({ url: updatedUser.profileImage });
+    const userId = req.user.id; // Use 'id' instead of '_id'
+    const userType = req.user.role; // Use 'role' instead of 'type'
+    const updatedUser = await removeProfileImageService(userId, userType);
+    res.json({ url: updatedUser.photoUrl });
   } catch (err) {
     res.status(500).json({ error: PROFILE_IMAGE_REMOVE_ERROR });
   }

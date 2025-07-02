@@ -1,7 +1,7 @@
 import React from 'react';
 import { User, Edit3, Settings } from 'lucide-react';
 
-const ProfileHeader = ({ user, onEditToggle, onSettingsClick }) => {
+const ProfileHeader = ({ user, imageUrl, onEditToggle, onSettingsClick }) => {
   const getInitials = (name) => {
     if (!name) return 'U';
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
@@ -28,9 +28,17 @@ const ProfileHeader = ({ user, onEditToggle, onSettingsClick }) => {
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
           {/* Avatar */}
           <div className="relative">
-            <div className="w-20 h-20 sm:w-24 sm:h-24 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-2xl sm:text-3xl font-bold border-4 border-white/30">
-              {getInitials(user?.name)}
-            </div>
+            {imageUrl ? (
+              <img
+                src={imageUrl}
+                alt="Profile"
+                className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-4 border-white/30 bg-white/20"
+              />
+            ) : (
+              <div className="w-20 h-20 sm:w-24 sm:h-24 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-2xl sm:text-3xl font-bold border-4 border-white/30">
+                {getInitials(user?.name)}
+              </div>
+            )}
             <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-green-500 rounded-full border-4 border-white flex items-center justify-center">
               <div className="w-2 h-2 bg-white rounded-full"></div>
             </div>
