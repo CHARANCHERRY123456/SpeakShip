@@ -8,6 +8,7 @@ import {
   PROFILE_IMAGE_EDIT_ERROR,
   PROFILE_IMAGE_REMOVE_ERROR,
 } from '../constants/profileConstants.js';
+import { DEFAULT_PROFILE_IMAGE_URL } from '../../../constants/globalConstants.js';
 
 export const uploadProfileImage = async (req, res) => {
   try {
@@ -44,10 +45,11 @@ export const editProfileImage = async (req, res) => {
 
 export const removeProfileImage = async (req, res) => {
   try {
-    const userId = req.user.id; // Use 'id' instead of '_id'
-    const userType = req.user.role; // Use 'role' instead of 'type'
+    const userId = req.user.id;
+    const userType = req.user.role;
+    // Use the dedicated remove service to set the user's photoUrl to the default image URL
     const updatedUser = await removeProfileImageService(userId, userType);
-    res.json({ url: updatedUser.photoUrl });
+    res.json({ url: DEFAULT_PROFILE_IMAGE_URL });
   } catch (err) {
     res.status(500).json({ error: PROFILE_IMAGE_REMOVE_ERROR });
   }

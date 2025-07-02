@@ -18,6 +18,7 @@ const ProfileHeader = ({ user, imageUrl, onEditToggle, onSettingsClick }) => {
   };
 
   const safeImageUrl = imageUrl || DEFAULT_PROFILE_IMAGE_URL;
+  console.log('ProfileHeader: imageUrl prop =', imageUrl, 'safeImageUrl =', safeImageUrl);
 
   return (
     <div className="relative bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 rounded-2xl p-6 sm:p-8 text-white overflow-hidden">
@@ -36,6 +37,11 @@ const ProfileHeader = ({ user, imageUrl, onEditToggle, onSettingsClick }) => {
                 src={safeImageUrl}
                 alt="Profile"
                 className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-4 border-white/30 bg-white/20"
+                onError={e => {
+                  e.target.onerror = null;
+                  e.target.src = DEFAULT_PROFILE_IMAGE_URL;
+                  console.log('ProfileHeader: image failed to load, fallback to default');
+                }}
               />
             ) : (
               <div className="w-20 h-20 sm:w-24 sm:h-24 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-2xl sm:text-3xl font-bold border-4 border-white/30">

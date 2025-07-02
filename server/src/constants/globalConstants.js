@@ -4,4 +4,4 @@ export const FEEDBACK_ERRORS = {
   MISSING_FIELDS: 'All fields are required.'
 };
 
-export const DEFAULT_PROFILE_IMAGE_URL = 'https://res.cloudinary.com/demo/image/upload/v1234567890/default_profile.png';
+export const DEFAULT_PROFILE_IMAGE_URL = 'https://i.pinimg.com/736x/cf/3f/5c/cf3f5c9f2d8362f9111cf7f7c93cf42f.jpg';

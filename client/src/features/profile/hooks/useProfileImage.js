@@ -63,10 +63,9 @@ export const useProfileImage = (initialUrl, token) => {
     setError('');
     try {
       const data = await removeProfileImage(token);
-      updateUserPhotoUrl(data.url);
+      updateUserPhotoUrl(data.url); // Always set to backend response (should be default)
     } catch {
       setError(PROFILE_IMAGE_REMOVE_ERROR);
-      updateUserPhotoUrl(''); // fallback to default
     } finally {
       setLoading(false);
     }
