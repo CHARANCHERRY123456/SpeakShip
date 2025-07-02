@@ -1,5 +1,6 @@
 import React from 'react';
 import { User, Edit3, Settings } from 'lucide-react';
+import { DEFAULT_PROFILE_IMAGE_URL } from '../constants/profileImageConstants';
 
 const ProfileHeader = ({ user, imageUrl, onEditToggle, onSettingsClick }) => {
   const getInitials = (name) => {
@@ -16,6 +17,8 @@ const ProfileHeader = ({ user, imageUrl, onEditToggle, onSettingsClick }) => {
     }
   };
 
+  const safeImageUrl = imageUrl || DEFAULT_PROFILE_IMAGE_URL;
+
   return (
     <div className="relative bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 rounded-2xl p-6 sm:p-8 text-white overflow-hidden">
       {/* Background Pattern */}
@@ -28,9 +31,9 @@ const ProfileHeader = ({ user, imageUrl, onEditToggle, onSettingsClick }) => {
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
           {/* Avatar */}
           <div className="relative">
-            {imageUrl ? (
+            {safeImageUrl ? (
               <img
-                src={imageUrl}
+                src={safeImageUrl}
                 alt="Profile"
                 className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-4 border-white/30 bg-white/20"
               />

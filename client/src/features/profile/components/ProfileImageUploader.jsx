@@ -3,6 +3,7 @@ import { DEFAULT_PROFILE_IMAGE_URL } from '../constants/profileImageConstants';
 
 const ProfileImageUploader = ({ imageUrl, loading, error, upload, remove }) => {
   const fileInputRef = useRef();
+  const safeImageUrl = imageUrl || DEFAULT_PROFILE_IMAGE_URL;
 
   const handleUpload = (e) => {
     const file = e.target.files && e.target.files[0];
@@ -20,7 +21,7 @@ const ProfileImageUploader = ({ imageUrl, loading, error, upload, remove }) => {
       {error && <div className="text-red-500 text-xs mb-1">{error}</div>}
       <div className="flex gap-2">
         <label htmlFor="profile-upload" className="inline-flex items-center px-3 py-1 rounded-lg bg-blue-600 text-white text-xs font-semibold cursor-pointer hover:bg-blue-700 transition">
-          {imageUrl ? 'Change' : 'Upload'}
+          {safeImageUrl ? 'Change' : 'Upload'}
           <input
             id="profile-upload"
             type="file"
