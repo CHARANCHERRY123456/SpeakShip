@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 
+const DRIVER_DEFAULT_PROFILE_IMAGE_URL = 'https://th-i.thgim.com/public/entertainment/movies/opp827/article25525252.ece/alternates/FREE_1200/Taxiwala';
+
 const DriverSchema = new mongoose.Schema({
   username: {
     type: String,
@@ -31,7 +33,7 @@ const DriverSchema = new mongoose.Schema({
   },
   photoUrl : {
     type : String,
-    default: 'https://th-i.thgim.com/public/entertainment/movies/opp827/article25525252.ece/alternates/FREE_1200/Taxiwala'
+    default: DRIVER_DEFAULT_PROFILE_IMAGE_URL
   },
   location: {
     type: {

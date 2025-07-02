@@ -1,6 +1,7 @@
 // src/features/auth/schema/Customer.js
 // This file defines the Customer schema for MongoDB using Mongoose.
 import mongoose from 'mongoose';
+import { DEFAULT_PROFILE_IMAGE_URL } from '../../../constants/globalConstants.js';
 
 const CustomerSchema = new mongoose.Schema({
   username: {
@@ -45,7 +46,7 @@ const CustomerSchema = new mongoose.Schema({
   },
   photoUrl: {
     type: String,
-    default: 'https://i.pinimg.com/736x/cf/3f/5c/cf3f5c9f2d8362f9111cf7f7c93cf42f.jpg' 
+    default: DEFAULT_PROFILE_IMAGE_URL
   },
   orders: [{
     type: mongoose.Schema.Types.ObjectId,
