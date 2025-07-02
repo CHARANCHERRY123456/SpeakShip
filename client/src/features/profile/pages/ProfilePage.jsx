@@ -1,5 +1,5 @@
 // src/features/profile/pages/ProfilePage.jsx
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useProfile } from '../hooks/useProfile';
 import { useProfileImage } from '../hooks/useProfileImage';
 import ProfileCard from '../components/ProfileCard';
@@ -24,6 +24,7 @@ const ProfilePage = () => {
   const [loadingProfile, setLoadingProfile] = useState(false);
   const [errorProfile, setErrorProfile] = useState('');
   const [successProfile, setSuccessProfile] = useState('');
+  const fileInputRef = useRef();
 
   React.useEffect(() => {
     if (currentUser) {
@@ -78,11 +79,29 @@ const ProfilePage = () => {
     }
   };
 
+  // Handler for removing profile image
+  const handleRemoveImage = async () => {
+    await remove();
+  };
+
+  // Handler for uploading profile image
+  const handleEditImage = () => {
+    if (fileInputRef.current) fileInputRef.current.click();
+  };
+
+  const handleFileChange = async (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (file) {
+      await upload(file);
+      e.target.value = '';
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <ProfileCard>
-          <ProfileHeader 
+          <ProfileHeader
             user={{
               name: currentUser?.name || 'User',
               username: currentUser?.username || 'username',
@@ -91,16 +110,16 @@ const ProfilePage = () => {
               phone: currentUser?.phone || null
             }}
             imageUrl={imageUrl}
-            onEditToggle={handleEditToggle}
-            isEditing={isEditing}
+            onEditImage={handleEditImage}
+            onRemoveImage={handleRemoveImage}
           />
-
-          <ProfileImageUploader
-            loading={loading}
-            error={error}
-            upload={upload}
-            edit={edit}
-            remove={remove}
+          {/* Hidden file input for image upload */}
+          <input
+            type="file"
+            accept="image/jpeg,image/png,image/jpg"
+            className="hidden"
+            ref={fileInputRef}
+            onChange={handleFileChange}
           />
 
           {isEditing ? (

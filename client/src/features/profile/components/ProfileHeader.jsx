@@ -1,8 +1,8 @@
-import React from 'react';
-import { User, Edit3, Settings } from 'lucide-react';
+import React, { useState } from 'react';
+import { User, Edit3, Settings, Trash2, Maximize2 } from 'lucide-react';
 import { DEFAULT_PROFILE_IMAGE_URL } from '../constants/profileImageConstants';
 
-const ProfileHeader = ({ user, imageUrl, onEditToggle, onSettingsClick }) => {
+const ProfileHeader = ({ user, imageUrl, onEditToggle, onSettingsClick, onEditImage, onRemoveImage }) => {
   const getInitials = (name) => {
     if (!name) return 'U';
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
@@ -19,6 +19,11 @@ const ProfileHeader = ({ user, imageUrl, onEditToggle, onSettingsClick }) => {
 
   const safeImageUrl = imageUrl || DEFAULT_PROFILE_IMAGE_URL;
 
+  const [showModal, setShowModal] = useState(false);
+
+  const handleImageClick = () => setShowModal(true);
+  const handleCloseModal = () => setShowModal(false);
+
   return (
     <div className="relative bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 rounded-2xl p-6 sm:p-8 text-white overflow-hidden">
       {/* Background Pattern */}
@@ -30,12 +35,12 @@ const ProfileHeader = ({ user, imageUrl, onEditToggle, onSettingsClick }) => {
       <div className="relative z-10">
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
           {/* Avatar */}
-          <div className="relative">
+          <div className="relative cursor-pointer group" onClick={handleImageClick}>
             {safeImageUrl ? (
               <img
                 src={safeImageUrl}
                 alt="Profile"
-                className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-4 border-white/30 bg-white/20"
+                className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-4 border-white/30 bg-white/20 group-hover:opacity-90 transition"
                 onError={e => {
                   e.target.onerror = null;
                   e.target.src = DEFAULT_PROFILE_IMAGE_URL;
@@ -49,7 +54,42 @@ const ProfileHeader = ({ user, imageUrl, onEditToggle, onSettingsClick }) => {
             <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-green-500 rounded-full border-4 border-white flex items-center justify-center">
               <div className="w-2 h-2 bg-white rounded-full"></div>
             </div>
+            {/* Fullscreen icon overlay */}
+            <div className="absolute top-1 right-1 bg-white/80 rounded-full p-1 shadow">
+              <Maximize2 className="w-4 h-4 text-blue-600" />
+            </div>
           </div>
+
+          {/* Modal for full image view */}
+          {showModal && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
+              <div className="relative bg-white rounded-2xl shadow-lg p-4 flex flex-col items-center">
+                <button onClick={handleCloseModal} className="absolute top-2 right-2 text-gray-500 hover:text-red-500 text-xl font-bold">&times;</button>
+                <img
+                  src={safeImageUrl}
+                  alt="Profile Full"
+                  className="w-64 h-64 sm:w-80 sm:h-80 rounded-full object-cover border-4 border-blue-200 mb-4"
+                  onError={e => { e.target.onerror = null; e.target.src = DEFAULT_PROFILE_IMAGE_URL; }}
+                />
+                <div className="flex gap-4 mt-2">
+                  <button
+                    onClick={() => { handleCloseModal(); onEditImage && onEditImage(); }}
+                    className="bg-blue-600 hover:bg-blue-700 text-white rounded-full p-3 shadow flex items-center justify-center"
+                    aria-label="Edit profile image"
+                  >
+                    <Edit3 className="w-6 h-6" />
+                  </button>
+                  <button
+                    onClick={() => { handleCloseModal(); onRemoveImage && onRemoveImage(); }}
+                    className="bg-red-600 hover:bg-red-700 text-white rounded-full p-3 shadow flex items-center justify-center"
+                    aria-label="Remove profile image"
+                  >
+                    <Trash2 className="w-6 h-6" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
           
           {/* User Info */}
           <div className="flex-1 text-center">
