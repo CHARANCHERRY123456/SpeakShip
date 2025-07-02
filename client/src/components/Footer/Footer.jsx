@@ -2,24 +2,24 @@
 // Heroicons SVGs for section titles
 const sectionIcons = {
   Product: (
-    <svg className="inline-block w-6 h-6 mr-2 text-blue-900" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+    <svg className="inline-block w-6 h-6 mr-2 text-white" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
       <path d="M12 6V3m0 3a9 9 0 1 0 9 9" />
       <circle cx="12" cy="12" r="9" />
     </svg>
   ),
   Platform: (
-    <svg className="inline-block w-6 h-6 mr-2 text-blue-900" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+    <svg className="inline-block w-6 h-6 mr-2 text-white" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
       <path d="M4 6h16M4 10h16M4 14h16M4 18h16" />
     </svg>
   ),
   Support: (
-    <svg className="inline-block w-6 h-6 mr-2 text-blue-900" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+    <svg className="inline-block w-6 h-6 mr-2 text-white" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
       <path d="M18 10c0-3.314-2.686-6-6-6S6 6.686 6 10c0 2.21 1.79 4 4 4h0c2.21 0 4-1.79 4-4z" />
       <path d="M12 18h.01" />
     </svg>
   ),
   Company: (
-    <svg className="inline-block w-6 h-6 mr-2 text-blue-900" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+    <svg className="inline-block w-6 h-6 mr-2 ttext-white" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
       <path d="M3 21v-2a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v2" />
       <circle cx="12" cy="7" r="4" />
     </svg>
