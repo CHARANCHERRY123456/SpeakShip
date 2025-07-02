@@ -1,10 +1,13 @@
 // src/features/profile/pages/ProfilePage.jsx
 import React, { useState } from 'react';
 import { useProfile } from '../hooks/useProfile';
+import { useProfileImage } from '../hooks/useProfileImage';
 import ProfileCard from '../components/ProfileCard';
 import ProfileHeader from '../components/ProfileHeader';
 import ProfileField from '../components/ProfileField';
 import ProfileActions from '../components/ProfileActions';
+import ProfileImageUploader from '../components/ProfileImageUploader';
+import { DEFAULT_PROFILE_IMAGE_URL } from '../constants/profileImageConstants';
 
 const editableFields = [
   { id: 'name', label: 'Full Name', type: 'text', placeholder: 'Enter your name' },
@@ -13,12 +16,14 @@ const editableFields = [
 ];
 
 const ProfilePage = () => {
-  const { isAuthenticated, logout, profileFields, currentUser, updateProfile } = useProfile();
+  const { isAuthenticated, logout, profileFields, currentUser, updateProfile, token } = useProfile();
+  // Use photoUrl for the image, fallback to default
+  const { imageUrl, loading, error, upload, edit, remove } = useProfileImage(currentUser?.photoUrl || DEFAULT_PROFILE_IMAGE_URL, token);
   const [isEditing, setIsEditing] = useState(false);
   const [form, setForm] = useState({ name: '', email: '', phone: '' });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [loadingProfile, setLoadingProfile] = useState(false);
+  const [errorProfile, setErrorProfile] = useState('');
+  const [successProfile, setSuccessProfile] = useState('');
 
   React.useEffect(() => {
     if (currentUser) {
@@ -49,8 +54,8 @@ const ProfilePage = () => {
 
   const handleEditToggle = () => {
     setIsEditing((prev) => !prev);
-    setError('');
-    setSuccess('');
+    setErrorProfile('');
+    setSuccessProfile('');
   };
 
   const handleChange = (e) => {
@@ -59,17 +64,17 @@ const ProfilePage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setError('');
-    setSuccess('');
+    setLoadingProfile(true);
+    setErrorProfile('');
+    setSuccessProfile('');
     try {
       await updateProfile(form);
-      setSuccess('Profile updated successfully!');
+      setSuccessProfile('Profile updated successfully!');
       setIsEditing(false);
     } catch (err) {
-      setError(err.message || 'Failed to update profile');
+      setErrorProfile(err.message || 'Failed to update profile');
     } finally {
-      setLoading(false);
+      setLoadingProfile(false);
     }
   };
 
@@ -85,8 +90,17 @@ const ProfilePage = () => {
               email: currentUser?.email || 'No email provided',
               phone: currentUser?.phone || null
             }}
+            imageUrl={imageUrl}
             onEditToggle={handleEditToggle}
             isEditing={isEditing}
+          />
+
+          <ProfileImageUploader
+            loading={loading}
+            error={error}
+            upload={upload}
+            edit={edit}
+            remove={remove}
           />
 
           {isEditing ? (
@@ -102,7 +116,7 @@ const ProfilePage = () => {
                     onChange={handleChange}
                     placeholder={field.placeholder}
                     className="rounded-lg border border-gray-300 px-4 py-2 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none bg-white shadow-sm"
-                    disabled={loading}
+                    disabled={loadingProfile}
                   />
                 </div>
               ))}
@@ -110,21 +124,21 @@ const ProfilePage = () => {
                 <button
                   type="submit"
                   className="px-6 py-2.5 font-semibold bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-60"
-                  disabled={loading}
+                  disabled={loadingProfile}
                 >
-                  {loading ? 'Saving...' : 'Save Changes'}
+                  {loadingProfile ? 'Saving...' : 'Save Changes'}
                 </button>
                 <button
                   type="button"
                   className="px-6 py-2.5 font-semibold bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
                   onClick={handleEditToggle}
-                  disabled={loading}
+                  disabled={loadingProfile}
                 >
                   Cancel
                 </button>
               </div>
-              {error && <div className="col-span-full text-red-600 font-medium mt-2">{error}</div>}
-              {success && <div className="col-span-full text-green-600 font-medium mt-2">{success}</div>}
+              {errorProfile && <div className="col-span-full text-red-600 font-medium mt-2">{errorProfile}</div>}
+              {successProfile && <div className="col-span-full text-green-600 font-medium mt-2">{successProfile}</div>}
             </form>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">

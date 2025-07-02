@@ -190,7 +190,7 @@ export const AuthProvider = ({ children }) => {
   const token = localStorage.getItem('authToken'); // This should now be consistent with isAuthenticated state
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, currentUser, token, login, register, logout, handleGoogleLogin }}>
+    <AuthContext.Provider value={{ isAuthenticated, currentUser, setCurrentUser, token, login, register, logout, handleGoogleLogin }}>
       {children}
     </AuthContext.Provider>
   );
