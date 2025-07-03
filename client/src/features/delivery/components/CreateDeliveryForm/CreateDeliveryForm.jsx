@@ -464,59 +464,60 @@ const CreateDeliveryForm = () => {
             )}
           </AnimatePresence>
 
-          {/* Form Navigation Buttons */}
-         <div className="flex flex-col sm:flex-row justify-between gap-4 mt-10 pt-6 border-t border-gray-200 dark:border-gray-200">
-            {currentStep > 1 && (
-              <motion.button
-                whileHover={{ x: -5 }}
-                whileTap={{ scale: 0.95 }}
-                type="button"
-                onClick={goToPreviousStep}
-                className="flex items-center justify-center w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 rounded-full bg-gray-200 dark:bg-gray-200 text-gray-800 dark:text-gray-800 font-semibold text-base sm:text-lg transition-colors hover:bg-gray-300 dark:hover:bg-gray-300"
-              >
-                <ArrowLeft className="w-5 h-5 mr-2" /> Previous
-              </motion.button>
-            )}
-
-            {/* Only show Next if not on last step */}
-            {currentStep < steps.length && (
-              <motion.button
-                whileHover={{ x: 5 }}
-                whileTap={{ scale: 0.95 }}
-                type="button"
-                onClick={goToNextStep}
-                className={
-                  `flex items-center justify-center w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 rounded-full bg-sky-600 text-white font-semibold text-base sm:text-lg transition-colors hover:bg-sky-700${currentStep === 1 ? ' sm:ml-auto' : ''}`
-                }
-              >
-                Next <ArrowRight className="w-5 h-5 ml-2" />
-              </motion.button>
-            )}
-
-            {/* Only show Confirm Order if on last step */}
-            {currentStep === steps.length && (
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                type="submit"
-                disabled={loading}
-                className={
-                  `flex items-center justify-center w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 rounded-full bg-green-600 text-white font-bold text-base sm:text-lg transition-colors hover:bg-green-700${loading ? ' opacity-70 cursor-not-allowed' : ''} sm:ml-auto`
-                }
-              >
-                {loading ? (
-                  <svg className="animate-spin h-4 w-4 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                ) : (
-                  <Check className="w-5 h-5 mr-2" />
-                )}
-                Confirm Order
-              </motion.button>
-            )}
+          {/* Sticky/Responsive Navigation Bar for Next/Previous Buttons */}
+          <div className="sticky bottom-0 left-0 right-0 z-40 bg-white/90 dark:bg-white/90 border-t border-gray-200 dark:border-gray-200 shadow-lg px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-4 max-w-4xl mx-auto w-full transition-all">
+            {/* Step Indicator */}
+            <div className="flex-1 text-center sm:text-left text-gray-600 text-sm font-semibold">
+              Step {currentStep} of {steps.length}
+            </div>
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 w-full sm:w-auto justify-end">
+              {currentStep > 1 && (
+                <motion.button
+                  whileHover={{ x: -5 }}
+                  whileTap={{ scale: 0.95 }}
+                  type="button"
+                  onClick={goToPreviousStep}
+                  className="flex items-center justify-center w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 rounded-full bg-gray-200 dark:bg-gray-200 text-gray-800 dark:text-gray-800 font-semibold text-base sm:text-lg transition-colors hover:bg-gray-300 dark:hover:bg-gray-300 shadow-sm"
+                  aria-label="Previous Step"
+                >
+                  <ArrowLeft className="w-5 h-5 mr-2" /> Previous
+                </motion.button>
+              )}
+              {currentStep < steps.length && (
+                <motion.button
+                  whileHover={{ x: 5 }}
+                  whileTap={{ scale: 0.95 }}
+                  type="button"
+                  onClick={goToNextStep}
+                  className="flex items-center justify-center w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 rounded-full bg-sky-600 text-white font-semibold text-base sm:text-lg transition-colors hover:bg-sky-700 shadow-sm"
+                  aria-label="Next Step"
+                >
+                  Next <ArrowRight className="w-5 h-5 ml-2" />
+                </motion.button>
+              )}
+              {currentStep === steps.length && (
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  type="submit"
+                  disabled={loading}
+                  className={`flex items-center justify-center w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 rounded-full bg-green-600 text-white font-bold text-base sm:text-lg transition-colors hover:bg-green-700 shadow-sm${loading ? ' opacity-70 cursor-not-allowed' : ''}`}
+                  aria-label="Confirm Order"
+                >
+                  {loading ? (
+                    <svg className="animate-spin h-4 w-4 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                  ) : (
+                    <Check className="w-5 h-5 mr-2" />
+                  )}
+                  Confirm Order
+                </motion.button>
+              )}
+            </div>
           </div>
-
+          {/* Remove extra bottom padding, let sticky bar scroll with content */}
         </form>
       </div>
     </div>

@@ -1,1 +1,11 @@
 @import "tailwindcss";
+
+/* Fix Leaflet z-index for Tailwind projects */
+.leaflet-container {
+  z-index: 0 !important;
+}
+
+/* Example: ensure your navbar/header is always above the map */
+.navbar, .header, .z-50 {
+  z-index: 50 !important;
+}
