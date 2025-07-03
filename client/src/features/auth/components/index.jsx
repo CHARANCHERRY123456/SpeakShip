@@ -1,6 +1,6 @@
 // client/src/features/auth/components/index.js
 import React from 'react';
-import { Mail, Lock, Eye, EyeOff, User, MapPin, Tag, Phone } from 'lucide-react';
+import { Lock, Eye, EyeOff, User,Users,UserCircle, MapPin, Tag, Phone } from 'lucide-react';
 import { USER_ROLES } from '../../../constants/globalConstants';
 
 // --- NEW IMPORTS ---
@@ -14,28 +14,31 @@ import EmailVerificationStep from './EmailVerificationStep';
 function RoleSelect({ value, onChange, isLogin, disabled }) {
   return (
     <div className="mb-2">
-      <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1 font-inter">Role</label>
+      {/* <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1 font-inter">Role</label> */}
       <div className="relative">
         <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-          <User className="h-5 w-5 text-gray-400" />
+      <User className="h-5 w-5 text-gray-400" /> 
         </div>
         <select
-          id="role"
-          name="role"
-          value={value}
-          onChange={onChange}
-          className="block w-full rounded-lg border border-gray-300 py-3 pl-10 pr-3 text-gray-900 placeholder-gray-400 focus:border-sky-500 focus:outline-none focus:ring-sky-500 sm:text-sm font-inter appearance-none"
-          style={{ marginBottom: 0 }}
-          disabled={disabled}
-        >
-          <option value={USER_ROLES.CUSTOMER}>Customer</option>
-          <option value={USER_ROLES.DRIVER}>Driver</option>
-          {isLogin && <option value={USER_ROLES.ADMIN}>Admin</option>}
-        </select>
-        {/* Custom dropdown arrow for better alignment */}
-        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-          <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
-        </div>
+  id="role"
+  name="role"
+  value={value}
+  onChange={onChange}
+  className="block w-full rounded-lg border border-gray-300 py-3 pl-10 pr-3 text-gray-900 placeholder-gray-400 focus:border-sky-500 focus:outline-none focus:ring-sky-500 sm:text-sm font-inter appearance-none"
+  style={{ marginBottom: 0 }}
+  disabled={disabled}
+>
+  <option value="" disabled selected hidden>Select Role</option>
+  <option value={USER_ROLES.CUSTOMER}>Customer</option>
+  <option value={USER_ROLES.DRIVER}>Driver</option>
+  {isLogin && <option value={USER_ROLES.ADMIN}>Admin</option>}
+</select>
+{/* Custom dropdown arrow for better alignment */}
+<div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+  <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+  </svg>
+</div>
       </div>
     </div>
   );
@@ -48,7 +51,7 @@ function UsernameInput({ value, onChange, error, label = 'Username', placeholder
       <label htmlFor="username" className="sr-only">{label}</label>
       <div className="relative">
         <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-          <User className="h-5 w-5 text-gray-400" aria-hidden="true" />
+          <UserCircle className="h-5 w-5 text-gray-400"  aria-hidden="true" />
         </div>
         <input
           type="text"
