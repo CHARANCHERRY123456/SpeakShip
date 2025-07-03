@@ -1,4 +1,4 @@
-import ProfileRepository from '../repository/ProfileRepository.js';
+import ProfileRepository, { getUserById, updateUserProfileImage, removeUserProfileImage } from '../repository/profileRepository.js';
 
 const ProfileController = {
   async getProfile(req, res) {
