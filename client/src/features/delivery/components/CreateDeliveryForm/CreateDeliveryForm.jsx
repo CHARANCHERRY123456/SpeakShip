@@ -126,42 +126,46 @@ const CreateDeliveryForm = () => {
 
   // Fetch Gemini price and distance suggestion when relevant fields change
   useEffect(() => {
-    async function fetchGeminiEstimates() {
-      if (
-        formData.pickupAddress &&
-        formData.dropoffAddress &&
-        formData.packageName &&
-        formData.priorityLevel &&
-        formData.weight // Require weight
-      ) {
-        setFetchingGemini(true);
-        try {
-          const result = await fetchGeminiPrice({
-            pickupAddress: formData.pickupAddress,
-            dropoffAddress: formData.dropoffAddress,
-            packageName: formData.packageName,
-            urgency: formData.priorityLevel,
-            weight: formData.weight,
-          });
-          setFormData(prev => ({
-            ...prev,
-            priceEstimate: result.price ?? 0,
-            distanceInKm: result.distance ?? 0,
-            deliveryTimeEstimate: result.estimatedDelivery ?? null,
-          }));
-        } catch (err) {
-          setFormData(prev => ({
-            ...prev,
-            priceEstimate: 0,
-            distanceInKm: 0,
-            deliveryTimeEstimate: null,
-          }));
-        } finally {
-          setFetchingGemini(false);
+    // Debounce logic to reduce excessive API calls
+    const handler = setTimeout(() => {
+      async function fetchGeminiEstimates() {
+        if (
+          formData.pickupAddress &&
+          formData.dropoffAddress &&
+          formData.packageName &&
+          formData.priorityLevel &&
+          formData.weight // Require weight
+        ) {
+          setFetchingGemini(true);
+          try {
+            const result = await fetchGeminiPrice({
+              pickupAddress: formData.pickupAddress,
+              dropoffAddress: formData.dropoffAddress,
+              packageName: formData.packageName,
+              urgency: formData.priorityLevel,
+              weight: formData.weight,
+            });
+            setFormData(prev => ({
+              ...prev,
+              priceEstimate: result.price ?? 0,
+              distanceInKm: result.distance ?? 0,
+              deliveryTimeEstimate: result.estimatedDelivery ?? null,
+            }));
+          } catch (err) {
+            setFormData(prev => ({
+              ...prev,
+              priceEstimate: 0,
+              distanceInKm: 0,
+              deliveryTimeEstimate: null,
+            }));
+          } finally {
+            setFetchingGemini(false);
+          }
         }
       }
-    }
-    fetchGeminiEstimates();
+      fetchGeminiEstimates();
+    }, 500); // 500ms debounce
+    return () => clearTimeout(handler);
   }, [formData.pickupAddress, formData.dropoffAddress, formData.packageName, formData.priorityLevel, formData.weight]);
 
   // Fetch all urgency prices when addresses, package, or weight change
@@ -332,121 +336,58 @@ const CreateDeliveryForm = () => {
             />
           </motion.div>
         );
-   case 4:
-  // Enhanced Urgency & Price selection step with vibrant UI/UX
-  return (
-    <motion.div
-      className="relative overflow-hidden rounded-xl shadow-xl p-0 md:p-0"
-      style={{ minHeight: 420 }}
-    >
-      {/* Animated Gradient Background */}
-      <motion.div
-        className="absolute inset-0 z-0 animate-gradient"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 0.8 }}
-        transition={{ duration: 1.2 }}
-      />
-      
-      <div className="relative z-10 p-6 md:p-10 flex flex-col gap-4">
-        <div className="w-16 h-16 bg-gradient-to-br from-orange-300 to-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-2">
-          <DollarSign className="w-8 h-8 text-white" />
-        </div>
-        
-        <motion.h3
-          className="text-2xl md:text-3xl font-extrabold text-center text-gray-900 dark:text-black drop-shadow-lg"
-          initial={{ y: -20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.6, type: 'spring', stiffness: 120 }}
-        >
-          Select Delivery Urgency & Price
-        </motion.h3>
-        
-        {/* Added descriptive text below the heading */}
-        <p className="text-gray-600 dark:text-gray-600 text-center mb-4">
-          Choose how fast you want your package delivered based on Price and Urgency.
-        </p>
-        
-        <motion.div
-          className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4"
-          initial="hidden"
-          animate="visible"
-          variants={{
-            hidden: {},
-            visible: { transition: { staggerChildren: 0.12 } }
-          }}
-        >
-          {['Normal', 'Urgent', 'Overnight'].map((level, idx) => (
+      case 4:
+        // Urgency & Price step: Only show price, do not allow urgency selection here
+        return (
+          <motion.div className="relative overflow-hidden rounded-xl shadow-xl p-0 md:p-0" style={{ minHeight: 420 }}>
+            {/* Animated Gradient Background */}
             <motion.div
-              key={level}
-              variants={{
-                hidden: { scale: 0.95, opacity: 0 },
-                visible: { scale: 1, opacity: 1 }
-              }}
-              whileHover={{ scale: 1.06, boxShadow: '0 8px 32px 0 rgba(0,0,0,0.18)' }}
-              whileTap={{ scale: 0.97 }}
-              onClick={() => {
-                setFormData(prev => ({ ...prev, priorityLevel: level, priceEstimate: urgencyPrices[level] }));
-              }}
-              className={`relative cursor-pointer select-none p-7 rounded-3xl border-4 transition-all duration-300 group
-                ${formData.priorityLevel === level
-                  ? 'border-yellow-400 bg-gradient-to-br from-yellow-100 via-blue-100 to-pink-100 dark:from-yellow-100 dark:via-blue-100 dark:to-pink-100 shadow-2xl scale-105'
-                  : 'border-gray-200 bg-white/80 dark:bg-white/80 hover:border-blue-300 hover:shadow-lg'}
-              `}
-            >
-              {formData.priorityLevel === level && (
-                <motion.div
-                  className="absolute -top-3 -right-3 w-8 h-8 bg-gradient-to-br from-yellow-400 to-pink-400 dark:from-yellow-400 dark:to-pink-400 rounded-full flex items-center justify-center shadow-lg"
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1.1 }}
-                  transition={{ type: 'spring', stiffness: 300, damping: 15 }}
-                >
-                  <Check className="w-5 h-5 text-white drop-shadow" />
-                </motion.div>
-              )}
-              <div className="flex justify-between items-center mb-2">
-                <span className={`font-bold text-lg md:text-xl ${formData.priorityLevel === level ? 'text-yellow-700 dark:text-yellow-700' : 'text-gray-800 dark:text-gray-800'}`}>{level}</span>
-                <span className={`text-xs font-semibold px-3 py-1 rounded-full ${formData.priorityLevel === level ? 'bg-yellow-200 text-yellow-800 dark:bg-yellow-200 dark:text-yellow-800' : 'bg-gray-200 text-gray-600 dark:bg-gray-200 dark:text-gray-600'}`}>{level === 'Normal' ? 'Base Price' : level === 'Urgent' ? '+50%' : '+100%'}</span>
-              </div>
-              <p className={`text-sm ${formData.priorityLevel === level ? 'text-blue-700 dark:text-blue-200' : 'text-gray-600 dark:text-gray-400'}`}>{level === 'Normal' ? 'Standard delivery' : level === 'Urgent' ? 'Faster delivery' : 'Next day delivery'}</p>
-              <motion.div
-                className={`mt-4 text-lg font-bold ${formData.priorityLevel === level ? 'text-green-700 dark:text-green-700' : 'text-gray-500 dark:text-gray-500'}`}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 * idx }}
-              >
-                ₹{urgencyPrices[level] || 0}
-              </motion.div>
-            </motion.div>
-          ))}
-        </motion.div>
-        
-        <motion.div
-          className="w-full max-w-md mx-auto bg-white/90 dark:bg-white/90 rounded-2xl shadow-lg p-6 flex flex-col gap-2 border-2 border-yellow-200 dark:border-yellow-200"
-          initial={{ scale: 0.98, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.5, type: 'spring', stiffness: 120 }}
-        >
-          <label className="block text-base font-semibold text-gray-800 dark:text-gray-800 mb-1">
-            Predicted Price (editable) <span className="text-red-500">*</span>
-          </label>
-          <div className="flex items-center gap-2">
-            <EnhancedInput
-              label=""
-              name="priceEstimate"
-              type="number"
-              value={formData.priceEstimate}
-              onChange={handleChange}
-              icon={DollarSign}
-              required
+              className="absolute inset-0 z-0 animate-gradient"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.8 }}
+              transition={{ duration: 1.2 }}
             />
-            <span className="text-xs text-gray-500 ml-2">System: <span className="font-semibold text-green-600">₹{urgencyPrices[formData.priorityLevel] || 0}</span></span>
-          </div>
-          <span className="text-xs text-gray-500">You can use the system price for better acceptance, or set your own price if you prefer.</span>
-        </motion.div>
-      </div>
-    </motion.div>
-  
-  );
+            <div className="relative z-10 p-6 md:p-10 flex flex-col gap-4">
+              <div className="w-16 h-16 bg-gradient-to-br from-orange-300 to-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-2">
+                <DollarSign className="w-8 h-8 text-white" />
+              </div>
+              <motion.h3
+                className="text-2xl md:text-3xl font-extrabold text-center text-gray-900 dark:text-black drop-shadow-lg"
+                initial={{ y: -20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.6, type: 'spring', stiffness: 120 }}
+              >
+                Delivery Price
+              </motion.h3>
+              <p className="text-gray-600 dark:text-gray-600 text-center mb-4">
+                Review and adjust the price if needed. Urgency was selected in the previous step.
+              </p>
+              <motion.div
+                className="w-full max-w-md mx-auto bg-white/90 dark:bg-white/90 rounded-2xl shadow-lg p-6 flex flex-col gap-2 border-2 border-yellow-200 dark:border-yellow-200"
+                initial={{ scale: 0.98, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.5, type: 'spring', stiffness: 120 }}
+              >
+                <label className="block text-base font-semibold text-gray-800 dark:text-gray-800 mb-1">
+                  Predicted Price (editable) <span className="text-red-500">*</span>
+                </label>
+                <div className="flex items-center gap-2">
+                  <EnhancedInput
+                    label=""
+                    name="priceEstimate"
+                    type="number"
+                    value={formData.priceEstimate}
+                    onChange={handleChange}
+                    icon={DollarSign}
+                    required
+                  />
+                  <span className="text-xs text-gray-500 ml-2">System: <span className="font-semibold text-green-600">₹{urgencyPrices[formData.priorityLevel] || 0}</span></span>
+                </div>
+                <span className="text-xs text-gray-500">You can use the system price for better acceptance, or set your own price if you prefer.</span>
+              </motion.div>
+            </div>
+          </motion.div>
+        );
       case 5:
         return (
           <motion.div className="bg-white dark:bg-white shadow-md rounded-xl border border-gray-200 dark:border-gray-200 p-4 md:p-6">

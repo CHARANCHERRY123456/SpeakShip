@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { MapPin, Package } from 'lucide-react';
+import { MapPin } from 'lucide-react';
 import MapAddressPicker from './MapAddressPicker';
 import AddressAutocompleteInput from './AddressAutocompleteInput';
 
@@ -77,17 +77,6 @@ const PickupDropoffStep = ({
           setFormData(prev => ({ ...prev, dropoffAddress: address }));
         }}
       />
-      <div className="mt-6">
-        <EnhancedInput
-          label="Package Name"
-          name="packageName"
-          value={formData.packageName}
-          onChange={handleChange}
-          placeholder="What are you sending?"
-          required
-          icon={Package}
-        />
-      </div>
     </div>
   </motion.div>
 );
