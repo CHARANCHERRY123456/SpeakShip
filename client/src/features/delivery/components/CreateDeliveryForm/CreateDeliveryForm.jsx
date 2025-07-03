@@ -124,80 +124,80 @@ const CreateDeliveryForm = () => {
     { number: 5, title: 'Review & Confirm', icon: Check, color: 'from-orange-500 to-red-500' }
   ];
 
-  // Fetch Gemini price and distance suggestion when relevant fields change
-  useEffect(() => {
-    // Debounce logic to reduce excessive API calls
-    const handler = setTimeout(() => {
-      async function fetchGeminiEstimates() {
-        if (
-          formData.pickupAddress &&
-          formData.dropoffAddress &&
-          formData.packageName &&
-          formData.priorityLevel &&
-          formData.weight // Require weight
-        ) {
-          setFetchingGemini(true);
-          try {
-            const result = await fetchGeminiPrice({
-              pickupAddress: formData.pickupAddress,
-              dropoffAddress: formData.dropoffAddress,
-              packageName: formData.packageName,
-              urgency: formData.priorityLevel,
-              weight: formData.weight,
-            });
-            setFormData(prev => ({
-              ...prev,
-              priceEstimate: result.price ?? 0,
-              distanceInKm: result.distance ?? 0,
-              deliveryTimeEstimate: result.estimatedDelivery ?? null,
-            }));
-          } catch (err) {
-            setFormData(prev => ({
-              ...prev,
-              priceEstimate: 0,
-              distanceInKm: 0,
-              deliveryTimeEstimate: null,
-            }));
-          } finally {
-            setFetchingGemini(false);
-          }
-        }
-      }
-      fetchGeminiEstimates();
-    }, 500); // 500ms debounce
-    return () => clearTimeout(handler);
-  }, [formData.pickupAddress, formData.dropoffAddress, formData.packageName, formData.priorityLevel, formData.weight]);
-
-  // Fetch all urgency prices when addresses, package, or weight change
-  useEffect(() => {
-    async function fetchAllUrgencyPrices() {
-      if (
-        formData.pickupAddress &&
-        formData.dropoffAddress &&
-        formData.packageName &&
-        formData.weight
-      ) {
-        const urgencies = ['Normal', 'Urgent', 'Overnight'];
-        const prices = {};
-        for (const urgency of urgencies) {
-          try {
-            const result = await fetchGeminiPrice({
-              pickupAddress: formData.pickupAddress,
-              dropoffAddress: formData.dropoffAddress,
-              packageName: formData.packageName,
-              urgency,
-              weight: formData.weight,
-            });
-            prices[urgency] = result.price ?? 0;
-          } catch {
-            prices[urgency] = 0;
-          }
-        }
-        setUrgencyPrices(prices);
+  // Fetch Gemini price and distance suggestion only when user leaves the step (onNext)
+  const fetchGeminiEstimates = async () => {
+    if (
+      formData.pickupAddress &&
+      formData.dropoffAddress &&
+      formData.packageName &&
+      formData.priorityLevel &&
+      formData.weight
+    ) {
+      setFetchingGemini(true);
+      try {
+        console.log('[DEBUG] fetchGeminiEstimates call:', {
+          pickupAddress: formData.pickupAddress,
+          dropoffAddress: formData.dropoffAddress,
+          packageName: formData.packageName,
+          urgency: formData.priorityLevel,
+          weight: formData.weight,
+        });
+        const result = await fetchGeminiPrice({
+          pickupAddress: formData.pickupAddress,
+          dropoffAddress: formData.dropoffAddress,
+          packageName: formData.packageName,
+          urgency: formData.priorityLevel,
+          weight: formData.weight,
+        });
+        console.log('[DEBUG] fetchGeminiEstimates result:', result);
+        setFormData(prev => ({
+          ...prev,
+          priceEstimate: result.price !== undefined ? result.price : prev.priceEstimate,
+          distanceInKm: result.distance !== undefined ? result.distance : prev.distanceInKm,
+          deliveryTimeEstimate: result.estimatedDelivery !== undefined ? result.estimatedDelivery : prev.deliveryTimeEstimate,
+        }));
+        setGeminiSuggestedPrice(result.price);
+      } catch (err) {
+        console.error('[DEBUG] fetchGeminiEstimates error:', err);
+        setFormData(prev => ({
+          ...prev,
+          priceEstimate: 0,
+          distanceInKm: 0,
+          deliveryTimeEstimate: null,
+        }));
+      } finally {
+        setFetchingGemini(false);
       }
     }
-    fetchAllUrgencyPrices();
-  }, [formData.pickupAddress, formData.dropoffAddress, formData.packageName, formData.weight]);
+  };
+
+  // Update goToNextStep to call fetchGeminiEstimates only when moving from step 3 to 4
+  const goToNextStep = async () => {
+    // Basic validation before proceeding
+    if (currentStep === 1) {
+      if (!formData.name || !formData.email || !formData.packageName) {
+        toast.error('Please fill in all required Customer & Package details.');
+        return;
+      }
+    } else if (currentStep === 2) {
+      if (!formData.pickupAddress) {
+        toast.error('Please enter the Pickup Address.');
+        return;
+      }
+    } else if (currentStep === 3) {
+      if (!formData.dropoffAddress) {
+        toast.error('Please enter the Dropoff Address.');
+        return;
+      }
+      // Only fetch price estimate when moving to step 4
+      await fetchGeminiEstimates();
+    }
+    setCurrentStep((prev) => Math.min(prev + 1, steps.length));
+  };
+
+  const goToPreviousStep = () => {
+    setCurrentStep((prev) => Math.max(prev - 1, 1));
+  };
 
   // Generic handleChange function for all text inputs
   const handleChange = (e) => {
@@ -207,15 +207,6 @@ const CreateDeliveryForm = () => {
       [name]: value
     }));
   };
-
-  // Remove handleLocationSearch mock calculation logic
-  const handleLocationSearch = (address, type) => {
-    setFormData(prev => ({
-      ...prev,
-      [`${type}Address`]: address
-    }));
-  };
-  
 
   // Form submission
   const handleSubmit = async (e) => {
@@ -267,31 +258,6 @@ const CreateDeliveryForm = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const goToNextStep = () => {
-    // Basic validation before proceeding
-    if (currentStep === 1) {
-      if (!formData.name || !formData.email || !formData.packageName) {
-        toast.error('Please fill in all required Customer & Package details.');
-        return;
-      }
-    } else if (currentStep === 2) {
-      if (!formData.pickupAddress) {
-        toast.error('Please enter the Pickup Address.');
-        return;
-      }
-    } else if (currentStep === 3) {
-      if (!formData.dropoffAddress) {
-        toast.error('Please enter the Dropoff Address.');
-        return;
-      }
-    }
-    setCurrentStep((prev) => Math.min(prev + 1, steps.length));
-  };
-
-  const goToPreviousStep = () => {
-    setCurrentStep((prev) => Math.max(prev - 1, 1));
   };
 
   // Render current step content (renamed from renderStepContent for clarity)
@@ -381,9 +347,9 @@ const CreateDeliveryForm = () => {
                     icon={DollarSign}
                     required
                   />
-                  <span className="text-xs text-gray-500 ml-2">System: <span className="font-semibold text-green-600">₹{urgencyPrices[formData.priorityLevel] || 0}</span></span>
+                  <span className="text-xs text-gray-500 ml-2">System: <span className="font-semibold text-green-600">₹{geminiSuggestedPrice !== null ? geminiSuggestedPrice : formData.priceEstimate}</span></span>
                 </div>
-                <span className="text-xs text-gray-500">You can use the system price for better acceptance, or set your own price if you prefer.</span>
+                <span className="text-xs text-blue-600 mt-1">Use the system decided price for best acceptance rate, or enter your own price if you prefer.</span>
               </motion.div>
             </div>
           </motion.div>
