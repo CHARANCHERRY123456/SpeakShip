@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Check, DollarSign, MapPin, Package } from 'lucide-react';
+import { Check,FileText, MapPin, Package } from 'lucide-react';
 
 const ReviewStep = ({ formData }) => (
   <motion.div 
@@ -84,8 +84,9 @@ const ReviewStep = ({ formData }) => (
       </div>
       {/* Final Summary */}
       <div className="bg-white border border-gray-200 rounded-xl p-4 mt-6 md:mt-8 shadow-md flex flex-col gap-4">
+                
         <div className="flex items-center gap-2">
-          <DollarSign className="w-6 h-6 text-green-500" />
+          <FileText className="w-6 h-6 text-blue-500" />
           <span className="text-lg font-bold text-gray-900">Order Summary</span>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -100,7 +101,7 @@ const ReviewStep = ({ formData }) => (
           </span>
         </div>
         <div className="flex items-center justify-between mt-2">
-          <div className="text-base text-gray-600">Total Amount</div>
+          <div className="text-base ">Total Amount:</div>
           <div className="text-3xl font-extrabold text-green-600">₹{formData.priceEstimate}</div>
         </div>
         <div className="text-sm text-gray-500 mt-1">

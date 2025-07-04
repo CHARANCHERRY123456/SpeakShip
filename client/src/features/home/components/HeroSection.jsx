@@ -171,7 +171,7 @@ const HeroSection = () => {
                   Get Started
                 </PrimaryButton>
               </Link>
-              <Link to="/about">
+              <Link to="/aboutus">
                 <SecondaryButton 
                   className="px-8 py-3 text-lg"
                   whileHover={{ 

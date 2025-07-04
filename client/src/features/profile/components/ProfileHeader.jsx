@@ -25,7 +25,7 @@ const ProfileHeader = ({ user, imageUrl, onEditToggle, onSettingsClick, onEditIm
   const handleCloseModal = () => setShowModal(false);
 
   return (
-    <div className="relative bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 rounded-2xl p-6 sm:p-8 text-white overflow-hidden">
+    <div className="relative bg-gradient-to-br from-blue-600 via-blur-700 to-blue-900 rounded-2xl p-6 sm:p-8 text-white overflow-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-0 right-0 w-32 h-32 bg-white rounded-full -mr-16 -mt-16"></div>
