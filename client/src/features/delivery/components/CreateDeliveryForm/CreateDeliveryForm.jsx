@@ -1,6 +1,6 @@
 // src/features/delivery/components/CreateDeliveryForm.jsx
 import React, { useState, useEffect } from 'react';
-import { MapPin, Package, DollarSign,Check, ArrowRight, ArrowLeft } from 'lucide-react';
+import { MapPin, Package, DollarSign,Check, ArrowRight, ArrowLeft,IndianRupee } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from '../../../../api/axios.js';
 import { useNavigate } from 'react-router-dom';
@@ -344,7 +344,7 @@ const CreateDeliveryForm = () => {
                     type="number"
                     value={formData.priceEstimate}
                     onChange={handleChange}
-                    icon={DollarSign}
+                    icon={IndianRupee}
                     required
                   />
                   <span className="text-xs text-gray-500 ml-2">System: <span className="font-semibold text-green-600">₹{geminiSuggestedPrice !== null ? geminiSuggestedPrice : formData.priceEstimate}</span></span>
