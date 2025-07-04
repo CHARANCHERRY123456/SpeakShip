@@ -1,5 +1,4 @@
 import { updateUserProfileImage, getUserById, removeUserProfileImage } from '../repository/profileRepository.js';
-import { deleteImageFromCloudinary, getPublicIdFromUrl } from '../utils/imageUtils.js';
 import { DEFAULT_PROFILE_IMAGE_URL } from '../../../constants/globalConstants.js';
 
 export const uploadProfileImageService = async (userId, userType, imageUrl) => {
