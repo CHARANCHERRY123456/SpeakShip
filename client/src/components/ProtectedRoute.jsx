@@ -1,14 +1,17 @@
 import { useAuth } from '../contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
+import LoadingSpinner from '../features/core/components/LoadingSpinner';
 
 export default function ProtectedRoute({ children, allowedRoles }) {
   // Destructure isAuthenticated and currentUser from useAuth
   const { isAuthenticated, currentUser, loading } = useAuth();
 
-
-
   if (loading) {
-    return <div>Loading authentication...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <LoadingSpinner />
+      </div>
+    );
   }
 
   // If not authenticated, redirect to login page

@@ -1,7 +1,10 @@
 // client/src/contexts/AuthContext.jsx
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { loginCustomer, loginDriver, registerCustomer, registerDriver, loginAdmin } from '../features/auth/api'; // Import your API functions
+import LoadingSpinner from '../features/core/components/LoadingSpinner';
 import { toast } from 'react-hot-toast'; // Assuming you use react-hot-toast for notifications
+
+
 
 const AuthContext = createContext();
 
@@ -184,7 +187,9 @@ export const AuthProvider = ({ children }) => {
 
   // Render children only after the initial authentication check is complete
   if (loading) {
-    return <div>Loading authentication...</div>; // Or a more elaborate loading spinner
+    return <div className="flex items-center justify-center min-h-screen">
+        <LoadingSpinner />
+      </div> // Or a more elaborate loading spinner
   }
 
   const token = localStorage.getItem('authToken'); // This should now be consistent with isAuthenticated state
