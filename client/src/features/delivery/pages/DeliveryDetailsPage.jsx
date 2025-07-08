@@ -9,6 +9,7 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { toast } from 'react-hot-toast';
 import { Mail, Phone, User, Truck, Tag, Calendar, Image as ImageIcon, MapPin, CheckCircle } from 'lucide-react';
 import { COLORS, STYLES } from '../../../constants/colorConstants';
+import ChatBox from '../../chat/components/ChatBox';
 
 const DeliveryDetailsPage = () => {
   const { id } = useParams();
@@ -21,6 +22,8 @@ const DeliveryDetailsPage = () => {
   const [otpInput, setOtpInput] = useState('');
   const [otpLoading, setOtpLoading] = useState(false);
   const [otpError, setOtpError] = useState('');
+  const [showChat, setShowChat] = useState(false);
+
 
   useEffect(() => {
     async function fetchData() {
@@ -208,6 +211,39 @@ const DeliveryDetailsPage = () => {
           </div>
           {/* Divider */}
           <div className={STYLES.DIVIDER}></div>
+        
+{/* Chat between driver and customer */}
+
+{delivery?.driver && currentUser && (
+  (currentUser._id === delivery.customer?._id ||
+   currentUser._id === delivery.driver?._id ||
+   currentUser._id === delivery.customer ||
+   currentUser._id === delivery.driver) && (
+    <div className="mt-6">
+      <div className={`${STYLES.SECTION_HEADING} text-[#1976D2]`}>
+        <Truck className="h-5 w-5" />
+        Chat with {isCustomer ? 'Driver' : 'Customer'}
+      </div>
+      {!showChat && (
+        <button
+          onClick={() => setShowChat(true)}
+          className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
+        >
+          Open Chat
+        </button>
+      )}
+      {showChat && (
+        <ChatBox
+          deliveryId={delivery._id}
+          driverId={typeof delivery.driver === 'object' ? delivery.driver._id : delivery.driver}
+        />
+      )}
+    </div>
+  )
+)}
+
+
+
           {/* Review section */}
           <div className="mt-6">
             <div className={`${STYLES.SECTION_HEADING} text-[#1976D2]`}><Tag className="h-5 w-5" />Reviews</div>
