@@ -5,9 +5,9 @@ import deliveryRoutes from './features/delivery/routes/index.js';
 import feedbackRoutes from './features/feedback/routes.js';
 import profileRoutes from './features/profile/routes/index.js';
 import priceRoutes from './features/delivery/routes/price.js';
+import chatRoutes from './features/chat/routes/index.js';
 import cors from 'cors';
 import passport from './features/auth/services/GoogleStrategy.js';
-import path from 'path';
 import morgan from 'morgan';
 
 
@@ -35,6 +35,8 @@ app.use('/api/delivery', deliveryRoutes);
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/price', priceRoutes);
+app.use('/api/chat', chatRoutes);
+
 
 
 
