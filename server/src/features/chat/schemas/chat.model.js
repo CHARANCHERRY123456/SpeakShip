@@ -8,7 +8,7 @@ const chatSchema = new mongoose.Schema({
       role: { type: String, enum: ['customer', 'driver'], required: true },
     },
   ],
-  deliveryOrderId: { type: mongoose.Schema.Types.ObjectId, ref: 'Delivery', required: true },
+  deliveryOrderId: { type: mongoose.Schema.Types.ObjectId, ref: 'DeliveryRequest', required: true },
 }, { timestamps: true });
 
 export default mongoose.model('Chat', chatSchema);
