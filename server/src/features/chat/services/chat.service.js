@@ -15,7 +15,10 @@ export const getOrCreateChat = async (deliveryOrderId, customerId, driverId) => 
   let chat = await findChatByDelivery(deliveryOrderId);
 
   if (!chat) {
-    const participants = [customerId, driverId];
+    const participants = [
+      { userId: customerId, role: 'customer' },
+      { userId: driverId, role: 'driver' }
+    ];
     chat = await createChat(participants, deliveryOrderId);
   }
 
