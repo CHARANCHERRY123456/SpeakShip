@@ -297,47 +297,55 @@ const ChatBox = ({ deliveryId, driverId }) => {
           </div>
         )}
 
-        <div className="flex items-center">
-          <input
-            type="text"
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-            placeholder="Type your message..."
-            className="flex-1 border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all duration-200"
-          />
-          
-          {/* Attachments button */}
-          <div className="relative ml-2">
-            <button
-              ref={attachmentButtonRef}
-              onClick={() => setShowAttachments(!showAttachments)}
-              className={`p-2 rounded-full transition-all duration-200 ${
-                showAttachments
-                  ? 'bg-blue-100 text-blue-600'
-                  : 'bg-blue-200 text-blue-600 hover:bg-blue-300'
-              }`}
-            >
-              {showAttachments ? (
-                <FiX className="text-xl" />
-              ) : (
-                <FiPlus className="text-xl" />
-              )}
-            </button>
-          </div>
+        <div className="flex items-center w-full gap-1 sm:gap-2">
+        {/* Message Input */}
+        <input
+          type="text"
+          value={newMessage}
+          onChange={(e) => setNewMessage(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+          placeholder="Type your message..."
+          className="flex-1 min-w-[50px] border border-gray-300 rounded-full px-3 py-2 sm:px-4 sm:py-2.5 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all duration-200"
+        />
+        
+        {/* Attachments Button - Always visible now */}
+        <button
+          ref={attachmentButtonRef}
+          onClick={() => setShowAttachments(!showAttachments)}
+          className={`
+            p-2 min-w-[40px] rounded-full transition-all duration-200
+            focus:outline-none focus:ring-2 focus:ring-blue-300
+            ${showAttachments
+              ? 'bg-blue-100 text-blue-600'
+              : 'bg-blue-200 text-blue-600 hover:bg-blue-300'
+            }
+          `}
+          aria-label={showAttachments ? "Close attachments" : "Add attachments"}
+        >
+          {showAttachments ? (
+            <FiX className="text-lg sm:text-xl" />
+          ) : (
+            <FiPlus className="text-lg sm:text-xl" />
+          )}
+        </button>
 
-          <button
-            onClick={handleSend}
-            disabled={!newMessage.trim()}
-            className={`ml-2 p-2 rounded-full transition-all duration-200 ${
-              newMessage.trim()
-                ? 'bg-blue-500 text-white hover:bg-blue-600 transform hover:scale-110'
-                : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-            }`}
-            >
-            <FiSend className="text-xl" />
-          </button>
-        </div>
+        {/* Send Button - Always visible now */}
+        <button
+          onClick={handleSend}
+          disabled={!newMessage.trim()}
+          className={`
+            p-2 min-w-[40px] rounded-full transition-all duration-200
+            focus:outline-none focus:ring-2 focus:ring-blue-300
+            ${newMessage.trim()
+              ? 'bg-blue-500 text-white hover:bg-blue-600 active:bg-blue-700'
+              : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+            }
+          `}
+          aria-label="Send message"
+        >
+          <FiSend className="text-lg sm:text-xl" />
+        </button>
+      </div>
       </div>
     </div>
   );
