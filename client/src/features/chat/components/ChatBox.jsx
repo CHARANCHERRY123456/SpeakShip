@@ -56,7 +56,6 @@ const ChatBox = ({ deliveryId, driverId }) => {
 
   useEffect(() => {
     const handleNewMessage = (msg) => {
-      console.log('Received newMessage:', msg); // Debug: log every incoming message
       setMessages((prev) => [...prev, msg]);
     };
     socket.on('newMessage', handleNewMessage);
@@ -67,12 +66,6 @@ const ChatBox = ({ deliveryId, driverId }) => {
 
   const handleSend = () => {
     if (!newMessage.trim() || !chatId || !currentUser?._id) return;
-    console.log('Sending message:', {
-      chatId,
-      senderId: currentUser._id,
-      senderRole: currentUser.role,
-      content: newMessage.trim(),
-    });
     socket.emit('sendMessage', {
       chatId,
       senderId: currentUser._id,
