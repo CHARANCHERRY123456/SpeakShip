@@ -3,7 +3,8 @@ import './App.css';
 import Navbar from './components/Navbar';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './contexts/AuthContext';
-import { SocketProvider } from './contexts/SocketContext'; // ✅ Import SocketProvider
+import { SocketProvider } from './contexts/SocketContext';
+import SocketTest from './SocketTest';
 import AuthRoutes from './routes/AuthRoutes';
 
 function App() {
@@ -13,6 +14,7 @@ function App() {
       <SocketProvider> 
         <AuthProvider>
           <Router>
+            <SocketTest />
             <Navbar />
             <AuthRoutes />
           </Router>
