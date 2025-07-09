@@ -1,26 +1,13 @@
 // File: client/src/contexts/SocketContext.jsx
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import socketClient from '../features/chat/socket';
+import React, { createContext, useContext } from 'react';
+import { getSocket } from '../features/chat/socket';
 
 const SocketContext = createContext(null);
 
-export const SocketProvider = ({ children }) => {
-  const [socket, setSocket] = useState(null);
+export const SocketProvider = ({ children }) => (
+  <SocketContext.Provider value={{ getSocket }}>
+    {children}
+  </SocketContext.Provider>
+);
 
-  useEffect(() => {
-    const socketInstance = socketClient;
-    setSocket(socketInstance);
-
-    return () => {
-      socketInstance.disconnect();
-    };
-  }, []);
-
-  return (
-    <SocketContext.Provider value={socket}>
-      {children}
-    </SocketContext.Provider>
-  );
-};
-
-export const useSocket = () => useContext(SocketContext);
+export const useSocket = () => useContext(SocketContext).getSocket();

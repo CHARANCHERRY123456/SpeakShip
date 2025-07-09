@@ -16,13 +16,8 @@ export default function chatHandler(socket, io) {
     try {
       // Use chat.service to handle message creation and population
       const message = await sendMessage(chatId, senderId, content, senderRole, { populate: true });
-      console.log('📩 [server] New incoming message (populated):', message);
-      const outgoing = {
-        ...message,
-        sender: message.senderId,
-      };
-      console.log('📤 [server] Emitting newMessage event to room:', chatId, 'with data:', outgoing);
-      io.to(chatId).emit('newMessage', outgoing);
+      const plainMessage = message.toObject ? message.toObject() : message;
+      io.to(chatId).emit('newMessage', plainMessage);
       console.log('✅ [server] newMessage event emitted');
     } catch (err) {
       console.error('❌ Error sending message:', err);

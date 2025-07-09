@@ -31,7 +31,7 @@ export const getOrCreateChat = async (deliveryOrderId, customerId, driverId) => 
 export const sendMessage = async (chatId, senderId, content, senderRole) => {
   return await createMessage({
     chat: chatId,
-    sender: senderId,
+    senderId, // <-- Correct field name for schema
     senderRole,
     content,
   });

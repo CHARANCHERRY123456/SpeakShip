@@ -1,16 +1,27 @@
-// File: client/src/features/chat/components/ChatBox.jsx
 import React, { useState, useEffect } from 'react';
-import socket from '../socket';
+import { useSocket } from '../../../contexts/SocketContext';
 import axios from '../../../api/axios';
 import { useAuth } from '../../../contexts/AuthContext';
 import { toast } from 'react-hot-toast';
 
 const ChatBox = ({ deliveryId, driverId }) => {
   const { currentUser } = useAuth();
+  const socket = useSocket();
   const [chatId, setChatId] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const onConnect = () => {
+      if (chatId) socket.emit('joinChat', chatId);
+      socket.emit('hello', { from: 'ChatBox' });
+    };
+    socket.on('connect', onConnect);
+    return () => {
+      socket.off('connect', onConnect);
+    };
+  }, [chatId, socket]);
 
   useEffect(() => {
     const initChat = async () => {
@@ -20,12 +31,8 @@ const ChatBox = ({ deliveryId, driverId }) => {
           customerId: currentUser._id,
           driverId,
         });
-
         setChatId(chat._id);
-        socket.emit('joinChat', chat._id);
-        console.log('Joined chat room:', chat._id);
-
-
+        // joinChat will be emitted by the connect effect above
         const res = await axios.get(`/api/chat/${chat._id}/messages`);
         setMessages(res.data);
       } catch (err) {
@@ -35,7 +42,6 @@ const ChatBox = ({ deliveryId, driverId }) => {
         setLoading(false);
       }
     };
-
     if (deliveryId && driverId && currentUser?._id) {
       initChat();
     }
@@ -43,44 +49,31 @@ const ChatBox = ({ deliveryId, driverId }) => {
 
   useEffect(() => {
     const handleNewMessage = (msg) => {
-      console.log('📩 [client] Received newMessage event:', msg); // Debug log
-      try {
-        console.log('🔎 [client] Message structure:', JSON.stringify(msg, null, 2));
-      } catch (e) {
-        console.log('🔎 [client] Message structure (raw):', msg);
-      }
+      console.log('Received newMessage:', msg); // Debug: log every incoming message
       setMessages((prev) => [...prev, msg]);
     };
-
     socket.on('newMessage', handleNewMessage);
-    console.log('🟢 [client] Subscribed to newMessage event'); // Debug log
-
     return () => {
       socket.off('newMessage', handleNewMessage);
-      console.log('🔴 [client] Unsubscribed from newMessage event'); // Debug log
     };
-  }, []);
+  }, [socket]);
 
- const handleSend = () => {
-  if (!newMessage.trim() || !chatId) return;
-
-  console.log('📤 [client] Emitting sendMessage event:', {
-    chatId,
-    senderId: currentUser._id,
-    senderRole: currentUser.role,
-    content: newMessage.trim(),
-  }); // Debug log
-
-  socket.emit('sendMessage', {
-    chatId,
-    senderId: currentUser._id,
-    senderRole: currentUser.role, // ✅ Add this line
-    content: newMessage.trim(),
-  });
-
-  setNewMessage('');
-};
-
+  const handleSend = () => {
+    if (!newMessage.trim() || !chatId || !currentUser?._id) return;
+    console.log('Sending message:', {
+      chatId,
+      senderId: currentUser._id,
+      senderRole: currentUser.role,
+      content: newMessage.trim(),
+    });
+    socket.emit('sendMessage', {
+      chatId,
+      senderId: currentUser._id,
+      senderRole: currentUser.role,
+      content: newMessage.trim(),
+    });
+    setNewMessage('');
+  };
 
   if (loading) return <div className="text-gray-500 text-sm">Loading chat...</div>;
 
@@ -90,18 +83,18 @@ const ChatBox = ({ deliveryId, driverId }) => {
         {messages.length === 0 ? (
           <div className="text-gray-500 text-sm">No messages yet.</div>
         ) : (
-          messages.map((msg) => (
+          messages.map((msg, index) => (
             <div
-              key={msg._id}
+              key={msg._id || msg.createdAt || index}
               className={`p-2 rounded-md max-w-[75%] text-sm ${
-                msg.sender._id === currentUser._id
+                msg.sender?._id === currentUser._id
                   ? 'bg-blue-100 ml-auto text-right'
                   : 'bg-gray-100 text-left'
               }`}
             >
               <div className="text-gray-800">{msg.content}</div>
               <div className="text-gray-500 text-xs">
-                {msg.sender.name || 'User'} • {new Date(msg.createdAt).toLocaleTimeString()}
+                {msg.sender?.name || 'User'} • {msg.createdAt ? new Date(msg.createdAt).toLocaleTimeString() : ''}
               </div>
             </div>
           ))
