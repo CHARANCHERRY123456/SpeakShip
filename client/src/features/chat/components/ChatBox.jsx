@@ -1,4 +1,3 @@
-
 // File: client/src/features/chat/components/ChatBox.jsx
 import React, { useState, useEffect } from 'react';
 import socket from '../socket';
@@ -44,19 +43,33 @@ const ChatBox = ({ deliveryId, driverId }) => {
 
   useEffect(() => {
     const handleNewMessage = (msg) => {
-      console.log('📩 New incoming message:', msg); // check if printed
+      console.log('📩 [client] Received newMessage event:', msg); // Debug log
+      try {
+        console.log('🔎 [client] Message structure:', JSON.stringify(msg, null, 2));
+      } catch (e) {
+        console.log('🔎 [client] Message structure (raw):', msg);
+      }
       setMessages((prev) => [...prev, msg]);
     };
 
     socket.on('newMessage', handleNewMessage);
+    console.log('🟢 [client] Subscribed to newMessage event'); // Debug log
 
     return () => {
       socket.off('newMessage', handleNewMessage);
+      console.log('🔴 [client] Unsubscribed from newMessage event'); // Debug log
     };
   }, []);
 
  const handleSend = () => {
   if (!newMessage.trim() || !chatId) return;
+
+  console.log('📤 [client] Emitting sendMessage event:', {
+    chatId,
+    senderId: currentUser._id,
+    senderRole: currentUser.role,
+    content: newMessage.trim(),
+  }); // Debug log
 
   socket.emit('sendMessage', {
     chatId,
@@ -64,8 +77,6 @@ const ChatBox = ({ deliveryId, driverId }) => {
     senderRole: currentUser.role, // ✅ Add this line
     content: newMessage.trim(),
   });
-
-  console.log('📤 Sent message:', newMessage.trim());
 
   setNewMessage('');
 };
