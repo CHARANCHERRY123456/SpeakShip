@@ -12,6 +12,13 @@ const ChatBox = ({ deliveryId, driverId }) => {
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);
 
+  // Ensure joinChat is emitted when chatId and socket are ready and connected
+  useEffect(() => {
+    if (chatId && socket && socket.connected) {
+      socket.emit('joinChat', chatId);
+    }
+  }, [chatId, socket]);
+
   useEffect(() => {
     const onConnect = () => {
       if (chatId) socket.emit('joinChat', chatId);
