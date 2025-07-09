@@ -28,11 +28,12 @@ export const getOrCreateChat = async (deliveryOrderId, customerId, driverId) => 
 /**
  * Saves a message to a chat.
  */
-export const sendMessage = async (chatId, senderId, content, senderRole) => {
+export const sendMessage = async (chatId, senderId, content, senderRole, senderName) => {
   return await createMessage({
     chat: chatId,
-    senderId, // <-- Correct field name for schema
+    senderId,
     senderRole,
+    senderName, 
     content,
   });
 };
