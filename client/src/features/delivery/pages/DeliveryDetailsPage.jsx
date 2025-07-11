@@ -1,18 +1,21 @@
 // src/features/delivery/pages/DeliveryDetailsPage.jsx
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { getDeliveryById } from '../api';
 import { getReviewsForDelivery, getMyReviewForDelivery, submitReview } from '../../feedback/api/review';
 import ReviewForm from '../../feedback/components/ReviewForm';
 import ReviewDisplay from '../../feedback/components/ReviewDisplay';
 import { useAuth } from '../../../contexts/AuthContext';
 import { toast } from 'react-hot-toast';
-import { Mail, Phone, User, Truck, Tag, Calendar, Image as ImageIcon, MapPin, CheckCircle } from 'lucide-react';
+import { Mail, Phone, User, Truck, Tag, Calendar, Image as ImageIcon, MapPin, CheckCircle} from 'lucide-react';
+import { X, MessageCircle } from 'lucide-react';
+
 import { COLORS, STYLES } from '../../../constants/colorConstants';
 import ChatBox from '../../chat/components/ChatBox';
 
 const DeliveryDetailsPage = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { currentUser } = useAuth();
   const [delivery, setDelivery] = useState(null);
   const [reviews, setReviews] = useState([]);
@@ -112,12 +115,44 @@ const DeliveryDetailsPage = () => {
         {/* Main Card */}
         <div className={STYLES.CARD}>
           {/* Delivery Name, ID, and Status at the top */}
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-4">
-            <div className="flex flex-col gap-1 flex-1 min-w-0">
-              <h1 className="text-2xl font-bold text-[#212121] truncate" title={delivery.packageName}>{delivery.packageName}</h1>
-              <span className="text-xs text-[#616161] truncate" title={id}>ID: {id}</span>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-4 relative">
+            {/* Package Info (left side) */}
+            <div className="flex flex-col gap-1 flex-1 min-w-0 pr-8 md:pr-0">
+              <h1 className="text-xl sm:text-2xl font-bold text-[#212121] truncate" title={delivery.packageName}>
+                {delivery.packageName}
+              </h1>
+              <span className="text-xs text-[#616161] truncate" title={id}>
+                ID: {id}
+              </span>
             </div>
-            <span className={`ml-0 md:ml-4 ${delivery.status === 'Delivered' ? COLORS.ACCENT_SECONDARY : delivery.status === 'Pending' ? COLORS.ACCENT_PENDING : COLORS.ACCENT} font-semibold text-base px-3 py-1 rounded-full bg-[#F4F6F8] border ${COLORS.BORDER} truncate`} title={delivery.status}>{delivery.status}</span>
+
+            {/* Status and Close Button (right side) */}
+            <div className="flex items-center gap-2 justify-between md:justify-end">
+              {/* Status Badge */}
+              <span
+                className={`ml-0 md:ml-4 ${
+                  delivery.status === 'Delivered'
+                    ? COLORS.ACCENT_SECONDARY
+                    : delivery.status === 'Pending'
+                    ? COLORS.ACCENT_PENDING
+                    : COLORS.ACCENT
+                } font-semibold text-sm sm:text-base px-3 py-1 rounded-full bg-[#F4F6F8] border ${
+                  COLORS.BORDER
+                } truncate`}
+                title={delivery.status}
+              >
+                {delivery.status}
+              </span>
+
+              {/* Close Button - Always visible but better positioned */}
+              <button
+                onClick={() => navigate(-1)}
+                className="absolute right-0 top-0 md:static p-1.5 rounded-full hover:bg-gray-200/70 active:bg-gray-300/50 transition-colors shadow-sm border border-transparent hover:border-gray-300"
+                aria-label="Close"
+              >
+                <X className="h-5 w-5 text-gray-600 hover:text-gray-800" />
+              </button>
+            </div>
           </div>
           {/* Main Content */}
           <div className="flex flex-col md:flex-row gap-8 mb-6">
@@ -211,38 +246,52 @@ const DeliveryDetailsPage = () => {
           </div>
           {/* Divider */}
           <div className={STYLES.DIVIDER}></div>
-        
-{/* Chat between driver and customer */}
 
-{delivery?.driver && currentUser && (
-  (currentUser._id === delivery.customer?._id ||
-   currentUser._id === delivery.driver?._id ||
-   currentUser._id === delivery.customer ||
-   currentUser._id === delivery.driver) && (
-    <div className="mt-6">
-      <div className={`${STYLES.SECTION_HEADING} text-[#1976D2]`}>
-        <Truck className="h-5 w-5" />
-        Chat with {isCustomer ? 'Driver' : 'Customer'}
-      </div>
-      {!showChat && (
-        <button
-          onClick={() => setShowChat(true)}
-          className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
-        >
-          Open Chat
-        </button>
-      )}
-      {showChat && (
-        <ChatBox
-          deliveryId={delivery._id}
-          driverId={typeof delivery.driver === 'object' ? delivery.driver._id : delivery.driver}
-        />
-      )}
-    </div>
-  )
-)}
+            {/* Chat between driver and customer */}
+            {delivery?.driver && currentUser && (
+              (currentUser._id === delivery.customer?._id ||
+              currentUser._id === delivery.driver?._id ||
+              currentUser._id === delivery.customer ||
+              currentUser._id === delivery.driver) && (
+                <div className="mt-6">
+                  {/* <div className={`${STYLES.SECTION_HEADING} text-[#1976D2]`}>
+                    <Truck className="h-5 w-5" />
+                    Chat with {isCustomer ? 'Driver' : 'Customer'}
+                  </div> */}
 
+                  {["Accepted", "In-Transit"].includes(delivery.status) && (
+                    <button
+                      onClick={() => setShowChat(!showChat)}
+                      className={`w-full py-2 rounded-md font-medium transition flex items-center justify-center gap-2 mt-2 ${
+                        showChat 
+                          ? "bg-gray-200 text-gray-800 hover:bg-gray-300"
+                          : "bg-blue-500 text-white hover:bg-blue-600"
+                      }`}
+                    >
+                      {showChat ? (
+                        <>
+                          <X /> Close Chat
+                        </>
+                      ) : (
+                        <>
+                          <MessageCircle /> Live Chat
+                        </>
+                      )}
+                    </button>
+                  )}
 
+            {showChat && (
+              <div className="relative mt-4">
+                <ChatBox
+                  deliveryId={delivery._id}
+                  driverId={typeof delivery.driver === 'object' ? delivery.driver._id : delivery.driver}
+                />
+
+              </div>
+            )}
+
+          </div>
+       ))}
 
           {/* Review section */}
           <div className="mt-6">
