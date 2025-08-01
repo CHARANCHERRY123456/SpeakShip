@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { User, Edit3, Settings, Trash2, Maximize2 } from 'lucide-react';
+import { Edit3, Trash2, Maximize2, CircleDollarSign } from 'lucide-react';
 import { DEFAULT_PROFILE_IMAGE_URL } from '../constants/profileImageConstants';
 
-const ProfileHeader = ({ user, imageUrl, onEditToggle, onSettingsClick, onEditImage, onRemoveImage }) => {
+const ProfileHeader = ({ user, imageUrl, onEditToggle, onEditImage, onRemoveImage }) => {
   const getInitials = (name) => {
     if (!name) return 'U';
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
@@ -10,15 +10,14 @@ const ProfileHeader = ({ user, imageUrl, onEditToggle, onSettingsClick, onEditIm
 
   const getRoleColor = (role) => {
     switch (role?.toLowerCase()) {
-      case 'customer':  return 'bg-emerald-50 text-emerald-800 border-emerald-200';
+      case 'customer': return 'bg-emerald-50 text-emerald-800 border-emerald-200';
       case 'driver': return 'bg-sky-50 text-sky-800 border-sky-200';
-      case 'admin': return 'bg-rose-50 text-rose-800 border-rose-200'; 
+      case 'admin': return 'bg-rose-50 text-rose-800 border-rose-200';
       default: return 'bg-green-100 text-gray-800 border-green-200';
     }
   };
 
   const safeImageUrl = imageUrl || DEFAULT_PROFILE_IMAGE_URL;
-
   const [showModal, setShowModal] = useState(false);
 
   const handleImageClick = () => setShowModal(true);
@@ -31,6 +30,7 @@ const ProfileHeader = ({ user, imageUrl, onEditToggle, onSettingsClick, onEditIm
         <div className="absolute top-0 right-0 w-32 h-32 bg-white rounded-full -mr-16 -mt-16"></div>
         <div className="absolute bottom-0 left-0 w-24 h-24 bg-white rounded-full -ml-12 -mb-12"></div>
       </div>
+
       <div className="relative z-10">
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
           {/* Avatar */}
@@ -50,6 +50,7 @@ const ProfileHeader = ({ user, imageUrl, onEditToggle, onSettingsClick, onEditIm
                 {getInitials(user?.name)}
               </div>
             )}
+
             {/* Loading spinner overlay */}
             {user?.loading && (
               <div className="absolute inset-0 flex items-center justify-center bg-white/70 rounded-full z-20">
@@ -59,10 +60,12 @@ const ProfileHeader = ({ user, imageUrl, onEditToggle, onSettingsClick, onEditIm
                 </svg>
               </div>
             )}
+
             <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-green-500 rounded-full border-4 border-white flex items-center justify-center">
               <div className="w-2 h-2 bg-white rounded-full"></div>
             </div>
-            {/* Fullscreen icon overlay */}
+
+            {/* Fullscreen icon */}
             <div className="absolute top-1 right-1 bg-white/80 rounded-full p-1 shadow">
               <Maximize2 className="w-4 h-4 text-blue-600" />
             </div>
@@ -77,18 +80,27 @@ const ProfileHeader = ({ user, imageUrl, onEditToggle, onSettingsClick, onEditIm
                   src={safeImageUrl}
                   alt="Profile Full"
                   className="w-64 h-64 sm:w-80 sm:h-80 rounded-full object-cover border-4 border-blue-200 mb-4"
-                  onError={e => { e.target.onerror = null; e.target.src = DEFAULT_PROFILE_IMAGE_URL; }}
+                  onError={e => {
+                    e.target.onerror = null;
+                    e.target.src = DEFAULT_PROFILE_IMAGE_URL;
+                  }}
                 />
                 <div className="flex gap-4 mt-2">
                   <button
-                    onClick={() => { handleCloseModal(); onEditImage && onEditImage(); }}
+                    onClick={() => {
+                      handleCloseModal();
+                      onEditImage && onEditImage();
+                    }}
                     className="bg-blue-600 hover:bg-blue-700 text-white rounded-full p-3 shadow flex items-center justify-center"
                     aria-label="Edit profile image"
                   >
                     <Edit3 className="w-6 h-6" />
                   </button>
                   <button
-                    onClick={() => { handleCloseModal(); onRemoveImage && onRemoveImage(); }}
+                    onClick={() => {
+                      handleCloseModal();
+                      onRemoveImage && onRemoveImage();
+                    }}
                     className="bg-red-600 hover:bg-red-700 text-white rounded-full p-3 shadow flex items-center justify-center"
                     aria-label="Remove profile image"
                   >
@@ -98,7 +110,7 @@ const ProfileHeader = ({ user, imageUrl, onEditToggle, onSettingsClick, onEditIm
               </div>
             </div>
           )}
-          
+
           {/* User Info */}
           <div className="flex-1 text-center">
             <div className="flex flex-col items-center sm:flex-row sm:justify-center gap-3 mb-3">
@@ -122,9 +134,10 @@ const ProfileHeader = ({ user, imageUrl, onEditToggle, onSettingsClick, onEditIm
               )}
             </div>
           </div>
-          
+
           {/* Action Buttons */}
           <div className="flex gap-2 justify-center sm:justify-start">
+            {/* Edit Button */}
             <button
               onClick={onEditToggle}
               className="p-2 sm:p-3 bg-white/20 backdrop-blur-sm rounded-xl hover:bg-white/30 transition-all duration-200 group"
@@ -132,13 +145,12 @@ const ProfileHeader = ({ user, imageUrl, onEditToggle, onSettingsClick, onEditIm
             >
               <Edit3 className="w-4 h-4 sm:w-5 sm:h-5 group-hover:scale-110 transition-transform" />
             </button>
-            <button 
-              onClick={onSettingsClick}
-              className="p-2 sm:p-3 bg-white/20 backdrop-blur-sm rounded-xl hover:bg-white/30 transition-all duration-200 group"
-              aria-label="Settings"
-            >
-              <Settings className="w-4 h-4 sm:w-5 sm:h-5 group-hover:scale-110 transition-transform" />
-            </button>
+
+            {/* Coin Display */}
+            <div className="px-3 py-2 bg-white/20 backdrop-blur-sm rounded-xl text-yellow-200 font-semibold flex items-center gap-1 text-sm sm:text-base">
+              <CircleDollarSign className="w-5 h-5" />
+              <span>{user?.coins ?? 0}</span>
+            </div>
           </div>
         </div>
       </div>

@@ -11,7 +11,8 @@ import {
   FiDollarSign, 
   FiCalendar,
   FiPlus,
-  FiX
+  FiX,
+  FiBell
 } from 'react-icons/fi';
 
 const ChatBox = ({ deliveryId, driverId }) => {
@@ -22,10 +23,42 @@ const ChatBox = ({ deliveryId, driverId }) => {
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);
   const [showAttachments, setShowAttachments] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [isFocused, setIsFocused] = useState(true);
+  const [notificationPermission, setNotificationPermission] = useState('default');
   const messagesEndRef = useRef(null);
   const messagesContainerRef = useRef(null);
   const attachmentsRef = useRef(null);
   const attachmentButtonRef = useRef(null);
+
+  // Request notification permission
+  useEffect(() => {
+    if ('Notification' in window) {
+      if (Notification.permission === 'granted') {
+        setNotificationPermission('granted');
+      } else if (Notification.permission !== 'denied') {
+        Notification.requestPermission().then(permission => {
+          setNotificationPermission(permission);
+        });
+      }
+    }
+  }, []);
+
+  // Track window focus for notifications
+  useEffect(() => {
+    const handleFocus = () => {
+      setIsFocused(true);
+      setUnreadCount(0); // Reset unread count when window is focused
+    };
+    const handleBlur = () => setIsFocused(false);
+    
+    window.addEventListener('focus', handleFocus);
+    window.addEventListener('blur', handleBlur);
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+      window.removeEventListener('blur', handleBlur);
+    };
+  }, []);
 
   // Close attachments when clicking outside
   useEffect(() => {
@@ -58,7 +91,6 @@ const ChatBox = ({ deliveryId, driverId }) => {
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
-
 
   useEffect(() => {
     if (chatId && socket && socket.connected) {
@@ -102,10 +134,38 @@ const ChatBox = ({ deliveryId, driverId }) => {
   useEffect(() => {
     const handleNewMessage = (msg) => {
       setMessages((prev) => [...prev, msg]);
+      
+      // Show notification if window is not focused and message is not from current user
+      if (!isFocused && msg.senderId.toString() !== currentUser._id.toString()) {
+        setUnreadCount(prev => prev + 1);
+        
+        // Show desktop notification if supported
+        if (notificationPermission === 'granted') {
+          const notification = new Notification(`New message from ${getSenderName(msg)}`, {
+            body: msg.content.length > 30 ? `${msg.content.substring(0, 30)}...` : msg.content,
+            icon: '/logo.png', // Replace with your app's logo
+            tag: 'chat-message'
+          });
+
+          // Focus window when notification is clicked
+          notification.onclick = () => {
+            window.focus();
+          };
+        } else if (document.hidden) {
+          // Fallback to document title change if notifications aren't allowed
+          const originalTitle = document.title;
+          document.title = `(${unreadCount + 1}) New message!`;
+          
+          setTimeout(() => {
+            document.title = originalTitle;
+          }, 2000);
+        }
+      }
     };
+    
     socket.on('newMessage', handleNewMessage);
     return () => socket.off('newMessage', handleNewMessage);
-  }, [socket]);
+  }, [socket, isFocused, currentUser, notificationPermission, unreadCount]);
 
   const handleSend = () => {
     if (!newMessage.trim() || !chatId || !currentUser?._id) return;
@@ -139,6 +199,59 @@ const ChatBox = ({ deliveryId, driverId }) => {
     // Implement actual attachment functionality here
   };
 
+  // Group messages by date
+  const groupMessagesByDate = () => {
+    const grouped = {};
+    
+    messages.forEach((message) => {
+      const date = new Date(message.createdAt);
+      const dateString = date.toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+      
+      if (!grouped[dateString]) {
+        grouped[dateString] = [];
+      }
+      
+      grouped[dateString].push(message);
+    });
+    
+    return grouped;
+  };
+
+  const renderDateSeparator = (dateString) => {
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    
+    // Parse the date string back to a Date object
+    const dateParts = dateString.split(/,\s|\s/);
+    const date = new Date(`${dateParts[1]} ${dateParts[2]}, ${dateParts[3]}`);
+    
+    let displayDate;
+    
+    if (date.toDateString() === today.toDateString()) {
+      displayDate = 'Today';
+    } else if (date.toDateString() === yesterday.toDateString()) {
+      displayDate = 'Yesterday';
+    } else {
+      displayDate = dateString;
+    }
+    
+    return (
+      <div className="flex items-center my-4">
+        <div className="flex-grow border-t border-gray-200"></div>
+        <div className="px-4 py-1 mx-2 text-xs font-medium text-gray-500 bg-gray-100 rounded-full shadow-sm">
+          {displayDate}
+        </div>
+        <div className="flex-grow border-t border-gray-200"></div>
+      </div>
+    );
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -154,9 +267,12 @@ const ChatBox = ({ deliveryId, driverId }) => {
       </div>
     );
   }
+
+  const groupedMessages = groupMessagesByDate();
+
   return (
     <div className="flex flex-col h-full bg-white rounded-lg shadow-lg overflow-hidden">
-      {/* Chat header */}
+      {/* Chat header with notification badge */}
       <div className="bg-blue-600 text-white px-4 py-3 flex items-center justify-between">
         <div className="flex items-center">
           <div className="w-3 h-3 rounded-full bg-green-400 mr-2"></div>
@@ -164,15 +280,25 @@ const ChatBox = ({ deliveryId, driverId }) => {
             {currentUser.role === 'driver' ? 'Chat With Customer' : 'Chat With Driver'}
           </h3>
         </div>
-        <div className="text-xs opacity-80">
-          {messages.length} message{messages.length !== 1 ? 's' : ''}
+        <div className="flex items-center">
+          {unreadCount > 0 && (
+            <div className="relative mr-3">
+              <FiBell className="text-white" />
+              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                {unreadCount}
+              </span>
+            </div>
+          )}
+          <div className="text-xs opacity-80">
+            {messages.length} message{messages.length !== 1 ? 's' : ''}
+          </div>
         </div>
       </div>
 
       {/* Messages container with fixed height and proper scrolling */}
       <div 
         ref={messagesContainerRef}
-        className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50"
+        className="flex-1 overflow-y-auto p-4 bg-gray-50"
         style={{ height: 'calc(100vh - 200px)', maxHeight: '400px' }}
       >
         {messages.length === 0 ? (
@@ -196,47 +322,47 @@ const ChatBox = ({ deliveryId, driverId }) => {
             </div>
           </div>
         ) : (
-          messages.map((msg, index) => {
-            const isSelf = isCurrentUser(msg);
-            return (
-              <div
-                key={msg._id || index}
-                className={`flex ${isSelf ? 'justify-end' : 'justify-start'}`}
-              >
-                <div
-                  className={`relative max-w-xs md:max-w-md rounded-lg px-4 py-2 shadow-md transition-all duration-200 ${
-                    isSelf
-                      ? 'bg-blue-500 text-white rounded-br-none'
-                      : 'bg-gray-200 text-gray-800 rounded-bl-none'
-                  }`}
-                >
-                  <div className="text-l font-medium mb-1">
-                    {getSenderName(msg)}
-                  </div>
-                  <div className="text-l">{msg.content}</div>
-                  <div className={`text-sm mt-1 ${isSelf ? 'text-blue-100' : 'text-gray-500'}`}>
-                    {msg.createdAt &&
-                    `${new Date(msg.createdAt).toLocaleDateString([], {
-                      day: '2-digit',
-                      month: 'short',
-                      year: 'numeric',
-                    })}, ${new Date(msg.createdAt).toLocaleTimeString([], {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}`}
-                  </div>
-                  {/* Message triangle indicator */}
+          Object.entries(groupedMessages).map(([dateString, dateMessages]) => (
+            <div key={dateString}>
+              {renderDateSeparator(dateString)}
+              {dateMessages.map((msg, index) => {
+                const isSelf = isCurrentUser(msg);
+                return (
                   <div
-                    className={`absolute w-3 h-3 -bottom-1 ${
-                      isSelf
-                        ? 'right-0 bg-blue-500 transform -translate-x-1/2 rotate-45'
-                        : 'left-0 bg-gray-200 transform translate-x-1/2 rotate-45'
-                    }`}
-                  />
-                </div>
-              </div>
-            );
-          })
+                    key={msg._id || index}
+                    className={`flex ${isSelf ? 'justify-end' : 'justify-start'} mb-3`}
+                  >
+                    <div
+                      className={`relative max-w-xs md:max-w-md rounded-lg px-4 py-2 shadow-md transition-all duration-200 ${
+                        isSelf
+                          ? 'bg-blue-500 text-white rounded-br-none'
+                          : 'bg-gray-200 text-gray-800 rounded-bl-none'
+                      }`}
+                    >
+                      <div className="text-sm font-medium mb-1">
+                        {getSenderName(msg)}
+                      </div>
+                      <div className="text-sm">{msg.content}</div>
+                      <div className={`text-xs mt-1 text-right ${isSelf ? 'text-blue-100' : 'text-gray-500'}`}>
+                        {new Date(msg.createdAt).toLocaleTimeString([], {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </div>
+                      {/* Message triangle indicator */}
+                      <div
+                        className={`absolute w-3 h-3 -bottom-1 ${
+                          isSelf
+                            ? 'right-0 bg-blue-500 transform -translate-x-1/2 rotate-45'
+                            : 'left-0 bg-gray-200 transform translate-x-1/2 rotate-45'
+                        }`}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ))
         )}
         <div ref={messagesEndRef} />
       </div>
@@ -298,54 +424,54 @@ const ChatBox = ({ deliveryId, driverId }) => {
         )}
 
         <div className="flex items-center w-full gap-1 sm:gap-2">
-        {/* Message Input */}
-        <input
-          type="text"
-          value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-          placeholder="Type your message..."
-          className="flex-1 min-w-[50px] border border-gray-300 rounded-full px-3 py-2 sm:px-4 sm:py-2.5 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all duration-200"
-        />
-        
-        {/* Attachments Button - Always visible now */}
-        <button
-          ref={attachmentButtonRef}
-          onClick={() => setShowAttachments(!showAttachments)}
-          className={`
-            p-2 min-w-[40px] rounded-full transition-all duration-200
-            focus:outline-none focus:ring-2 focus:ring-blue-300
-            ${showAttachments
-              ? 'bg-blue-100 text-blue-600'
-              : 'bg-blue-200 text-blue-600 hover:bg-blue-300'
-            }
-          `}
-          aria-label={showAttachments ? "Close attachments" : "Add attachments"}
-        >
-          {showAttachments ? (
-            <FiX className="text-lg sm:text-xl" />
-          ) : (
-            <FiPlus className="text-lg sm:text-xl" />
-          )}
-        </button>
+          {/* Message Input */}
+          <input
+            type="text"
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+            placeholder="Type your message..."
+            className="flex-1 min-w-[50px] border border-gray-300 rounded-full px-3 py-2 sm:px-4 sm:py-2.5 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all duration-200"
+          />
+          
+          {/* Attachments Button */}
+          <button
+            ref={attachmentButtonRef}
+            onClick={() => setShowAttachments(!showAttachments)}
+            className={`
+              p-2 min-w-[40px] rounded-full transition-all duration-200
+              focus:outline-none focus:ring-2 focus:ring-blue-300
+              ${showAttachments
+                ? 'bg-blue-100 text-blue-600'
+                : 'bg-blue-200 text-blue-600 hover:bg-blue-300'
+              }
+            `}
+            aria-label={showAttachments ? "Close attachments" : "Add attachments"}
+          >
+            {showAttachments ? (
+              <FiX className="text-lg sm:text-xl" />
+            ) : (
+              <FiPlus className="text-lg sm:text-xl" />
+            )}
+          </button>
 
-        {/* Send Button - Always visible now */}
-        <button
-          onClick={handleSend}
-          disabled={!newMessage.trim()}
-          className={`
-            p-2 min-w-[40px] rounded-full transition-all duration-200
-            focus:outline-none focus:ring-2 focus:ring-blue-300
-            ${newMessage.trim()
-              ? 'bg-blue-500 text-white hover:bg-blue-600 active:bg-blue-700'
-              : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-            }
-          `}
-          aria-label="Send message"
-        >
-          <FiSend className="text-lg sm:text-xl" />
-        </button>
-      </div>
+          {/* Send Button */}
+          <button
+            onClick={handleSend}
+            disabled={!newMessage.trim()}
+            className={`
+              p-2 min-w-[40px] rounded-full transition-all duration-200
+              focus:outline-none focus:ring-2 focus:ring-blue-300
+              ${newMessage.trim()
+                ? 'bg-blue-500 text-white hover:bg-blue-600 active:bg-blue-700'
+                : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+              }
+            `}
+            aria-label="Send message"
+          >
+            <FiSend className="text-lg sm:text-xl" />
+          </button>
+        </div>
       </div>
     </div>
   );

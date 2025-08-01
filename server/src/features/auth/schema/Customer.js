@@ -72,7 +72,12 @@ const CustomerSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Coupan',
     required: false
-  }]
+  }],
+  coins: {
+    type: Number,
+    default: 0,
+    min: 0
+  }
 });
 
 const Customer = mongoose.model('Customer', CustomerSchema);
