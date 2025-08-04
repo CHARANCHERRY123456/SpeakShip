@@ -73,6 +73,7 @@ class DeliveryService {
 
     const delivery = await DeliveryRepository.create(deliveryData);
     await CoinsService.addCoins(customerId, 1); // 💰 Add 1 coin
+    // console.log("count:",1);
 
     // Send order creation email to customer
     try {

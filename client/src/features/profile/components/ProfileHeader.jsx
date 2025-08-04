@@ -1,8 +1,12 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import { Edit3, Trash2, Maximize2, CircleDollarSign } from 'lucide-react';
 import { DEFAULT_PROFILE_IMAGE_URL } from '../constants/profileImageConstants';
 
 const ProfileHeader = ({ user, imageUrl, onEditToggle, onEditImage, onRemoveImage }) => {
+  const [showModal, setShowModal] = useState(false);
+  const [coins, setCoins] = useState(0);
+
   const getInitials = (name) => {
     if (!name) return 'U';
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
@@ -17,8 +21,24 @@ const ProfileHeader = ({ user, imageUrl, onEditToggle, onEditImage, onRemoveImag
     }
   };
 
+  const fetchCoins = async () => {
+    try {
+      if (!user?._id) return;
+      console.log("hello");
+      const res = await axios.get(`/api/coins/balance/${user._id}`);
+      setCoins(res.data.coins);
+      console.log("Fetched coins:",res.data.coins);
+    } catch (error) {
+      console.error("Error fetching coin balance:", error);
+      setCoins(0);
+    }
+  };
+
+  useEffect(() => {
+    fetchCoins();
+  }, [user?._id]);
+
   const safeImageUrl = imageUrl || DEFAULT_PROFILE_IMAGE_URL;
-  const [showModal, setShowModal] = useState(false);
 
   const handleImageClick = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
@@ -51,7 +71,6 @@ const ProfileHeader = ({ user, imageUrl, onEditToggle, onEditImage, onRemoveImag
               </div>
             )}
 
-            {/* Loading spinner overlay */}
             {user?.loading && (
               <div className="absolute inset-0 flex items-center justify-center bg-white/70 rounded-full z-20">
                 <svg className="animate-spin h-10 w-10 text-blue-600" viewBox="0 0 24 24">
@@ -65,13 +84,12 @@ const ProfileHeader = ({ user, imageUrl, onEditToggle, onEditImage, onRemoveImag
               <div className="w-2 h-2 bg-white rounded-full"></div>
             </div>
 
-            {/* Fullscreen icon */}
             <div className="absolute top-1 right-1 bg-white/80 rounded-full p-1 shadow">
               <Maximize2 className="w-4 h-4 text-blue-600" />
             </div>
           </div>
 
-          {/* Modal for full image view */}
+          {/* Modal for full image */}
           {showModal && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
               <div className="relative bg-white rounded-2xl shadow-lg p-4 flex flex-col items-center">
@@ -91,7 +109,7 @@ const ProfileHeader = ({ user, imageUrl, onEditToggle, onEditImage, onRemoveImag
                       handleCloseModal();
                       onEditImage && onEditImage();
                     }}
-                    className="bg-blue-600 hover:bg-blue-700 text-white rounded-full p-3 shadow flex items-center justify-center"
+                    className="bg-blue-600 hover:bg-blue-700 text-white rounded-full p-3 shadow"
                     aria-label="Edit profile image"
                   >
                     <Edit3 className="w-6 h-6" />
@@ -101,7 +119,7 @@ const ProfileHeader = ({ user, imageUrl, onEditToggle, onEditImage, onRemoveImag
                       handleCloseModal();
                       onRemoveImage && onRemoveImage();
                     }}
-                    className="bg-red-600 hover:bg-red-700 text-white rounded-full p-3 shadow flex items-center justify-center"
+                    className="bg-red-600 hover:bg-red-700 text-white rounded-full p-3 shadow"
                     aria-label="Remove profile image"
                   >
                     <Trash2 className="w-6 h-6" />
@@ -135,9 +153,8 @@ const ProfileHeader = ({ user, imageUrl, onEditToggle, onEditImage, onRemoveImag
             </div>
           </div>
 
-          {/* Action Buttons */}
+          {/* Actions */}
           <div className="flex gap-2 justify-center sm:justify-start">
-            {/* Edit Button */}
             <button
               onClick={onEditToggle}
               className="p-2 sm:p-3 bg-white/20 backdrop-blur-sm rounded-xl hover:bg-white/30 transition-all duration-200 group"
@@ -149,7 +166,7 @@ const ProfileHeader = ({ user, imageUrl, onEditToggle, onEditImage, onRemoveImag
             {/* Coin Display */}
             <div className="px-3 py-2 bg-white/20 backdrop-blur-sm rounded-xl text-yellow-200 font-semibold flex items-center gap-1 text-sm sm:text-base">
               <CircleDollarSign className="w-5 h-5" />
-              <span>{user?.coins ?? 0}</span>
+              <span>{coins}</span>
             </div>
           </div>
         </div>
@@ -157,5 +174,4 @@ const ProfileHeader = ({ user, imageUrl, onEditToggle, onEditImage, onRemoveImag
     </div>
   );
 };
-
 export default ProfileHeader;

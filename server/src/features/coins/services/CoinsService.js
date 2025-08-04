@@ -1,8 +1,11 @@
 // src/features/coins/services/CoinsService.js
 import CoinsRepository from '../repository/CoinsRepository.js';
 
-class CoinsService {
-  async addCoins(customerId, amount = 1) {
+class CoinsService 
+{
+  async addCoins(customerId, amount = 1) 
+  {
+    console.log("Adding coins:",amount,"for customer:",customerId);
     return CoinsRepository.incrementCoins(customerId, amount);
   }
 
