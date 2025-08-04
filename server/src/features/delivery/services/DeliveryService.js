@@ -4,6 +4,8 @@ import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import cloudinary from 'cloudinary';
+import CoinsService from '../../coins/services/CoinsService.js';
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -70,6 +72,8 @@ class DeliveryService {
     };
 
     const delivery = await DeliveryRepository.create(deliveryData);
+    await CoinsService.addCoins(customerId, 1); // 💰 Add 1 coin
+    // console.log("count:",1);
 
     // Send order creation email to customer
     try {
@@ -101,10 +105,13 @@ class DeliveryService {
   async acceptRequest(id, driverId) {
     // This repository method should handle changing status to 'Accepted' and assigning driver
     const delivery = await DeliveryRepository.acceptRequest(id, driverId);
+    
     if (!delivery) return null;
+    await CoinsService.addCoins(delivery.customer, 1); // 💰 Add 1 coin to customer
 
     // Fetch driver details for the email
     const driver = await DeliveryRepository.findDriverById(driverId);
+    
 
     try {
       const templatePath = path.join(__dirname, '../templates/orderAccepted.html');
@@ -179,6 +186,8 @@ class DeliveryService {
 
       // Update status to Cancelled first
       const updatedDelivery = await DeliveryRepository.updateStatus(id, newStatus);
+      // 💰 Decrement 1 coin on cancellation
+      await CoinsService.removeCoins(updatedDelivery.customer, 1);
 
       // Notify Customer
       try {
@@ -217,10 +226,16 @@ class DeliveryService {
       return updatedDelivery;
     }
 
-    // For all other regular status updates (e.g., 'Accepted' -> 'In-Transit')
-    // You might want to add more robust status transition validation here if needed
-    // e.g., if (newStatus === 'In-Transit' && delivery.status !== 'Accepted') throw new Error(...)
-    return DeliveryRepository.updateStatus(id, newStatus);
+      // For all other regular status updates
+      const updatedDelivery = await DeliveryRepository.updateStatus(id, newStatus);
+
+        // If status is now exactly 'Delivered' (after OTP verification step)
+        if (newStatus === 'Delivered') {
+          // 💰 Add 10 coins after delivery is fully marked as Delivered
+          await CoinsService.addCoins(updatedDelivery.customer, 10);
+        }
+
+        return updatedDelivery;
   }
 
   /**
