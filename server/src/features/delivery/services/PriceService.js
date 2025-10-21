@@ -79,8 +79,7 @@ export async function getGeminiPriceSuggestion({
 }
 
 async function tryGetDistance(pickupAddress, dropoffAddress, pickupLat, pickupLon, dropoffLat, dropoffLon) {
-  const USE_GEMINI = true; // Set to false to disable AI distance estimation
-  if (USE_GEMINI && config.GEMINI_API_KEY && config.GEMINI_API_URL) {
+  if (config.GEMINI_API_KEY && config.GEMINI_API_URL) {
     const geminiDistance = await getDistanceFromGemini(pickupAddress, dropoffAddress);
     if (geminiDistance) return geminiDistance;
   }
