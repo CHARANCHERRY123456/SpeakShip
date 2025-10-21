@@ -3,7 +3,17 @@ import { getGeminiPriceSuggestion } from '../services/PriceService.js';
 const PriceController = {
   async getGeminiPrice(req, res) {
     try {
-      const { pickupAddress, dropoffAddress, packageName, urgency, weight } = req.body;
+      const { 
+        pickupAddress, 
+        dropoffAddress, 
+        pickupLat, 
+        pickupLon, 
+        dropoffLat, 
+        dropoffLon, 
+        packageName, 
+        urgency, 
+        weight 
+      } = req.body;
       // Enhanced address validation
       const isInvalidAddress = (address) => {
         if (!address || typeof address !== 'string') return true;
@@ -21,7 +31,17 @@ const PriceController = {
       ) {
         return res.status(400).json({ error: 'Missing or invalid required fields (address).' });
       }
-      const result = await getGeminiPriceSuggestion({ pickupAddress, dropoffAddress, packageName, urgency, weight });
+      const result = await getGeminiPriceSuggestion({ 
+        pickupAddress, 
+        dropoffAddress, 
+        pickupLat, 
+        pickupLon, 
+        dropoffLat, 
+        dropoffLon, 
+        packageName, 
+        urgency, 
+        weight 
+      });
       res.json({
         price: result.price,
         distance: result.distance,

@@ -135,21 +135,17 @@ const CreateDeliveryForm = () => {
     ) {
       setFetchingGemini(true);
       try {
-        console.log('[DEBUG] fetchGeminiEstimates call:', {
-          pickupAddress: formData.pickupAddress,
-          dropoffAddress: formData.dropoffAddress,
-          packageName: formData.packageName,
-          urgency: formData.priorityLevel,
-          weight: formData.weight,
-        });
         const result = await fetchGeminiPrice({
           pickupAddress: formData.pickupAddress,
           dropoffAddress: formData.dropoffAddress,
+          pickupLat: pickupPosition?.lat,
+          pickupLon: pickupPosition?.lng,
+          dropoffLat: dropoffPosition?.lat,
+          dropoffLon: dropoffPosition?.lng,
           packageName: formData.packageName,
           urgency: formData.priorityLevel,
           weight: formData.weight,
         });
-        console.log('[DEBUG] fetchGeminiEstimates result:', result);
         setFormData(prev => ({
           ...prev,
           priceEstimate: result.price !== undefined ? result.price : prev.priceEstimate,

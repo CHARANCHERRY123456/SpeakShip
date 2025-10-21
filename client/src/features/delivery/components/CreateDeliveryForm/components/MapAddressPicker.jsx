@@ -15,7 +15,7 @@ function LocationMarker({ position, setPosition, label, onAddressChange, setLoad
     click(e) {
       setPosition(e.latlng);
       setLoading(true);
-      // Reverse geocode
+      // Convert coordinates to human-readable address
       fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${e.latlng.lat}&lon=${e.latlng.lng}`)
         .then(res => res.json())
         .then(data => {
