@@ -1,20 +1,12 @@
-// client/src/features/auth/components/index.js
-import React from 'react';
 import { Lock, Eye, EyeOff, User,Users,UserCircle, MapPin, Tag, Phone } from 'lucide-react';
 import { USER_ROLES } from '../../../constants/globalConstants';
 
-// --- NEW IMPORTS ---
 import OtpInput from './OtpInput';
 import EmailVerificationStep from './EmailVerificationStep';
-// --- END NEW IMPORTS ---
 
-// UI components specific to authentication (e.g., LoginForm, RegisterForm).
-
-// Removed 'export' from here, it will be exported at the bottom
 function RoleSelect({ value, onChange, isLogin, disabled }) {
   return (
     <div className="mb-2">
-      {/* <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1 font-inter">Role</label> */}
       <div className="relative">
         <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
       <User className="h-5 w-5 text-gray-400" /> 
@@ -33,7 +25,7 @@ function RoleSelect({ value, onChange, isLogin, disabled }) {
   <option value={USER_ROLES.DRIVER}>Driver</option>
   {isLogin && <option value={USER_ROLES.ADMIN}>Admin</option>}
 </select>
-{/* Custom dropdown arrow for better alignment */}
+
 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
   <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
@@ -44,7 +36,6 @@ function RoleSelect({ value, onChange, isLogin, disabled }) {
   );
 }
 
-// Removed 'export' from here
 function UsernameInput({ value, onChange, error, label = 'Username', placeholder = 'Username', disabled }) {
   return (
     <div>
@@ -73,7 +64,6 @@ function UsernameInput({ value, onChange, error, label = 'Username', placeholder
   );
 }
 
-// Removed 'export' from here
 function PasswordInput({ value, onChange, error, show, onToggle, placeholder = 'Password', disabled }) {
   return (
     <div>
@@ -110,7 +100,6 @@ function PasswordInput({ value, onChange, error, show, onToggle, placeholder = '
   );
 }
 
-// Removed 'export' from here
 function NameInput({ value, onChange, error, disabled }) {
   return (
     <div>
@@ -139,7 +128,6 @@ function NameInput({ value, onChange, error, disabled }) {
   );
 }
 
-// Removed 'export' from here
 function PhoneInput({ value, onChange, error, disabled }) {
   return (
     <div>
@@ -168,7 +156,6 @@ function PhoneInput({ value, onChange, error, disabled }) {
   );
 }
 
-// Removed 'export' from here
 function AddressInput({ value, onChange, error, disabled }) {
   return (
     <div>
@@ -197,7 +184,6 @@ function AddressInput({ value, onChange, error, disabled }) {
   );
 }
 
-// Removed 'export' from here
 function ErrorAlert({ error }) {
   if (!error) return null;
   return (
@@ -205,7 +191,6 @@ function ErrorAlert({ error }) {
   );
 }
 
-// Removed 'export' from here
 function GoogleButton({ onClick }) {
   return (
     <button
@@ -218,7 +203,6 @@ function GoogleButton({ onClick }) {
   );
 }
 
-// Removed 'export' from here
 function AuthenticatedView({ userEmail, userRole, onSignOut }) {
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-12">

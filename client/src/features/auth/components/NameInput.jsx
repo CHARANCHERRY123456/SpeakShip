@@ -1,5 +1,5 @@
 import React from 'react';
-import { Tag } from 'lucide-react'; // Or an appropriate icon for name
+import { Tag } from 'lucide-react';
 
 const NameInput = ({ value, onChange, error }) => (
   <div>

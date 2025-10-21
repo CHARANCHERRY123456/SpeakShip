@@ -6,11 +6,11 @@ import {
   validateUsername,
   validateName,
   validatePhone,
-  validateOtp // Make sure you have this validation function in your utils
-} from '../utils'; // Ensure these validation functions exist
-import { useAuth } from '../../../contexts/AuthContext'; // Ensure this path is correct
+  validateOtp
+} from '../utils'; 
+import { useAuth } from '../../../contexts/AuthContext'; 
 import { toast } from 'react-hot-toast';
-import { verifyEmailOtp, resendEmailOtp, sendEmailOtpBackend } from '../api'; // NEW: sendEmailOtpBackend
+import { verifyEmailOtp, resendEmailOtp, sendEmailOtpBackend } from '../api';
 
 export function useAuthForm({
   defaultUsername = '',
@@ -22,18 +22,16 @@ export function useAuthForm({
 } = {}) {
   const [isLogin, setIsLogin] = useState(true);
 
-  // Email verification step states
   const [email, setEmail] = useState(defaultEmail);
   const [emailError, setEmailError] = useState('');
   const [otp, setOtp] = useState('');
   const [otpError, setOtpError] = useState('');
-  const [otpSent, setOtpSent] = useState(false); // True when OTP is sent
-  const [isEmailVerified, setIsEmailVerified] = useState(false); // True when email is successfully verified
+  const [otpSent, setOtpSent] = useState(false);
+  const [isEmailVerified, setIsEmailVerified] = useState(false);
   const [otpResendTimer, setOtpResendTimer] = useState(0);
-  const [isSendingOtp, setIsSendingOtp] = useState(false); // For "Verify Email" button loader
-  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false); // For "Verify OTP" button loader
+  const [isSendingOtp, setIsSendingOtp] = useState(false);
+  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
 
-  // Signup form states (after email verification)
   const [username, setUsername] = useState(defaultUsername);
   const [name, setName] = useState(defaultName);
   const [password, setPassword] = useState(defaultPassword);
@@ -41,8 +39,7 @@ export function useAuthForm({
   const [role, setRole] = useState(defaultRole);
   const [showPassword, setShowPassword] = useState(false);
 
-  // General form errors
-  const [error, setError] = useState(null); // General error message for the form
+  const [error, setError] = useState(null);
   const [usernameError, setUsernameError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [nameError, setNameError] = useState('');
@@ -50,7 +47,6 @@ export function useAuthForm({
 
   const { isAuthenticated, user, login, register, logout, handleGoogleLogin } = useAuth(); // Assume handleGoogleLogin is from AuthContext
 
-  // Timer for OTP resend
   useEffect(() => {
     let timerInterval;
     if (otpSent && otpResendTimer > 0) {
@@ -64,12 +60,11 @@ export function useAuthForm({
   }, [otpSent, otpResendTimer]);
 
   const startOtpResendTimer = () => {
-    setOtpResendTimer(60); // 60 seconds countdown
+    setOtpResendTimer(60);
   };
 
   const handleAuthSwitch = () => {
     setIsLogin(prev => !prev);
-    // Clear all states when switching forms to ensure a clean slate
     setEmail(defaultEmail);
     setUsername(defaultUsername);
     setName(defaultName);
@@ -91,7 +86,6 @@ export function useAuthForm({
   const handleEmailChange = (e) => {
     setEmail(e.target.value);
     setEmailError(validateEmail(e.target.value));
-    // If email changes after OTP was sent, reset verification state
     if (otpSent || isEmailVerified) {
       setOtpSent(false);
       setIsEmailVerified(false);
@@ -121,15 +115,13 @@ export function useAuthForm({
   };
   const handleOtpChange = (e) => {
     setOtp(e.target.value);
-    // Validate OTP immediately as user types
     if (e.target.value.length === 6) {
       setOtpError(validateOtp(e.target.value));
     } else {
-      setOtpError(''); // Clear error if not 6 digits yet
+      setOtpError('');
     }
   };
 
-  // --- NEW: Handle Sending OTP for Email Verification ---
   const handleSendOtp = async () => {
     setError(null);
     const currentEmailError = validateEmail(email);
@@ -145,9 +137,8 @@ export function useAuthForm({
 
     setIsSendingOtp(true);
     try {
-      // Calls the new backend endpoint to send OTP
       const response = await sendEmailOtpBackend(email, role);
-      toast.success(response.message); // e.g., "OTP sent to your email."
+      toast.success(response.message);
       setOtpSent(true);
       startOtpResendTimer();
     } catch (err) {
@@ -159,7 +150,6 @@ export function useAuthForm({
     }
   };
 
-  // --- NEW: Handle Verifying OTP ---
   const handleVerifyOtp = async () => {
     setError(null);
     const currentOtpError = validateOtp(otp);
@@ -171,7 +161,6 @@ export function useAuthForm({
 
     setIsVerifyingOtp(true);
     try {
-      // Calls the backend endpoint to verify OTP
       const response = await verifyEmailOtp(email, otp, role); // Make sure this API call exists
       toast.success(response.message); // e.g., "Email successfully verified."
       setIsEmailVerified(true);
@@ -187,7 +176,6 @@ export function useAuthForm({
     }
   };
 
-  // --- NEW: Handle Resending OTP ---
   const handleResendOtp = async () => {
     setError(null);
     setOtpError('');

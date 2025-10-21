@@ -48,7 +48,6 @@ const ChatBox = ({ deliveryId, driverId }) => {
   useEffect(() => {
     if (messagesContainerRef.current) {
       const { scrollHeight, clientHeight, scrollTop } = messagesContainerRef.current;
-      // Only auto-scroll if we're near the bottom
       if (scrollHeight - (clientHeight + scrollTop) < 100) {
         scrollToBottom();
       }
@@ -136,7 +135,6 @@ const ChatBox = ({ deliveryId, driverId }) => {
   const handleAttachmentClick = (type) => {
     toast.success(`${type} attachment clicked`);
     setShowAttachments(false);
-    // Implement actual attachment functionality here
   };
 
   if (loading) {
