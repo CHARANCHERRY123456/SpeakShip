@@ -33,11 +33,9 @@ class AuthService {
         }
 
         const otp = this.generateOtp();
-        console.log(`[AuthService.sendOtpForRegistration] Generated OTP for ${email} (${role}): ${otp}`);
 
         await OtpRepository.deleteByEmail(email);
-        const newOtpRecord = await OtpRepository.create({ email, otp });
-        console.log('[AuthService.sendOtpForRegistration] OTP record created:', newOtpRecord);
+        await OtpRepository.create({ email, otp });
 
         try {
             const templatePath = path.join(__dirname, '../templates/otpEmail.html');

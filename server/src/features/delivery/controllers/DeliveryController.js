@@ -1,120 +1,95 @@
 import DeliveryService from '../services/DeliveryService.js';
 import { DELIVERY_STATUS } from '../constants.js';
+import {
+  parseQueryParams,
+  isOwner,
+  canDriverUpdateDelivery,
+  canCustomerCancelDelivery,
+  handleValidationError
+} from '../utils/controllerUtils.js';
 
 const DeliveryController = {
   async createRequest(req, res) {
     try {
-      const customerId = req.user.id;
-      // Pass req.body and req.file to the service
-      const delivery = await DeliveryService.createRequest(req.body, customerId, req.file);
+      const delivery = await DeliveryService.createRequest(req.body, req.user.id, req.file);
       res.status(201).json(delivery);
     } catch (err) {
-      console.error("Backend Error in DeliveryController.createRequest:", err);
-      if (err.name === 'ValidationError') {
-        const errors = Object.values(err.errors).map(el => el.message);
-        return res.status(400).json({
-          error: `Validation failed: ${errors.join(', ')}`
-        });
-      }
-      res.status(500).json({ error: 'Internal Server Error. Please check server logs for details.' });
+      const validationError = handleValidationError(err);
+      if (validationError) return res.status(validationError.status).json({ error: validationError.error });
+      res.status(500).json({ error: 'Internal Server Error' });
     }
   },
 
   async listPending(req, res) {
     try {
-      const page = parseInt(req.query.page, 10) || 1;
-      const limit = parseInt(req.query.limit, 10) || 10;
-      const search = req.query.search || '';
-      const status = req.query.status || '';
-      const data = await DeliveryService.listPending({ page, limit, search, status });
+      const params = parseQueryParams(req.query);
+      const data = await DeliveryService.listPending(params);
       res.json(data);
     } catch (err) {
-      console.error("Backend Error in DeliveryController.listPending:", err);
       res.status(500).json({ error: err.message });
     }
   },
 
   async acceptRequest(req, res) {
     try {
-      const driverId = req.user.id;
-      const { id } = req.params;
-      const delivery = await DeliveryService.acceptRequest(id, driverId);
-      if (!delivery) return res.status(400).json({ error: 'Request already accepted or not found.' });
+      const delivery = await DeliveryService.acceptRequest(req.params.id, req.user.id);
+      if (!delivery) return res.status(400).json({ error: 'Request already accepted or not found' });
       res.json(delivery);
     } catch (err) {
-      console.error("Backend Error in DeliveryController.acceptRequest:", err);
       res.status(400).json({ error: err.message });
     }
   },
 
   async updateStatus(req, res) {
     try {
-      const userId = req.user.id;
-      const userRole = req.user.role;
       const { id } = req.params;
       const { status: newStatus } = req.body;
+      const { id: userId, role: userRole } = req.user;
+
       const delivery = await DeliveryService.findById(id);
-      if (!delivery) {
-        return res.status(404).json({ error: 'Delivery request not found.' });
-      }
-      // Allow drivers to update status for their assigned deliveries
+      if (!delivery) return res.status(404).json({ error: 'Delivery not found' });
+
       if (userRole === 'driver') {
-        if (!delivery.driver || delivery.driver._id.toString() !== userId.toString()) {
-          return res.status(403).json({ error: 'Not authorized to update this delivery.' });
+        if (!canDriverUpdateDelivery(delivery, userId)) {
+          return res.status(403).json({ error: 'Not authorized to update this delivery' });
         }
-        const updatedDelivery = await DeliveryService.updateDeliveryStatus(id, newStatus);
-        return res.json(updatedDelivery);
+        const updated = await DeliveryService.updateDeliveryStatus(id, newStatus);
+        return res.json(updated);
       }
-      // Allow customers to cancel their own deliveries if Pending or Accepted
+
       if (userRole === 'customer') {
-        // delivery.customer may be a populated object, so compare _id
-        const deliveryCustomerId = delivery.customer?._id?.toString?.() || delivery.customer?.toString?.() || delivery.customer;
-        if (newStatus !== DELIVERY_STATUS[4]) { // 'Cancelled'
-          return res.status(403).json({ error: 'Customers can only cancel deliveries.' });
+        if (newStatus !== DELIVERY_STATUS[4]) {
+          return res.status(403).json({ error: 'Customers can only cancel deliveries' });
         }
-        if (deliveryCustomerId !== userId.toString()) {
-          return res.status(403).json({ error: 'Not authorized to cancel this delivery.' });
+        if (!canCustomerCancelDelivery(delivery, userId)) {
+          return res.status(403).json({ error: 'Cannot cancel this delivery' });
         }
-        if (![DELIVERY_STATUS[0], DELIVERY_STATUS[1]].includes(delivery.status)) { // 'Pending', 'Accepted'
-          return res.status(403).json({ error: 'Cannot cancel after delivery is in progress.' });
-        }
-        const updatedDelivery = await DeliveryService.updateDeliveryStatus(id, newStatus);
-        return res.json(updatedDelivery);
+        const updated = await DeliveryService.updateDeliveryStatus(id, newStatus);
+        return res.json(updated);
       }
-      // All other roles forbidden
-      return res.status(403).json({ error: 'Not authorized.' });
+
+      return res.status(403).json({ error: 'Not authorized' });
     } catch (err) {
-      console.error("Backend Error in DeliveryController.updateStatus:", err);
-      res.status(400).json({ error: err.message || 'Bad Request: Unknown error during status update.' });
+      res.status(400).json({ error: err.message || 'Status update failed' });
     }
   },
 
   async listForDriver(req, res) {
     try {
-      const driverId = req.user.id;
-      const page = parseInt(req.query.page, 10) || 1;
-      const limit = parseInt(req.query.limit, 10) || 10;
-      const search = req.query.search || '';
-      const status = req.query.status || '';
-      const data = await DeliveryService.listForDriver(driverId, { page, limit, search, status });
+      const params = parseQueryParams(req.query);
+      const data = await DeliveryService.listForDriver(req.user.id, params);
       res.json(data);
     } catch (err) {
-      console.error("Backend Error in DeliveryController.listForDriver:", err);
       res.status(500).json({ error: err.message });
     }
   },
 
   async listForCustomer(req, res) {
     try {
-      const customerId = req.user.id;
-      const page = parseInt(req.query.page, 10) || 1;
-      const limit = parseInt(req.query.limit, 10) || 10;
-      const search = req.query.search || '';
-      const status = req.query.status || '';
-      const data = await DeliveryService.listForCustomer(customerId, { page, limit, search, status });
+      const params = parseQueryParams(req.query);
+      const data = await DeliveryService.listForCustomer(req.user.id, params);
       res.json(data);
     } catch (err) {
-      console.error("Backend Error in DeliveryController.listForCustomer:", err);
       res.status(500).json({ error: err.message });
     }
   },
@@ -123,38 +98,30 @@ const DeliveryController = {
     try {
       const { id } = req.params;
       const { otp } = req.body;
-      const userId = req.user.id;
-      const userRole = req.user.role;
+      const { id: userId, role: userRole } = req.user;
+
       const delivery = await DeliveryService.findById(id);
-      if (!delivery) return res.status(404).json({ error: 'Delivery request not found.' });
-      if (userRole === 'customer') {
-        // Only allow if this customer owns the delivery
-        const deliveryCustomerId = delivery.customer?._id?.toString?.() || delivery.customer?.toString?.() || delivery.customer;
-        if (deliveryCustomerId !== userId.toString()) {
-          return res.status(403).json({ error: 'Not authorized to verify OTP for this delivery.' });
-        }
-      } else if (userRole === 'driver') {
-        // Only allow if this driver is assigned to the delivery
-        const deliveryDriverId = delivery.driver?._id?.toString?.() || delivery.driver?.toString?.() || delivery.driver;
-        if (deliveryDriverId !== userId.toString()) {
-          return res.status(403).json({ error: 'Not authorized to verify OTP for this delivery.' });
-        }
-      } else {
-        return res.status(403).json({ error: 'Not authorized.' });
+      if (!delivery) return res.status(404).json({ error: 'Delivery not found' });
+
+      const isAuthorized = 
+        (userRole === 'customer' && isOwner(delivery.customer, userId)) ||
+        (userRole === 'driver' && isOwner(delivery.driver, userId));
+
+      if (!isAuthorized) {
+        return res.status(403).json({ error: 'Not authorized to verify OTP' });
       }
-      // If authorized, verify OTP
-      const updatedDelivery = await DeliveryService.verifyDeliveryOtp(id, otp);
-      res.json(updatedDelivery);
+
+      const updated = await DeliveryService.verifyDeliveryOtp(id, otp);
+      res.json(updated);
     } catch (err) {
-      res.status(400).json({ error: err.message || 'OTP verification failed.' });
+      res.status(400).json({ error: err.message || 'OTP verification failed' });
     }
   },
-
+  
   async getById(req, res) {
     try {
-      const { id } = req.params;
-      const delivery = await DeliveryService.findById(id);
-      if (!delivery) return res.status(404).json({ error: 'Delivery not found.' });
+      const delivery = await DeliveryService.findById(req.params.id);
+      if (!delivery) return res.status(404).json({ error: 'Delivery not found' });
       res.json(delivery);
     } catch (err) {
       res.status(500).json({ error: err.message });

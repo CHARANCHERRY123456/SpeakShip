@@ -170,7 +170,6 @@ class DeliveryService {
 
     // Send "Order Delivered" email to the customer
     try {
-      // Assuming you have an 'orderDelivered.html' template
       const templatePath = path.join(__dirname, '../templates/orderDelivered.html');
       let html = await fs.readFile(templatePath, 'utf-8');
       html = html.replace(/{{name}}/g, finalDelivery.name || 'Customer');

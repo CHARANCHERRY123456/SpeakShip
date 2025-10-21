@@ -26,7 +26,6 @@ class AuthController {
 
     async verifyOtp(req, res) {
         const { email, otp, role } = req.body;
-        console.log(`[AuthController.verifyOtp] Received request: email=${email}, otp=${otp}, role=${role}`);
 
         if (!email || !otp || !role || ![USER_ROLES.CUSTOMER, USER_ROLES.DRIVER].includes(role)) {
             console.error(`[AuthController.verifyOtp] Missing or invalid parameters: email=${email}, otp=${otp}, role=${role}`);
