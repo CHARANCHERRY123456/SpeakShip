@@ -1,7 +1,5 @@
-// src/features/feedback/repositories/FeedbackRepository.js
 import Feedback from '../models/Feedback.js';
 
-// Helper for DRY population
 const FEEDBACK_POPULATE = [
   {
     path: 'driverId',
@@ -39,7 +37,6 @@ const FeedbackRepository = {
       .sort({ createdAt: -1 })
       .populate(FEEDBACK_POPULATE);
   },
-  // New: Find all reviews given by a particular user (customer or driver)
   async findByUser(userId) {
     return Feedback.find({ $or: [ { customerId: userId }, { driverId: userId } ] })
       .sort({ createdAt: -1 })

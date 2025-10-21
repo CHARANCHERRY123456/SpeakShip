@@ -1,12 +1,12 @@
 import express from 'express';
 import DeliveryController from '../controllers/DeliveryController.js';
 import { authenticate } from '../../../middleware/authenticate.js';
-import upload from '../../../middleware/upload.js';
+import { getUploader } from '../../../middleware/cloudinary.upload.js';
 
 const router = express.Router();
 
 // Create delivery request (customer)
-router.post('/create', authenticate(['customer']), upload.single('photo'), DeliveryController.createRequest);
+router.post('/create', authenticate(['customer']), getUploader('delivery').single('photo'), DeliveryController.createRequest);
 
 // List all pending requests (driver)
 router.get('/pending', authenticate(['driver']), DeliveryController.listPending);

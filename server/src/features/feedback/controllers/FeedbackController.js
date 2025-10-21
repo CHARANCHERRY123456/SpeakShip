@@ -1,4 +1,3 @@
-// src/features/feedback/controllers/FeedbackController.js
 import FeedbackService from '../services/FeedbackService.js';
 import { FEEDBACK_ERRORS } from '../../../constants/globalConstants.js';
 
@@ -6,8 +5,8 @@ const FeedbackController = {
   submitFeedback: async (req, res) => {
     try {
       const { deliveryId, rating, comment } = req.body;
-      const customerId = req.user.id; // Assumes authentication middleware sets req.user
-      const driverId = req.body.driverId; // Optionally, can be fetched from delivery
+      const customerId = req.user.id; 
+      const driverId = req.body.driverId;
       if (!deliveryId || !rating || !comment) {
         return res.status(400).json({ error: FEEDBACK_ERRORS.MISSING_FIELDS });
       }

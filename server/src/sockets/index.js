@@ -10,11 +10,11 @@ export default function setupSocket(server) {
   });
 
   io.on('connection', (socket) => {
-    console.log('✅ Socket connected:', socket.id);
-    chatHandler(socket, io); // 👈 Attach chat event handlers
+    console.log('Socket connected:', socket.id);
+    chatHandler(socket, io); 
 
     socket.on('disconnect', () => {
-      console.log('❌ Socket disconnected:', socket.id);
+      console.log('Socket disconnected:', socket.id);
     });
   });
 }

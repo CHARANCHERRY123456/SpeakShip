@@ -1,10 +1,8 @@
-// src/features/feedback/services/FeedbackService.js
 import FeedbackRepository from '../repositories/FeedbackRepository.js';
 import { FEEDBACK_ERRORS } from '../../../constants/globalConstants.js';
 
 const FeedbackService = {
   async createFeedback({ deliveryId, customerId, driverId, rating, comment }) {
-    // Prevent duplicate review for the same delivery/customer
     const existing = await FeedbackRepository.findByDeliveryAndCustomer(deliveryId, customerId);
     if (existing) throw new Error(FEEDBACK_ERRORS.DUPLICATE_REVIEW);
     return FeedbackRepository.create({ deliveryId, customerId, driverId, rating, comment });

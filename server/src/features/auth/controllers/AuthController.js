@@ -1,12 +1,10 @@
-// src/features/auth/controllers/AuthController.js
 import AuthService from '../services/AuthService.js';
-import { AUTH_MESSAGES, USER_ROLES } from '../constants.js'; // Import USER_ROLES
+import { AUTH_MESSAGES, USER_ROLES } from '../constants.js';
 import passport from '../services/GoogleStrategy.js';
 import jwt from 'jsonwebtoken';
 import Customer from '../schema/Customer.js';
 import Driver from '../schema/Driver.js';
 import Admin from '../schema/Admin.js';
-import sendMail from '../../../utils/mailer.js'; // Already present, but make sure the path is correct
 
 class AuthController {
     async sendOtp(req, res) {
@@ -45,8 +43,6 @@ class AuthController {
 
     async registerCustomer(req, res) {
         try {
-            // The client should call /send-otp and /verify-otp successfully BEFORE calling this.
-            // This endpoint now assumes OTP verification has been completed for the provided email.
             const customer = await AuthService.registerCustomer(req.body);
             res.status(201).json({ message: AUTH_MESSAGES.REGISTER_SUCCESS, customer });
         } catch (err) {
@@ -57,7 +53,6 @@ class AuthController {
 
     async registerDriver(req, res) {
         try {
-            // The client should call /send-otp and /verify-otp successfully BEFORE calling this.
             const driver = await AuthService.registerDriver(req.body);
             res.status(201).json({ message: AUTH_MESSAGES.REGISTER_SUCCESS, driver });
         } catch (err) {
@@ -97,7 +92,6 @@ class AuthController {
     }
 
     async logout(req, res) {
-        // For JWT, logout is handled on the client by deleting the token
         res.status(200).json({ message: AUTH_MESSAGES.LOGOUT_SUCCESS });
     }
 
@@ -162,7 +156,6 @@ class AuthController {
 }
 
 export default new AuthController();
-// Named exports for Google OAuth and getMe endpoints, and new OTP methods
 export const googleAuth = (...args) => new AuthController().googleAuth(...args);
 export const googleCallback = (...args) => new AuthController().googleCallback(...args);
 export const getMe = (...args) => new AuthController().getMe(...args);

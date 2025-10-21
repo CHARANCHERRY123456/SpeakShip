@@ -1,10 +1,8 @@
-// Import all user schemas
 import Admin from '../../auth/schema/Admin.js';
 import Customer from '../../auth/schema/Customer.js';
 import Driver from '../../auth/schema/Driver.js';
 import { PROFILE_IMAGE_FIELD } from '../constants/profileConstants.js';
 
-// Helper to get the correct model by user type
 const getModelByType = (userType) => {
   switch (userType) {
     case 'admin':
@@ -18,7 +16,6 @@ const getModelByType = (userType) => {
   }
 };
 
-// Functions for image handling (used by profileImageService)
 export const getUserById = async (userId, userType) => {
   const Model = getModelByType(userType);
   return Model.findById(userId);
@@ -34,9 +31,7 @@ export const removeUserProfileImage = async (userId, userType, defaultUrl) => {
   return Model.findByIdAndUpdate(userId, { [PROFILE_IMAGE_FIELD]: defaultUrl }, { new: true });
 };
 
-// Class for general profile operations (used by ProfileController)
 class ProfileRepository {
-  // Get user profile by ID (search all user types)
   async getById(userId) {
     let user = await Customer.findById(userId).select('-password -__v -resetToken -resetTokenExpiry');
     if (!user) user = await Driver.findById(userId).select('-password -__v -resetToken -resetTokenExpiry');
@@ -44,7 +39,6 @@ class ProfileRepository {
     return user;
   }
 
-  // Update user profile by ID (search all user types)
   async updateById(userId, updateData) {
     const allowedFields = ['name', 'email', 'phone', 'avatar', 'image'];
     const filteredData = {};

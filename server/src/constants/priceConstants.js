@@ -1,5 +1,3 @@
-// server/src/constants/priceConstants.js
-
 export const PRICE_PER_KM = {
   normal: 3,
   urgent: 5,

@@ -3,7 +3,6 @@ import {CloudinaryStorage} from "multer-storage-cloudinary";
 import cloudinary from '../utils/cloudinary.js';
 
 
-// Returns a configured multer instance for a given Cloudinary folder
 const getUploader = (folderName) => {
   const storage = new CloudinaryStorage({
     cloudinary: cloudinary,

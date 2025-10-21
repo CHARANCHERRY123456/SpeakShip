@@ -1,4 +1,3 @@
-// src/features/auth/services/AuthService.js
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import CustomerRepository from '../repository/CustomerRepository.js';
@@ -18,21 +17,17 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 class AuthService {
-    // Helper to generate a random 6-digit OTP
     generateOtp() {
         return Math.floor(100000 + Math.random() * 900000).toString();
     }
 
     async sendOtpForRegistration(email, role) {
-        // Check if user already exists
         let existingUser = null;
         if (role === USER_ROLES.CUSTOMER) {
             existingUser = await CustomerRepository.findByEmail(email);
         } else if (role === USER_ROLES.DRIVER) {
             existingUser = await DriverRepository.findByEmail(email);
         }
-        // Admin registration is not allowed via this OTP flow
-
         if (existingUser) {
             throw new Error(`User with email ${email} already exists.`);
         }
@@ -40,13 +35,10 @@ class AuthService {
         const otp = this.generateOtp();
         console.log(`[AuthService.sendOtpForRegistration] Generated OTP for ${email} (${role}): ${otp}`);
 
-        // Save OTP to database, overwriting any existing OTP for this email
-        // Delete existing OTP for this email first
         await OtpRepository.deleteByEmail(email);
         const newOtpRecord = await OtpRepository.create({ email, otp });
         console.log('[AuthService.sendOtpForRegistration] OTP record created:', newOtpRecord);
 
-        // Send OTP email
         try {
             const templatePath = path.join(__dirname, '../templates/otpEmail.html');
             let html = await fs.readFile(templatePath, 'utf-8');
@@ -61,47 +53,35 @@ class AuthService {
             return { message: 'OTP sent successfully to your email.' };
         } catch (mailErr) {
             console.error('Failed to send OTP email:', mailErr);
-            // Optionally, delete the OTP from DB if email sending fails, to prevent stale OTPs
             await OtpRepository.deleteByEmail(email);
             throw new Error('Failed to send OTP. Please try again.');
         }
     }
 
-    async verifyOtp(email, otp, role) { // role isn't strictly needed for verification but good for context
-        console.log(`[AuthService.verifyOtp] Attempting to verify OTP for email: ${email}, received OTP: ${otp}`);
-
+    async verifyOtp(email, otp, role) {
         const storedOtpRecord = await OtpRepository.findByEmail(email);
-        console.log('[AuthService.verifyOtp] Stored OTP record found:', storedOtpRecord);
-
         if (!storedOtpRecord) {
             console.warn(`[AuthService.verifyOtp] No OTP found for email: ${email}`);
             throw new Error(AUTH_MESSAGES.INVALID_OTP);
         }
 
-        // Check for expiration explicitly (Mongoose TTL index cleans up, but explicit check helps immediate feedback)
         const now = new Date();
         const otpCreationTime = storedOtpRecord.createdAt;
-        // OTP expires after 5 minutes (300 seconds) as per Otp.js schema
         const expirationTime = otpCreationTime.getTime() + (300 * 1000);
 
         if (now.getTime() > expirationTime) {
             console.warn(`[AuthService.verifyOtp] OTP for ${email} has expired. Created at: ${otpCreationTime.toISOString()}, Current time: ${now.toISOString()}`);
-            await OtpRepository.delete(storedOtpRecord._id); // Clean up expired OTP immediately
+            await OtpRepository.delete(storedOtpRecord._id);
             throw new Error(AUTH_MESSAGES.INVALID_OTP);
         }
 
-        // Compare the OTPs
         if (storedOtpRecord.otp !== otp) {
             console.warn(`[AuthService.verifyOtp] OTP mismatch for ${email}. Stored: "${storedOtpRecord.otp}", Received: "${otp}"`);
-            // Do NOT delete the OTP here, as the user might try again with the correct one.
             throw new Error(AUTH_MESSAGES.INVALID_OTP);
         }
 
-        // OTP is valid, delete it to prevent reuse
-        console.log(`[AuthService.verifyOtp] OTP matched for ${email}. Deleting record...`);
         await OtpRepository.delete(storedOtpRecord._id);
 
-        console.log(`[AuthService.verifyOtp] OTP for ${email} verified and deleted successfully.`);
         return { message: 'OTP verified successfully.' };
     }
 
@@ -113,13 +93,9 @@ class AuthService {
         const existing = await CustomerRepository.findByUsername(data.username) || await CustomerRepository.findByEmail(data.email);
         if (existing) throw new Error(AUTH_MESSAGES.CUSTOMER_EXISTS);
 
-        // This function assumes OTP has already been verified for the email by the calling controller method.
-        // It's crucial that the client-side flow or a preceding server-side step ensures OTP verification.
-
         data.password = await bcrypt.hash(data.password, 10);
         const customer = await CustomerRepository.create(data);
 
-        // Send welcome email (non-blocking, but log errors)
         try {
             const templatePath = path.join(__dirname, '../templates/welcomeEmail.html');
             let html = await fs.readFile(templatePath, 'utf-8');
@@ -144,12 +120,9 @@ class AuthService {
         const existing = await DriverRepository.findByUsername(data.username) || await DriverRepository.findByEmail(data.email);
         if (existing) throw new Error(AUTH_MESSAGES.DRIVER_EXISTS);
         
-        // This function assumes OTP has already been verified for the email by the calling controller method.
-
         data.password = await bcrypt.hash(data.password, 10);
         const driver = await DriverRepository.create(data);
 
-        // Send welcome email (non-blocking, but log errors)
         try {
             const templatePath = path.join(__dirname, '../templates/welcomeEmail.html');
             let html = await fs.readFile(templatePath, 'utf-8');
@@ -175,7 +148,6 @@ class AuthService {
     }
 
     async loginCustomer({ username, password }) {
-        // Accept username or email
         const customer = await CustomerRepository.findByUsername(username) || await CustomerRepository.findByEmail(username);
         if (!customer) throw new Error(AUTH_MESSAGES.INVALID_CREDENTIALS);
         const valid = await bcrypt.compare(password, customer.password);
@@ -185,7 +157,6 @@ class AuthService {
     }
 
     async loginDriver({ username, password }) {
-        // Accept username or email
         const driver = await DriverRepository.findByUsername(username) || await DriverRepository.findByEmail(username);
         if (!driver) throw new Error(AUTH_MESSAGES.INVALID_CREDENTIALS);
         const valid = await bcrypt.compare(password, driver.password);

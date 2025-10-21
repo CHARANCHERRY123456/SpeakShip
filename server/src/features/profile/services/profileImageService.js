@@ -2,7 +2,6 @@ import { updateUserProfileImage, getUserById, removeUserProfileImage } from '../
 import { DEFAULT_PROFILE_IMAGE_URL } from '../../../constants/globalConstants.js';
 
 export const uploadProfileImageService = async (userId, userType, imageUrl) => {
-  // Save new image URL to user
   return updateUserProfileImage(userId, userType, imageUrl);
 };
 

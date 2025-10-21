@@ -1,4 +1,3 @@
-//server/src/features/chat/repositories/chat.repository.js
 import Chat from '../schemas/chat.model.js';
 
 export const findChatByDelivery = (deliveryOrderId) =>

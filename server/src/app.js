@@ -13,10 +13,8 @@ import morgan from 'morgan';
 
 const app = express();
 
-// Connect to DB
 connectDB();
 
-// Middleware
 app.use(cors({
   origin: process.env.CLIENT_URL || 'http://localhost:5173',
   credentials: true, 
@@ -26,18 +24,15 @@ app.use(morgan('dev'));
 app.use(passport.initialize());
 
 
-// Routes
 app.get("/", (req, res) => {
-  res.send("Hello, World!");
+  res.send("Hello bro you are on right path!");
 });
+
 app.use('/api/auth', authRoutes);
 app.use('/api/delivery', deliveryRoutes);
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/price', priceRoutes);
 app.use('/api/chat', chatRoutes);
-
-
-
 
 export default app;

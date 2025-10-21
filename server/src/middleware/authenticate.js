@@ -5,6 +5,8 @@ import Admin from '../features/auth/schema/Admin.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
 
+
+// roles = [] means public
 export const authenticate = (roles = []) => async (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
